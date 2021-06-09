@@ -1,5 +1,6 @@
 package com.alice.mel.graphics;
 
+import com.alice.mel.utils.Disposable;
 import com.alice.mel.utils.collections.Array;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
@@ -13,7 +14,7 @@ import java.io.IOException;
 import java.nio.FloatBuffer;
 import java.util.HashMap;
 
-public abstract class Shader{
+public abstract class Shader implements Disposable {
 
     public enum ShaderType{
         NONE,
@@ -99,55 +100,53 @@ public abstract class Shader{
     }
 
 
-    protected abstract void BindAttributes();
-    protected abstract void GetAllUniformLocations();
+    protected abstract void bindAttributes();
+    protected abstract void getAllUniformLocations();
 
 
-    public void BindAttribute(int attribute, String variableName){
+    public void bindAttribute(int attribute, String variableName){
         GL32C.glBindAttribLocation(id, attribute, variableName);
     }
 
 
-    public int GetUniformLocation(String name){
+    public int getUniformLocation(String name){
         return GL32C.glGetUniformLocation(id, name);
     }
 
-    public int Compile(){
+    public int compile(){
         id = GL32C.glCreateProgram();
         int[] shaders = new int[sources.size()];
 
         int i = 0;
         for(int key : sources.keySet()){
-            shaders[i] = LoadShader(sources.get(key), key);
+            shaders[i] = loadShader(sources.get(key), key);
             GL32C.glAttachShader(id, shaders[i]);
             i++;
         }
 
-        BindAttributes();
+        bindAttributes();
         GL32C.glLinkProgram(id);
 
         for(i = 0; i < shaders.length; i++)
             GL32C.glDeleteShader(shaders[i]);
 
-        GetAllUniformLocations();
+        getAllUniformLocations();
 
         return id;
 
     }
 
-    public void Start(){
+    public void start(){
         if(id == 0)
-            Compile();
+            compile();
         GL32C.glUseProgram(id);
     }
 
-    public void Stop(){
+    public void stop(){
         GL32C.glUseProgram(0);
     }
 
-
-
-    private static int LoadShader(String shader, int type)
+    private static int loadShader(String shader, int type)
     {
 
         int shaderID = GL32C.glCreateShader(type);
@@ -176,33 +175,33 @@ public abstract class Shader{
     }
 
 
-    protected void LoadFloat(int location, float value){
+    protected void loadFloat(int location, float value){
         GL32C.glUniform1f(location, value);
     }
 
-    protected void LoadMatrix(int location, Matrix4f value){
+    protected void loadMatrix(int location, Matrix4f value){
         value.get(matrixBuffer);
         //matrixBuffer.flip();
         GL32C.glUniformMatrix4fv(location, false, matrixBuffer);
     }
 
-    protected void LoadBoolean(int location, boolean value){
+    protected void loadBoolean(int location, boolean value){
         float toLoad = value ? 1 : 0;
         GL32C.glUniform1f(location, toLoad);
     }
 
-    protected void LoadVector(int location, Vector3f value){
+    protected void loadVector(int location, Vector3f value){
         GL32C.glUniform3f(location, value.x, value.y, value.z);
     }
 
 
-    protected void LoadFloatArray(int location, float[] value){
+    protected void loadFloatArray(int location, float[] value){
 
         GL32C.glUniform1fv(location, value);
     }
 
 
-    protected void LoadBooleanArray(int location, boolean[] value){
+    protected void loadBooleanArray(int location, boolean[] value){
 
         float[] tmp = new float[value.length];
         for(int i = 0; i < value.length; i++){
@@ -213,7 +212,7 @@ public abstract class Shader{
     }
 
 
-    protected void LoadVectorArray(int location, Vector3f[] value){
+    protected void loadVectorArray(int location, Vector3f[] value){
 
         float[] tmp = new float[value.length * 3];
         for(int i = 0; i < value.length; i++){
@@ -239,9 +238,9 @@ public abstract class Shader{
     }
 
 
-    public void Dispose()
+    public void dispose()
     {
-        Stop();
+        stop();
         sources.clear();
     }
 

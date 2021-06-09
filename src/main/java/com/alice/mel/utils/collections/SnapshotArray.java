@@ -38,7 +38,6 @@ public class SnapshotArray<T> extends Array<T> {
         super(array);
     }
 
-    /** Returns the backing array, which is guaranteed to not be modified before {@link #end()}. */
     public T[] begin () {
         modified();
         snapshot = items;
@@ -46,7 +45,6 @@ public class SnapshotArray<T> extends Array<T> {
         return items;
     }
 
-    /** Releases the guarantee that the array returned by {@link #begin()} won't be modified. */
     public void end () {
         snapshots = Math.max(0, snapshots - 1);
         if (snapshot == null) return;
@@ -151,7 +149,7 @@ public class SnapshotArray<T> extends Array<T> {
     }
 
     /** @see #SnapshotArray(Object[]) */
-    static public <T> SnapshotArray<T> with (T... array) {
+    public static  <T> SnapshotArray<T> with (T... array) {
         return new SnapshotArray(array);
     }
 }

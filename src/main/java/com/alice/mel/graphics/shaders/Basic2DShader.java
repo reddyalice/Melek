@@ -16,24 +16,24 @@ public class Basic2DShader extends Shader {
     }
 
     @Override
-    protected void BindAttributes() {
-        BindAttribute(0, "position");
-        BindAttribute(1, "texCoords");
+    protected void bindAttributes() {
+        bindAttribute(0, "position");
+        bindAttribute(1, "texCoords");
     }
 
     @Override
-    protected void GetAllUniformLocations() {
-        location_transformationMatrix = GetUniformLocation("transformationMatrix");
-        location_combinedMatrix = GetUniformLocation("combinedMatrix");
+    protected void getAllUniformLocations() {
+        location_transformationMatrix = getUniformLocation("transformationMatrix");
+        location_combinedMatrix = getUniformLocation("combinedMatrix");
     }
 
 
     public void LoadTransformationMatrix(Matrix4f matrix){
-        this.LoadMatrix(location_transformationMatrix, matrix);
+        this.loadMatrix(location_transformationMatrix, matrix);
     }
 
     public void LoadCombinedMatrix(Matrix4f matrix){
-        this.LoadMatrix(location_combinedMatrix, matrix);
+        this.loadMatrix(location_combinedMatrix, matrix);
     }
 
 
