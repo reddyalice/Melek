@@ -46,7 +46,7 @@ public class FBO implements Disposable {
     /**
      * Deletes the frame buffer and its attachments when the game closes.
      */
-    public void Dispose() {
+    public void dispose() {
         GL30.glDeleteFramebuffers(frameBuffer);
         GL11.glDeleteTextures(colourTexture);
         GL11.glDeleteTextures(depthTexture);

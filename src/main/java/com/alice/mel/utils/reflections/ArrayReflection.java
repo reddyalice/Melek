@@ -1,6 +1,6 @@
 package com.alice.mel.utils.reflections;
 
-public final class ArrayReflection {
+public final class ArrayReflection<T> {
 
     static public Object newInstance (Class c, int size) {
         return java.lang.reflect.Array.newInstance(c, size);

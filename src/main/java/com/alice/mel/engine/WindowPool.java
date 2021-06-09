@@ -1,9 +1,10 @@
 package com.alice.mel.engine;
 
 import com.alice.mel.graphics.Window;
+import com.alice.mel.utils.Disposable;
 import com.alice.mel.utils.collections.Array;
 
-public class WindowPool {
+public class WindowPool implements Disposable {
 
     public final int max;
     public int peak;
@@ -27,35 +28,27 @@ public class WindowPool {
     }
 
     public Window obtain (String title, int width, int height, Window shared, boolean transparentFrameBuffer) {
-        if(transparentFrameBuffer){
 
+        if(transparentFrameBuffer){
             if(freedTransWindows.size > 0){
                 Window window = freedTransWindows.pop();
                 //TODO    window.camera = camera;
-                //TODO     window.scene = scene;
                 window.setTitle(title);
                 window.setSize(width, height);
                 window.show();
                 return window;
-            }else{
-                return new Window(title, width, height, shared, transparentFrameBuffer);
-            }
-
+            }else
+                return new Window(title, width, height, shared, true);
         }else{
-
             if(freedNonTransWindows.size > 0){
                 Window window = freedNonTransWindows.pop();
                 //TODO  window.camera = camera;
-                //TODO  window.scene = scene;
                 window.setTitle(title);
                 window.setSize(width, height);
                 window.show();
                 return window;
-            }else{
-                return new Window(title, width, height, shared, transparentFrameBuffer);
-            }
-
-
+            }else
+                return new Window(title, width, height, shared, false);
         }
     }
 
@@ -89,7 +82,15 @@ public class WindowPool {
        window.hide();
     }
 
+    @Override
+    public void dispose() {
+        for(Window window : freedNonTransWindows)
+            window.dispose();
 
+        for(Window window : freedTransWindows)
+            window.dispose();
 
-
+        freedNonTransWindows.clear();;
+        freedTransWindows.clear();
+    }
 }

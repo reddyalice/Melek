@@ -1,11 +1,11 @@
 package com.alice.mel.graphics;
 
+import com.alice.mel.engine.Scene;
 import com.alice.mel.utils.Disposable;
 import org.joml.Vector2i;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.opengl.GL;
-import org.lwjgl.opengl.GLXARBGetProcAddress;
 
 import java.nio.IntBuffer;
 
@@ -15,6 +15,7 @@ public class Window implements Disposable {
     public final boolean transparentFrameBuffer;
 
     private String title;
+    private Scene scene;
     private final Vector2i size;
     private final Vector2i position;
 
@@ -55,17 +56,20 @@ public class Window implements Disposable {
         GLFW.glfwSwapBuffers(id);
     }
 
-    public void move(int x, int y){
+    public void translate(int x, int y){
         Vector2i pos = getPosition();
         pos.x += x;
         pos.y += y;
         setPosition(pos);
     }
 
-    public String setTitle(String title){
+    public void setScene(Scene scene){
+        this.scene = scene;
+    }
+
+    public void setTitle(String title){
         GLFW.glfwSetWindowTitle(id, title);
         this.title = title;
-        return this.title;
     }
 
     public void setDecorated(boolean decorated){
@@ -76,24 +80,26 @@ public class Window implements Disposable {
         GLFW.glfwSetWindowOpacity(id, opacity);
     }
 
-    public Vector2i setPosition(int x, int y){
+    public void setPosition(int x, int y){
         GLFW.glfwSetWindowPos(id, x,y);
         position.set(x,y);
-        return position;
     }
 
-    public Vector2i setPosition(Vector2i position){
-        return setPosition(position.x, position.y);
+    public void setPosition(Vector2i position){
+        setPosition(position.x, position.y);
     }
 
-    public Vector2i setSize(int width, int height){
+    public void setSize(int width, int height){
         GLFW.glfwSetWindowSize(id, width,height);
         size.set(width,height);
-        return size;
     }
 
-    public Vector2i setSize(Vector2i size){
-        return setSize(size.x, size.y);
+    public void setSize(Vector2i size){
+        setSize(size.x, size.y);
+    }
+
+    public Scene getScene(){
+        return scene;
     }
 
     public String getTitle(){
