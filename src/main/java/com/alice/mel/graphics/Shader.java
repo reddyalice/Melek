@@ -26,10 +26,10 @@ public abstract class Shader{
     public final HashMap<Integer, String> sources = new HashMap<Integer, String>();
     private final FloatBuffer matrixBuffer = BufferUtils.createFloatBuffer(16);
 
-    public Shader(String shaderOrShaderFilePath, boolean isShader){
+    public Shader(String shaderOrShaderFilePath, boolean isShaderSource){
         Array<String> lines = new Array<String>();
         ShaderType type = ShaderType.NONE;
-        if(isShader){
+        if(isShaderSource){
             lines.addAll(shaderOrShaderFilePath.split("\n"));
         }
         else{
@@ -40,8 +40,6 @@ public abstract class Shader{
                 while((line = reader.readLine()) != null){
                     lines.add(line);
                 }
-
-
 
                 reader.close();
             } catch (FileNotFoundException e) {
