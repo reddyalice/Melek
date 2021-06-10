@@ -11,8 +11,8 @@ public class OrthographicCamera extends Camera {
 
     public OrthographicCamera (float viewportWidth, float viewportHeight) {
         super(viewportWidth, viewportHeight);
+        //setToOrtho(false, viewportWidth, viewportHeight);
         this.near = 0;
-        setToOrtho(false, viewportWidth, viewportHeight);
         update();
     }
 
@@ -22,7 +22,7 @@ public class OrthographicCamera extends Camera {
     @Override
     public void update () {
         projectionMatrix.ortho(zoom * -viewportWidth / 2, zoom * (viewportWidth / 2), zoom * -(viewportHeight / 2), zoom
-                * viewportHeight / 2, near, far);
+                * viewportHeight / 2, near, far, projectionMatrix);
         viewMatrix.lookAt(position, tmp.set(position).add(direction), up);
     }
 
@@ -50,5 +50,9 @@ public class OrthographicCamera extends Camera {
 
     public void translate (Vector2f vec) {
         translate(vec.x, vec.y, 0);
+    }
+
+    @Override
+    public void dispose() {
     }
 }

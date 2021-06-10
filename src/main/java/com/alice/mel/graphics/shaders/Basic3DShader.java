@@ -4,7 +4,7 @@ import com.alice.mel.graphics.Camera;
 import com.alice.mel.graphics.Shader;
 import org.joml.Matrix4f;
 
-public class Basic2DShader extends Shader {
+public class Basic3DShader extends Shader {
 
 
     private int location_transformationMatrix;
@@ -13,14 +13,15 @@ public class Basic2DShader extends Shader {
 
 
 
-    public Basic2DShader() {
-        super("src/main/resources/shaders/Basic2DShader.glsl", false);
+    public Basic3DShader() {
+        super("src/main/resources/shaders/Basic3DShader.glsl", false);
     }
 
     @Override
     protected void bindAttributes() {
         bindAttribute(0, "position");
         bindAttribute(1, "texCoords");
+        bindAttribute(2, "normal");
     }
 
     @Override
@@ -37,10 +38,8 @@ public class Basic2DShader extends Shader {
     }
 
     public void LoadCamera(Camera camera){
-
         this.loadMatrix(location_viewMatrix, camera.viewMatrix);
         this.loadMatrix(location_projectionMatrix, camera.projectionMatrix);
-
     }
 
 

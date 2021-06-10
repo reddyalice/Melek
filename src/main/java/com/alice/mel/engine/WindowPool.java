@@ -1,5 +1,7 @@
 package com.alice.mel.engine;
 
+import com.alice.mel.LookingGlass;
+import com.alice.mel.graphics.CameraType;
 import com.alice.mel.graphics.Window;
 import com.alice.mel.utils.Disposable;
 import com.alice.mel.utils.collections.Array;
@@ -27,28 +29,28 @@ public class WindowPool implements Disposable {
         this.max = max;
     }
 
-    public Window obtain (String title, int width, int height, Window shared, boolean transparentFrameBuffer) {
+    public Window obtain (CameraType cameraType, String title, int width, int height, boolean transparentFrameBuffer) {
 
         if(transparentFrameBuffer){
             if(freedTransWindows.size > 0){
                 Window window = freedTransWindows.pop();
-                //TODO    window.camera = camera;
+                window.camera = LookingGlass.cameraPool.obtain(cameraType, width, height);
                 window.setTitle(title);
                 window.setSize(width, height);
                 window.show();
                 return window;
             }else
-                return new Window(title, width, height, shared, true);
+                return new Window( LookingGlass.cameraPool.obtain(cameraType, width, height), title, width, height, true);
         }else{
             if(freedNonTransWindows.size > 0){
                 Window window = freedNonTransWindows.pop();
-                //TODO  window.camera = camera;
+                window.camera = LookingGlass.cameraPool.obtain(cameraType, width, height);
                 window.setTitle(title);
                 window.setSize(width, height);
                 window.show();
                 return window;
             }else
-                return new Window(title, width, height, shared, false);
+                return new Window( LookingGlass.cameraPool.obtain(cameraType, width, height), title, width, height, false);
         }
     }
 
@@ -75,11 +77,18 @@ public class WindowPool implements Disposable {
     }
 
     private void discard(Window window) {
-        window.dispose();
+        if(window != LookingGlass.firstWindow)
+            window.dispose();
+        else
+            window.hide();
+
+        LookingGlass.cameraPool.free(window.camera);
     }
 
     private void reset(Window window) {
        window.hide();
+       LookingGlass.cameraPool.free(window.camera);
+
     }
 
     @Override

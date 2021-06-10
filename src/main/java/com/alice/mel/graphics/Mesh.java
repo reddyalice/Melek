@@ -1,0 +1,115 @@
+package com.alice.mel.graphics;
+
+import com.alice.mel.LookingGlass;
+import com.alice.mel.utils.Disposable;
+import org.lwjgl.BufferUtils;
+import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL15;
+import org.lwjgl.opengl.GL20;
+import org.lwjgl.opengl.GL30;
+
+import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
+import java.util.ArrayList;
+
+public class Mesh implements Disposable {
+
+    public int id = 0;
+    public final int vertexCount;
+    public final int dimension;
+    public final float[] vertices;
+    public final float[] textureCoords;
+    public final float[] normals;
+    public final int[] indices;
+
+    private final ArrayList<Integer> VBOS = new ArrayList<>();
+
+    public Mesh(float[] vertices, float[] textureCoords, float[] normals, int[] indices) {
+        this.dimension = 3;
+        this.vertices = vertices;
+        this.textureCoords = textureCoords;
+        this.normals = normals;
+        this.indices = indices;
+        this.vertexCount = indices.length;
+    }
+
+    public Mesh(float[] vertices, float[] textureCoords, int[] indices) {
+        this.dimension = 2;
+        this.vertices = vertices;
+        this.textureCoords = textureCoords;
+        this.normals = new float[0];
+        this.indices = indices;
+        this.vertexCount = indices.length;
+    }
+
+    public void genMesh(){
+
+        id = GL30.glGenVertexArrays();
+        GL30.glBindVertexArray(id);
+        storeDataInAttributeList(0, dimension, vertices);
+        storeDataInAttributeList(1, 2, textureCoords);
+        if (dimension == 3)
+            storeDataInAttributeList(2, dimension, normals);
+        bindIndices(indices);
+
+        GL30.glBindVertexArray(0);
+    }
+
+    public void bind(){
+        GL30.glBindVertexArray(1);
+        GL20.glEnableVertexAttribArray(0);
+        GL20.glEnableVertexAttribArray(1);
+        if(dimension == 3) GL20.glEnableVertexAttribArray(2);
+    }
+
+    public void unbind(){
+        if(dimension == 3) GL20.glDisableVertexAttribArray(2);
+        GL20.glDisableVertexAttribArray(1);
+        GL20.glDisableVertexAttribArray(0);
+        GL30.glBindVertexArray(0);
+    }
+
+    private void storeDataInAttributeList(int attributeNumber, int attributeSize, float[] data){
+        int vboID = GL15.glGenBuffers();
+        VBOS.add(vboID);
+        GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vboID);
+        FloatBuffer buffer = storeDataInFloatBuffer(data);
+        GL15.glBufferData(GL15.GL_ARRAY_BUFFER, buffer, GL15.GL_STATIC_DRAW);
+        GL20.glVertexAttribPointer(attributeNumber, attributeSize, GL11.GL_FLOAT, false, 0, 0);
+        GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
+    }
+
+    private void bindIndices(int[] indices){
+        int vboID = GL15.glGenBuffers();
+        VBOS.add(vboID);
+        GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, vboID);
+        IntBuffer buffer = storeDataInIntBuffer(indices);
+        GL15.glBufferData(GL15.GL_ELEMENT_ARRAY_BUFFER, buffer, GL15.GL_STATIC_DRAW);
+
+    }
+
+    private IntBuffer storeDataInIntBuffer(int[] data){
+        IntBuffer buffer = BufferUtils.createIntBuffer(data.length);
+        buffer.put(data);
+        buffer.flip();
+        return buffer;
+    }
+
+    private FloatBuffer storeDataInFloatBuffer(float[] data)
+    {
+        FloatBuffer buffer = BufferUtils.createFloatBuffer(data.length);
+        buffer.put(data);
+        buffer.flip();
+        return buffer;
+    }
+
+    @Override
+    public void dispose() {
+        LookingGlass.firstWindow.makeContextCurrent();
+        GL30.glDeleteVertexArrays(id);
+        for(int vbo:VBOS)
+            GL15.glDeleteBuffers(vbo);
+        VBOS.clear();
+
+    }
+}

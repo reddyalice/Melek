@@ -1,11 +1,16 @@
 package com.alice.mel.graphics;
 
+import com.alice.mel.LookingGlass;
 import com.alice.mel.engine.Scene;
 import com.alice.mel.utils.Disposable;
+import com.alice.mel.utils.Event;
 import org.joml.Vector2i;
+import org.joml.Vector4f;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.opengl.GL;
+import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GLCapabilities;
 
 import java.nio.IntBuffer;
 
@@ -13,6 +18,7 @@ public class Window implements Disposable {
 
     public final long id;
     public final boolean transparentFrameBuffer;
+    public boolean initialised = false;
 
     private String title;
     private Scene scene;
@@ -24,17 +30,45 @@ public class Window implements Disposable {
     private final IntBuffer WIDTH =  BufferUtils.createIntBuffer(1);
     private final IntBuffer HEIGHT = BufferUtils.createIntBuffer(1);
 
-    public Window(String title, int width, int height, Window shared, boolean transparentFrameBuffer){
+    public final Event<Scene> init = new Event<>();
+    public final Event<Float> preUpdate = new Event<>();
+    public final Event<Float> update = new Event<>();
+    public final Event<Float> postUpdate = new Event<>();
+    public final Event<Float> preRender = new Event<>();
+    public final Event<Float> render = new Event<>();
+    public final Event<Float> postRender = new Event<>();
+
+    public Camera camera;
+    private final Vector4f backgroundColor = new Vector4f(0,0,0,0);
+
+
+    public Window(Camera camera, String title, int width, int height, boolean transparentFrameBuffer){
         GLFW.glfwWindowHint(GLFW.GLFW_TRANSPARENT_FRAMEBUFFER, transparentFrameBuffer ? GLFW.GLFW_TRUE : GLFW.GLFW_FALSE);
-        id = GLFW.glfwCreateWindow(width, height, title, 0, shared == null ? 0 : shared.id);
+        id = GLFW.glfwCreateWindow(width, height, title, 0,  LookingGlass.firstWindow  == null ? 0 :  LookingGlass.firstWindow .id);
         size = new Vector2i(width, height);
+        this.camera = camera;
         this.title = title;
         this.transparentFrameBuffer = transparentFrameBuffer;
         GLFW.glfwGetWindowPos(id, X,Y);
         position = new Vector2i(X.get(),Y.get());
         makeContextCurrent();
+        preUpdate.add("camera", x -> this.camera.update());
+        preRender.add("makeCurrentAndClear", x -> {
+             makeContextCurrent();
+            GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
+            GL11.glClearColor(this.backgroundColor.x, this.backgroundColor.y, this.backgroundColor.z, this.backgroundColor.w);
+        });
+        postRender.add("PollAndSwap", x -> {
+            swapBuffers();
+            GLFW.glfwPollEvents();
+        });
         GL.createCapabilities();
+        if(LookingGlass.firstWindow == null) {
+            LookingGlass.firstWindow = this;
+
+        }
     }
+
 
     public void focus(){
         GLFW.glfwFocusWindow(id);
@@ -65,6 +99,10 @@ public class Window implements Disposable {
 
     public void setScene(Scene scene){
         this.scene = scene;
+    }
+
+    public void setBackgroundColor(float r, float g, float b, float a){
+        backgroundColor.set(r,g,b,a);
     }
 
     public void setTitle(String title){
@@ -102,17 +140,25 @@ public class Window implements Disposable {
         return scene;
     }
 
+    public Vector4f getBackgroundColor() {
+        return backgroundColor;
+    }
+
     public String getTitle(){
         return title;
     }
 
     public Vector2i getPosition(){
+        X.clear();
+        Y.clear();
         GLFW.glfwGetWindowPos(id, X,Y);
         position.set(X.get(), Y.get());
         return position;
     }
 
     public Vector2i getSize(){
+        WIDTH.clear();
+        HEIGHT.clear();
         GLFW.glfwGetWindowSize(id,WIDTH,HEIGHT);
         size.set(WIDTH.get(),HEIGHT.get());
         return size;
@@ -124,6 +170,11 @@ public class Window implements Disposable {
         Y.clear();
         WIDTH.clear();
         HEIGHT.clear();
-        GLFW.glfwDestroyWindow(id);
+        preUpdate.dispose();
+        update.dispose();
+        postUpdate.dispose();
+        preRender.dispose();
+        render.dispose();
+        postRender.dispose();
     }
 }

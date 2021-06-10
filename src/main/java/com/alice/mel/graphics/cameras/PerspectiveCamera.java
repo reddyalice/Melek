@@ -17,8 +17,11 @@ public class PerspectiveCamera extends Camera {
     @Override
     public void update () {
         float aspect = viewportWidth / viewportHeight;
-        projectionMatrix.setPerspective(fieldOfView, aspect, Math.abs(near), Math.abs(far));
-        viewMatrix.lookAt(position, tmp.set(position).add(direction), up);
-        combined.set(viewMatrix).mul(projectionMatrix);
+        projectionMatrix.identity().setPerspective(fieldOfView, aspect, Math.abs(near), Math.abs(far));
+        viewMatrix.identity().lookAt(position, tmp.set(position).add(direction), up);
+    }
+
+    @Override
+    public void dispose() {
     }
 }

@@ -7,7 +7,6 @@ public class Event<T> implements Disposable{
 
     private final HashMap<String,Consumer<T>> consumers = new HashMap<String,Consumer<T>>();
 
-
     public void add(String key, Consumer<T> consumer) {
         consumers.put(key,  consumer);
     }
@@ -22,7 +21,6 @@ public class Event<T> implements Disposable{
         if(consumers.containsKey(key))
             consumers.get(key).accept(in);
     }
-
 
     public void remove(String key) {
         consumers.remove(key);

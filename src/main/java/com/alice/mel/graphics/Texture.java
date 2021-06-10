@@ -3,6 +3,7 @@ package com.alice.mel.graphics;
 import com.alice.mel.utils.Disposable;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL13;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -12,27 +13,29 @@ import java.nio.ByteBuffer;
 
 public final class Texture implements Disposable {
 
-    public transient int id = 0;
+    public int id = 0;
     public final int width, height;
-    public final int[] pixels;
+    public final  ByteBuffer pixels;
 
-    public Texture (String file) throws IOException {
+    public Texture (String file) {
 
-        BufferedImage img = ImageIO.read(new File(file));
+        BufferedImage img = null;
+        try {
+            img = ImageIO.read(new File(file));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         width = img.getWidth();
         height = img.getHeight();
-        pixels = img.getRGB(0, 0, width, height, null, 0, width);
-
-    }
+        pixels = BufferUtils.createByteBuffer(width*height*4);
 
 
-    public void genTexture(){
-
-        ByteBuffer pixels = BufferUtils.createByteBuffer(width*height*4);
+        int [] rawPixels = img.getRGB(0, 0, width, height, null, 0, width);
 
         for(int i = 0; i < height; i++){
             for(int j = 0; j < width; j++){
-                int pixel = this.pixels[i*width + j];
+                int pixel = rawPixels[i*width + j];
                 pixels.put((byte)((pixel >> 16) & 0xFF)); //RED
                 pixels.put((byte)((pixel >> 8) & 0xFF)); //GREEN
                 pixels.put((byte)(pixel & 0xFF)); //BLUE
@@ -41,6 +44,10 @@ public final class Texture implements Disposable {
         }
 
         pixels.flip();
+    }
+
+
+    public void genTexture(){
 
         id = GL11.glGenTextures();
         GL11.glBindTexture(GL11.GL_TEXTURE_2D, id);
@@ -55,6 +62,10 @@ public final class Texture implements Disposable {
 
     public void bind(){
         GL11.glBindTexture(GL11.GL_TEXTURE_2D, id);
+    }
+
+    public void unbind(){
+        GL11.glBindTexture(GL11.GL_TEXTURE_2D, 0);
     }
 
     @Override

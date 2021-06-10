@@ -7,13 +7,14 @@ in vec2 texCoords;
 out vec2 pass_texCoords;
 
 uniform mat4 transformationMatrix;
-uniform mat4 combinedMatrix;
+uniform mat4 viewMatrix;
+uniform mat4 projectionMatrix;
 
 
 void main(void){
 
     vec4 worldPosition = transformationMatrix * vec4(position, 0.0, 1.0);
-    gl_Position = combinedMatrix * worldPosition;
+    gl_Position = projectionMatrix * viewMatrix * worldPosition;
 
     pass_texCoords = texCoords;
 

@@ -8,12 +8,6 @@
     <artifactId>Melek</artifactId>
     <version>1.0-SNAPSHOT</version>
 
-    <repositories>
-        <repository>
-            <id>SpinyOwl</id>
-            <url>https://raw.githubusercontent.com/SpinyOwl/repo/releases</url>
-        </repository>
-    </repositories>
 
 
     <properties>
@@ -229,14 +223,15 @@
             <version>${lwjgl3-awt.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.liquidengine</groupId>
-            <artifactId>legui</artifactId>
-            <version>3.3.1</version>
-        </dependency>
-        <dependency>
             <groupId>cz.advel.jbullet</groupId>
             <artifactId>jbullet</artifactId>
             <version>20101010-1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.javatuples</groupId>
+            <artifactId>javatuples</artifactId>
+            <version>1.2</version>
+            <scope>compile</scope>
         </dependency>
     </dependencies>
 
