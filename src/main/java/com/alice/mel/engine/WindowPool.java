@@ -38,6 +38,7 @@ public class WindowPool implements Disposable {
                 window.setTitle(title);
                 window.setSize(width, height);
                 window.show();
+                window.active = true;
                 return window;
             }else
                 return new Window( LookingGlass.cameraPool.obtain(cameraType, width, height), title, width, height, true);
@@ -48,6 +49,7 @@ public class WindowPool implements Disposable {
                 window.setTitle(title);
                 window.setSize(width, height);
                 window.show();
+                window.active = true;
                 return window;
             }else
                 return new Window( LookingGlass.cameraPool.obtain(cameraType, width, height), title, width, height, false);
@@ -77,7 +79,8 @@ public class WindowPool implements Disposable {
     }
 
     private void discard(Window window) {
-        if(window != LookingGlass.firstWindow)
+        window.active = false;
+        if(window != LookingGlass.loaderWindow)
             window.dispose();
         else
             window.hide();
@@ -86,6 +89,7 @@ public class WindowPool implements Disposable {
     }
 
     private void reset(Window window) {
+       window.active = false;
        window.hide();
        LookingGlass.cameraPool.free(window.camera);
 

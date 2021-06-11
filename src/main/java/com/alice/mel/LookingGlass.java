@@ -32,7 +32,10 @@ public class LookingGlass {
 
     private static final int coreCount = Runtime.getRuntime().availableProcessors();
     public static final ExecutorService executor = Executors.newFixedThreadPool(coreCount);
-    public static Window firstWindow = null;
+    public static Window loaderWindow = null;
+    public static Window currentContext = null;
+
+
 
     public static void main(String[] args) {
         GLFWErrorCallback.createPrint(System.err).set();
@@ -42,51 +45,36 @@ public class LookingGlass {
             System.exit(1);
         }
 
-        Basic3DShader shader = new Basic3DShader();
-        Texture texture = new Texture("src/main/resources/textures/cactus.png");
+        Basic2DShader shader = new Basic2DShader();
+        Texture texture = new Texture("src/main/resources/textures/icon_undying.png");
 
-        Mesh mesh = OBJLoader.loadOBJ("src/main/resources/models/cactus.obj");
+        //Mesh mesh = OBJLoader.loadOBJ("src/main/resources/models/cactus.obj");
+        Mesh mesh = Mesh.Quad;
 
-        /*Mesh mesh = new Mesh(
-                new float[]{
-                     -0.5f, 0.5f, 0,
-                    0.5f,  0.5f, 0,
-                    0.5f,  -0.5f, 0,
-                   -0.5f, -0.5f, 0,
-                },
-                new float[]{
-                        0, 0,
-                        1,  0,
-                        1,  1,
-                        0, 1
-                },
-                new float[]{},
-                new int[]{
-                    0,1,2,2,3,0
-                }
-        );*/
 
         Scene s = new Scene();
 
         s.init.add("load", x -> {
             texture.genTexture();
             shader.compile();
-            mesh.genMesh();
+
         });
+
+        s.multiInit.add("mesh", x -> mesh.genMesh());
+
+        Window w = s.createWindow(CameraType.Orthographic, "Test", 640, 480, false);
+        Window w2 = s.createWindow(CameraType.Orthographic,"Test1", 640, 480, true);
 
 
         s.render.add("x", x -> {
 
-            x.getValue0().update();
             shader.start();
             shader.LoadCamera(x.getValue0());
-            shader.LoadTransformationMatrix(MathUtils.CreateTransformationMatrix(new Vector3f(0,0,-10), new Vector3f(0,0,0), new Vector3f(100,100,100)));
-
             GL20.glEnable(GL11.GL_TEXTURE);
+            mesh.bind();
             GL20.glActiveTexture(GL20.GL_TEXTURE0);
             texture.bind();
-
-            mesh.bind();
+            shader.LoadTransformationMatrix(MathUtils.CreateTransformationMatrix(new Vector3f(0,0,-10), new Vector3f(0,0,0), new Vector3f(100,100,100)));
             GL11.glDrawElements(GL11.GL_TRIANGLES, mesh.vertexCount, GL11.GL_UNSIGNED_INT, 0);
             mesh.unbind();
             GL20.glDisable(GL11.GL_TEXTURE);
@@ -95,15 +83,21 @@ public class LookingGlass {
         });
 
 
-        Window w = s.createWindow(CameraType.Perspective, "Test", 640, 480, false);
-
-
-        Window w2 = s.createWindow(CameraType.Perspective,"Test1", 640, 480, false);
-        w2.init.add("mesh", x -> mesh.genMesh());
         w2.update.add("move", x -> {
-            Vector2i diff = new Vector2i(w2.getPosition());
-            diff.sub(w.getPosition());
-            w2.camera.position.set(w.camera.position).add(diff.x, diff.y, 0);
+
+            if(w.active) {
+                Vector2i wPos = w.getPosition();
+                Vector2i w2Pos = w2.getPosition();
+                Vector2i wSize = w.getSize();
+                Vector2i w2Size = w2.getSize();
+
+
+                float xDistance = (w2Pos.x + w2Size.x / 2f) - (wPos.x + wSize.x / 2f);
+                float yDistance = (w2Pos.y + w2Size.y / 2f) - (wPos.y + wSize.y / 2f);
+
+                w2.camera.position.set(w.camera.position).add(xDistance, -yDistance, 0);
+                //System.out.println(w2.camera.position.x + " " + w2.camera.position.y);
+            }
         });
 
 

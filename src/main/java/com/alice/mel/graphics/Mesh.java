@@ -2,6 +2,7 @@ package com.alice.mel.graphics;
 
 import com.alice.mel.LookingGlass;
 import com.alice.mel.utils.Disposable;
+import com.alice.mel.utils.collections.Array;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL15;
@@ -10,9 +11,29 @@ import org.lwjgl.opengl.GL30;
 
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
-import java.util.ArrayList;
 
 public class Mesh implements Disposable {
+
+    public static Mesh Quad = new Mesh(
+            new float[]{
+                        -0.5f, 0.5f,
+                        0.5f,  0.5f,
+                        0.5f,  -0.5f,
+                        -0.5f, -0.5f
+            },
+            new float[]{
+                    0, 0,
+                    1,  0,
+                    1,  1,
+                    0, 1
+            },
+            new int[]{
+                    0,1,2,
+                    2,3,0
+            }
+            );
+
+
 
     public int id = 0;
     public final int vertexCount;
@@ -22,7 +43,7 @@ public class Mesh implements Disposable {
     public final float[] normals;
     public final int[] indices;
 
-    private final ArrayList<Integer> VBOS = new ArrayList<>();
+    private final Array<Integer> VBOS = new Array<>();
 
     public Mesh(float[] vertices, float[] textureCoords, float[] normals, int[] indices) {
         this.dimension = 3;
@@ -31,6 +52,7 @@ public class Mesh implements Disposable {
         this.normals = normals;
         this.indices = indices;
         this.vertexCount = indices.length;
+        VBOS.ordered = true;
     }
 
     public Mesh(float[] vertices, float[] textureCoords, int[] indices) {
@@ -40,18 +62,34 @@ public class Mesh implements Disposable {
         this.normals = new float[0];
         this.indices = indices;
         this.vertexCount = indices.length;
+        VBOS.ordered = true;
     }
 
     public void genMesh(){
+        if(VBOS.size == 0) {
+            id = GL30.glGenVertexArrays();
+            GL30.glBindVertexArray(id);
+            storeDataInAttributeList(0, dimension, vertices);
+            storeDataInAttributeList(1, 2, textureCoords);
+            if (dimension == 3)
+                storeDataInAttributeList(2, dimension, normals);
+            bindIndices(indices);
+        }else{
+            id = GL30.glGenVertexArrays();
+            GL30.glBindVertexArray(id);
+            GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, VBOS.get(0));
+            GL20.glVertexAttribPointer(0, dimension, GL11.GL_FLOAT, false, 0, 0);
+            GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, VBOS.get(1));
+            GL20.glVertexAttribPointer(1, 2, GL11.GL_FLOAT, false, 0, 0);
+            if(dimension == 3){
+                GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, VBOS.get(2));
+                GL20.glVertexAttribPointer(2, 1, GL11.GL_FLOAT, false, 0, 0);
+                GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, VBOS.get(3));
+            }else{
+                GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, VBOS.get(2));
+            }
 
-        id = GL30.glGenVertexArrays();
-        GL30.glBindVertexArray(id);
-        storeDataInAttributeList(0, dimension, vertices);
-        storeDataInAttributeList(1, 2, textureCoords);
-        if (dimension == 3)
-            storeDataInAttributeList(2, dimension, normals);
-        bindIndices(indices);
-
+        }
         GL30.glBindVertexArray(0);
     }
 
@@ -105,7 +143,7 @@ public class Mesh implements Disposable {
 
     @Override
     public void dispose() {
-        LookingGlass.firstWindow.makeContextCurrent();
+        LookingGlass.loaderWindow.makeContextCurrent();
         GL30.glDeleteVertexArrays(id);
         for(int vbo:VBOS)
             GL15.glDeleteBuffers(vbo);

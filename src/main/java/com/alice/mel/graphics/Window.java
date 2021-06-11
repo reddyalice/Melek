@@ -8,9 +8,9 @@ import org.joml.Vector2i;
 import org.joml.Vector4f;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.glfw.GLFW;
+import org.lwjgl.glfw.GLFWWindowSizeCallback;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GLCapabilities;
 
 import java.nio.IntBuffer;
 
@@ -19,6 +19,7 @@ public class Window implements Disposable {
     public final long id;
     public final boolean transparentFrameBuffer;
     public boolean initialised = false;
+    public boolean active = true;
 
     private String title;
     private Scene scene;
@@ -44,7 +45,8 @@ public class Window implements Disposable {
 
     public Window(Camera camera, String title, int width, int height, boolean transparentFrameBuffer){
         GLFW.glfwWindowHint(GLFW.GLFW_TRANSPARENT_FRAMEBUFFER, transparentFrameBuffer ? GLFW.GLFW_TRUE : GLFW.GLFW_FALSE);
-        id = GLFW.glfwCreateWindow(width, height, title, 0,  LookingGlass.firstWindow  == null ? 0 :  LookingGlass.firstWindow .id);
+        id = GLFW.glfwCreateWindow(width, height, title, 0,  LookingGlass.loaderWindow == null ? 0 :  LookingGlass.loaderWindow.id);
+
         size = new Vector2i(width, height);
         this.camera = camera;
         this.title = title;
@@ -52,7 +54,8 @@ public class Window implements Disposable {
         GLFW.glfwGetWindowPos(id, X,Y);
         position = new Vector2i(X.get(),Y.get());
         makeContextCurrent();
-        preUpdate.add("camera", x -> this.camera.update());
+
+        postUpdate.add("camera", x -> this.camera.update());
         preRender.add("makeCurrentAndClear", x -> {
              makeContextCurrent();
             GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
@@ -63,10 +66,24 @@ public class Window implements Disposable {
             GLFW.glfwPollEvents();
         });
         GL.createCapabilities();
-        if(LookingGlass.firstWindow == null) {
-            LookingGlass.firstWindow = this;
+        if(LookingGlass.loaderWindow == null) {
+            LookingGlass.loaderWindow = this;
 
         }
+
+        GLFW.glfwSetWindowSizeCallback(id, new GLFWWindowSizeCallback() {
+            @Override
+            public void invoke(long window, int width, int height) {
+                camera.viewportHeight = height;
+                camera.viewportWidth = width;
+                makeContextCurrent();
+                GL11.glViewport(0,0,width,height);
+                if(LookingGlass.currentContext != null)
+                    LookingGlass.currentContext.makeContextCurrent();
+
+            }
+        });
+        GL11.glViewport(0,0,640,480);
     }
 
 
@@ -152,7 +169,7 @@ public class Window implements Disposable {
         X.clear();
         Y.clear();
         GLFW.glfwGetWindowPos(id, X,Y);
-        position.set(X.get(), Y.get());
+        position.set(X.get(0), Y.get(0));
         return position;
     }
 

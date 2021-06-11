@@ -17,7 +17,7 @@ public final class Scene implements Disposable {
     private final SnapshotArray<Window> windows = new SnapshotArray<>();
 
     public final Event<Window> init = new Event<>();
-
+    public final Event<Window> multiInit = new Event<>();
     public final Event<Float> preUpdate = new Event<>();
     public final Event<Float> update = new Event<>();
     public final Event<Float> postUpdate = new Event<>();
@@ -48,21 +48,30 @@ public final class Scene implements Disposable {
         update.broadcast(delta);
         postUpdate.broadcast(delta);
 
+
+        if(!initilized){
+            for(Window window : windows){
+                window.makeContextCurrent();
+                    if(window == windows.first())
+                        init.broadcast(window);
+                    multiInit.broadcast(window);
+                    initilized = true;
+
+
+            }
+        }
+
+
+
         for(Window window : windows)
         {
 
             window.preRender.broadcast(delta);
-
-
-            if(window == windows.first())
-                if(!initilized) {
-                    init.broadcast(window);
-                    initilized = true;
-                }
-
-            if(!window.initialised)
+            LookingGlass.currentContext = window;
+            if(!window.initialised) {
                 window.init.broadcast(this);
-
+                window.initialised = true;
+            }
 
             window.render.broadcast(delta);
             window.postRender.broadcast(delta);
