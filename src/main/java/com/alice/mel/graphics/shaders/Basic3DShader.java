@@ -3,6 +3,7 @@ package com.alice.mel.graphics.shaders;
 import com.alice.mel.graphics.Camera;
 import com.alice.mel.graphics.Shader;
 import org.joml.Matrix4f;
+import org.joml.Vector4f;
 
 public class Basic3DShader extends Shader {
 
@@ -10,7 +11,7 @@ public class Basic3DShader extends Shader {
     private int location_transformationMatrix;
     private int location_viewMatrix;
     private int location_projectionMatrix;
-
+    private int location_color;
 
 
     public Basic3DShader() {
@@ -29,7 +30,7 @@ public class Basic3DShader extends Shader {
         location_transformationMatrix = getUniformLocation("transformationMatrix");
         location_viewMatrix = getUniformLocation("viewMatrix");
         location_projectionMatrix = getUniformLocation("projectionMatrix");
-
+        location_color = getUniformLocation("color");
     }
 
 
@@ -42,7 +43,9 @@ public class Basic3DShader extends Shader {
         this.loadMatrix(location_projectionMatrix, camera.projectionMatrix);
     }
 
-
+    public void loadColor(Vector4f color){
+        this.loadVector(location_color, color);
+    }
 
 
 }

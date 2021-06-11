@@ -4,7 +4,9 @@ import com.alice.mel.utils.Disposable;
 import com.alice.mel.utils.collections.Array;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
+import org.joml.Vector4f;
 import org.lwjgl.BufferUtils;
+import org.lwjgl.opengl.GL32;
 import org.lwjgl.opengl.GL32C;
 
 import java.io.BufferedReader;
@@ -194,6 +196,9 @@ public abstract class Shader implements Disposable {
         GL32C.glUniform3f(location, value.x, value.y, value.z);
     }
 
+    protected void loadVector(int location, Vector4f value){
+        GL32.glUniform4f(location, value.x, value.y, value.z, value.w);
+    }
 
     protected void loadFloatArray(int location, float[] value){
 

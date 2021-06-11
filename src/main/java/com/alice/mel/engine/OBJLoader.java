@@ -70,11 +70,10 @@ public class OBJLoader {
         float[] verticesArray = new float[vertices.size() * 3];
         float[] texturesArray = new float[vertices.size() * 2];
         float[] normalsArray = new float[vertices.size() * 3];
-        //float furthest = convertDataToArrays(vertices, textures, normals, verticesArray,
-        //        texturesArray, normalsArray);
+        float furthest = convertDataToArrays(vertices, textures, normals, verticesArray,
+                texturesArray, normalsArray);
         int[] indicesArray = convertIndicesListToArray(indices);
-        Mesh data = new Mesh(verticesArray, texturesArray, normalsArray, indicesArray);
-        return data;
+        return new Mesh(verticesArray, texturesArray, normalsArray, indicesArray);
     }
 
     private static void processVertex(String[] vertex, List<Vertex> vertices, List<Integer> indices) {
@@ -100,7 +99,7 @@ public class OBJLoader {
         return indicesArray;
     }
 
-    /*private static float convertDataToArrays(List<Vertex> vertices, List<Vector2f> textures,
+    private static float convertDataToArrays(List<Vertex> vertices, List<Vector2f> textures,
                                              List<Vector3f> normals, float[] verticesArray, float[] texturesArray,
                                              float[] normalsArray) {
         float furthestPoint = 0;
@@ -122,7 +121,7 @@ public class OBJLoader {
             normalsArray[i * 3 + 2] = normalVector.z;
         }
         return furthestPoint;
-    }*/
+    }
 
     private static void dealWithAlreadyProcessedVertex(Vertex previousVertex, int newTextureIndex,
                                                        int newNormalIndex, List<Integer> indices, List<Vertex> vertices) {
