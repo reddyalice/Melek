@@ -1,6 +1,5 @@
 package com.alice.mel.engine;
 
-import com.alice.mel.LookingGlass;
 import com.alice.mel.graphics.CameraType;
 import com.alice.mel.graphics.Window;
 import com.alice.mel.utils.Disposable;
@@ -24,8 +23,8 @@ public class WindowPool implements Disposable {
     }
 
     public WindowPool (int initialCapacity, int max) {
-        freedNonTransWindows = new Array<Window>(false, initialCapacity);
-        freedTransWindows = new Array<Window>(false, initialCapacity);
+        freedNonTransWindows = new Array<>(false, initialCapacity);
+        freedTransWindows = new Array<>(false, initialCapacity);
         this.max = max;
     }
 
@@ -34,25 +33,25 @@ public class WindowPool implements Disposable {
         if(transparentFrameBuffer){
             if(freedTransWindows.size > 0){
                 Window window = freedTransWindows.pop();
-                window.camera = LookingGlass.cameraPool.obtain(cameraType, width, height);
+                window.camera = Game.cameraPool.obtain(cameraType, width, height);
                 window.setTitle(title);
                 window.setSize(width, height);
                 window.show();
                 window.active = true;
                 return window;
             }else
-                return new Window( LookingGlass.cameraPool.obtain(cameraType, width, height), title, width, height, true);
+                return new Window( Game.cameraPool.obtain(cameraType, width, height), title, width, height, true);
         }else{
             if(freedNonTransWindows.size > 0){
                 Window window = freedNonTransWindows.pop();
-                window.camera = LookingGlass.cameraPool.obtain(cameraType, width, height);
+                window.camera = Game.cameraPool.obtain(cameraType, width, height);
                 window.setTitle(title);
                 window.setSize(width, height);
                 window.show();
                 window.active = true;
                 return window;
             }else
-                return new Window( LookingGlass.cameraPool.obtain(cameraType, width, height), title, width, height, false);
+                return new Window( Game.cameraPool.obtain(cameraType, width, height), title, width, height, false);
         }
     }
 
@@ -68,9 +67,9 @@ public class WindowPool implements Disposable {
                 discard(window);
             }
         }else{
-            if (freedTransWindows.size < max) {
-                freedTransWindows.add(window);
-                peak = Math.max(peak, freedTransWindows.size);
+            if (freedNonTransWindows.size < max) {
+                freedNonTransWindows.add(window);
+                peak = Math.max(peak, freedNonTransWindows.size);
                 reset(window);
             } else {
                 discard(window);
@@ -80,18 +79,17 @@ public class WindowPool implements Disposable {
 
     private void discard(Window window) {
         window.active = false;
-        if(window != LookingGlass.loaderWindow)
+        if(window != Game.loaderWindow)
             window.dispose();
         else
             window.hide();
 
-        LookingGlass.cameraPool.free(window.camera);
+        Game.cameraPool.free(window.camera);
     }
 
     private void reset(Window window) {
-       window.active = false;
-       window.hide();
-       LookingGlass.cameraPool.free(window.camera);
+       window.reset();
+       Game.cameraPool.free(window.camera);
 
     }
 
@@ -103,7 +101,7 @@ public class WindowPool implements Disposable {
         for(Window window : freedTransWindows)
             window.dispose();
 
-        freedNonTransWindows.clear();;
+        freedNonTransWindows.clear();
         freedTransWindows.clear();
     }
 }

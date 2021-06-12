@@ -1,6 +1,6 @@
 package com.alice.mel.graphics;
 
-import com.alice.mel.LookingGlass;
+import com.alice.mel.engine.Game;
 import com.alice.mel.engine.Scene;
 import com.alice.mel.utils.Disposable;
 import com.alice.mel.utils.Event;
@@ -45,7 +45,7 @@ public class Window implements Disposable {
 
     public Window(Camera camera, String title, int width, int height, boolean transparentFrameBuffer){
         GLFW.glfwWindowHint(GLFW.GLFW_TRANSPARENT_FRAMEBUFFER, transparentFrameBuffer ? GLFW.GLFW_TRUE : GLFW.GLFW_FALSE);
-        id = GLFW.glfwCreateWindow(width, height, title, 0,  LookingGlass.loaderWindow == null ? 0 :  LookingGlass.loaderWindow.id);
+        id = GLFW.glfwCreateWindow(width, height, title, 0,  Game.loaderWindow == null ? 0 :  Game.loaderWindow.id);
 
         size = new Vector2i(width, height);
         this.camera = camera;
@@ -54,7 +54,7 @@ public class Window implements Disposable {
         GLFW.glfwGetWindowPos(id, X,Y);
         position = new Vector2i(X.get(),Y.get());
         makeContextCurrent();
-
+        init.add("load", x -> Game.loaderScene.multiInit.broadcast(this));
         postUpdate.add("camera", x -> this.camera.update());
         preRender.add("makeCurrentAndClear", x -> {
              makeContextCurrent();
@@ -66,10 +66,6 @@ public class Window implements Disposable {
             GLFW.glfwPollEvents();
         });
         GL.createCapabilities();
-        if(LookingGlass.loaderWindow == null) {
-            LookingGlass.loaderWindow = this;
-
-        }
 
         GLFW.glfwSetWindowSizeCallback(id, new GLFWWindowSizeCallback() {
             @Override
@@ -78,8 +74,8 @@ public class Window implements Disposable {
                 camera.viewportWidth = width;
                 makeContextCurrent();
                 GL11.glViewport(0,0,width,height);
-                if(LookingGlass.currentContext != null)
-                    LookingGlass.currentContext.makeContextCurrent();
+                if(Game.currentContext != null)
+                    Game.currentContext.makeContextCurrent();
 
             }
         });
@@ -97,6 +93,31 @@ public class Window implements Disposable {
 
     public void hide(){
         GLFW.glfwHideWindow(id);
+    }
+
+    public void reset(){
+        hide();
+        active = false;
+        init.dispose();
+        preUpdate.dispose();
+        update.dispose();
+        postUpdate.dispose();
+        preRender.dispose();
+        render.dispose();
+        postRender.dispose();
+        init.add("load", x -> Game.loaderScene.multiInit.broadcast(this));
+
+        postUpdate.add("camera", x -> this.camera.update());
+        preRender.add("makeCurrentAndClear", x -> {
+            makeContextCurrent();
+            GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
+            GL11.glClearColor(this.backgroundColor.x, this.backgroundColor.y, this.backgroundColor.z, this.backgroundColor.w);
+        });
+        postRender.add("PollAndSwap", x -> {
+            swapBuffers();
+            GLFW.glfwPollEvents();
+        });
+
     }
 
     public void makeContextCurrent(){

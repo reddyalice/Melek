@@ -1,6 +1,6 @@
 package com.alice.mel.engine;
 
-import com.alice.mel.LookingGlass;
+
 import com.alice.mel.graphics.Camera;
 import com.alice.mel.graphics.CameraType;
 import com.alice.mel.graphics.Window;
@@ -9,8 +9,6 @@ import com.alice.mel.utils.Event;
 import com.alice.mel.utils.collections.SnapshotArray;
 import org.javatuples.Pair;
 import org.lwjgl.glfw.GLFW;
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.system.CallbackI;
 
 public final class Scene implements Disposable {
 
@@ -33,7 +31,7 @@ public final class Scene implements Disposable {
     }
 
     public Window createWindow(CameraType cameraType, String title, int width, int height, boolean transparentFrameBuffer){
-        Window w = LookingGlass.windowPool.obtain(cameraType, title, width, height, transparentFrameBuffer);
+        Window w = Game.windowPool.obtain(cameraType, title, width, height, transparentFrameBuffer);
         addWindow(w);
         return w;
     }
@@ -49,17 +47,6 @@ public final class Scene implements Disposable {
         postUpdate.broadcast(delta);
 
 
-        if(!initilized){
-            for(Window window : windows){
-                window.makeContextCurrent();
-                    if(window == windows.first())
-                        init.broadcast(window);
-                    multiInit.broadcast(window);
-                    initilized = true;
-
-
-            }
-        }
 
 
 
@@ -67,7 +54,18 @@ public final class Scene implements Disposable {
         {
 
             window.preRender.broadcast(delta);
-            LookingGlass.currentContext = window;
+            Game.currentContext = window;
+
+
+            if(!initilized){
+                if(window == Game.loaderWindow)
+                {
+                    init.broadcast(window);
+                    initilized = true;
+                }
+            }
+
+
             if(!window.initialised) {
                 window.init.broadcast(this);
                 window.initialised = true;
@@ -106,7 +104,7 @@ public final class Scene implements Disposable {
         update.remove("window" + window.id);
         postUpdate.remove("window" + window.id);
         window.render.remove("scene");
-        LookingGlass.windowPool.free(window);
+        Game.windowPool.free(window);
 
     }
 
@@ -117,6 +115,15 @@ public final class Scene implements Disposable {
     public int getWindowCount(){
         return windows.size;
     }
+
+
+    public void close(){
+        for(Window window : windows)
+            removeWindow(window);
+        dispose();
+    }
+
+
 
     @Override
     public void dispose() {

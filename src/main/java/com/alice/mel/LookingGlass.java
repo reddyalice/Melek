@@ -25,13 +25,7 @@ import java.util.concurrent.Executors;
 
 public class LookingGlass {
 
-    public static final WindowPool windowPool = new WindowPool();
-    public static final CameraPool cameraPool = new CameraPool();
 
-    private static final int coreCount = Runtime.getRuntime().availableProcessors();
-    public static final ExecutorService executor = Executors.newFixedThreadPool(coreCount);
-    public static Window loaderWindow = null;
-    public static Window currentContext = null;
 
 
 
@@ -90,12 +84,10 @@ public class LookingGlass {
                 Vector2i wSize = w.getSize();
                 Vector2i w2Size = w2.getSize();
 
-
                 float xDistance = (w2Pos.x + w2Size.x / 2f) - (wPos.x + wSize.x / 2f);
                 float yDistance = (w2Pos.y + w2Size.y / 2f) - (wPos.y + wSize.y / 2f);
 
                 w2.camera.position.set(w.camera.position).add(xDistance, -yDistance, 0);
-                //System.out.println(w2.camera.position.x + " " + w2.camera.position.y);
             }
         });
 
@@ -105,8 +97,7 @@ public class LookingGlass {
         }
 
         s.dispose();
-        windowPool.dispose();
-        cameraPool.dispose();
+
         GLFW.glfwTerminate();
 
 

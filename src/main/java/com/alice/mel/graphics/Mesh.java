@@ -1,6 +1,6 @@
 package com.alice.mel.graphics;
 
-import com.alice.mel.LookingGlass;
+import com.alice.mel.engine.Game;
 import com.alice.mel.utils.Disposable;
 import com.alice.mel.utils.collections.Array;
 import org.lwjgl.BufferUtils;
@@ -143,7 +143,7 @@ public class Mesh implements Disposable {
 
     @Override
     public void dispose() {
-        LookingGlass.loaderWindow.makeContextCurrent();
+        Game.loaderWindow.makeContextCurrent();
         GL30.glDeleteVertexArrays(id);
         for(int vbo:VBOS)
             GL15.glDeleteBuffers(vbo);
