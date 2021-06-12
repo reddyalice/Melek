@@ -1,10 +1,7 @@
 package com.alice.mel;
 
 
-import com.alice.mel.engine.CameraPool;
-import com.alice.mel.engine.OBJLoader;
-import com.alice.mel.engine.Scene;
-import com.alice.mel.engine.WindowPool;
+import com.alice.mel.engine.*;
 import com.alice.mel.graphics.CameraType;
 import com.alice.mel.graphics.Mesh;
 import com.alice.mel.graphics.Texture;
@@ -39,20 +36,16 @@ public class LookingGlass {
 
         Basic3DShader shader = new Basic3DShader();
         Texture texture = new Texture("src/main/resources/textures/cactus.png");
-
         Mesh mesh = OBJLoader.loadOBJ("src/main/resources/models/cactus.obj");
         //Mesh mesh = Mesh.Quad;
-
-
         Scene s = new Scene();
 
-        s.init.add("load", x -> {
-            texture.genTexture();
-            shader.compile();
 
-        });
+        Game.textures.add(texture);
+        Game.meshes.add(mesh);
+        Game.shaders.add(shader);
 
-        s.multiInit.add("mesh", x -> mesh.genMesh());
+        Game.scenes.add(s);
 
         Window w = s.createWindow(CameraType.Orthographic, "Test", 640, 480, false);
         Window w2 = s.createWindow(CameraType.Orthographic,"Test1", 640, 480, true);
@@ -91,14 +84,10 @@ public class LookingGlass {
             }
         });
 
+        Game.run();
 
-        while(s.getWindowCount() > 0){
-            s.Update(1f/60f);
-        }
 
-        s.dispose();
 
-        GLFW.glfwTerminate();
 
 
     }

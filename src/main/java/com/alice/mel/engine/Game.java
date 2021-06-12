@@ -3,11 +3,12 @@ package com.alice.mel.engine;
 import com.alice.mel.graphics.*;
 import com.alice.mel.utils.Disposable;
 import com.alice.mel.utils.collections.Array;
+import org.lwjgl.glfw.GLFW;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class Game implements Disposable, Runnable {
+public class Game {
 
     public static final WindowPool windowPool = new WindowPool();
     public static final CameraPool cameraPool = new CameraPool();
@@ -17,21 +18,18 @@ public class Game implements Disposable, Runnable {
     public static final Scene loaderScene = new Scene();
     public static final Window loaderWindow = loaderScene.createWindow(CameraType.Orthographic, "LoaderWindow", 640, 480);
     public static Window currentContext;
+    public static Scene currentScene;
+    public static float deltaTime = 1f/60f;
 
-    public static Array<Shader> shaders = new Array<>();
-    public static Array<Texture> textures = new Array<>();
-    public static Array<Mesh> meshes = new Array<>();
-
-
-
-
-
+    public static final Array<Shader> shaders = new Array<>();
+    public static final Array<Texture> textures = new Array<>();
+    public static final Array<Mesh> meshes = new Array<>();
+    public static final Array<Scene> scenes = new Array<>();
 
 
-    public Game(){
+    public static void run() {
 
         loaderWindow.hide();
-
         loaderScene.init.add("load", x -> {
             for(Shader shader : shaders)
                 shader.compile();
@@ -45,23 +43,46 @@ public class Game implements Disposable, Runnable {
                 mesh.genMesh();
         });
 
-
         loaderScene.Update(1/60f);
         loaderScene.close();
+        currentScene = scenes.get(0);
 
+        if(currentScene != null){
+            while(currentScene.getWindowCount() > 0){
+                currentScene.Update(deltaTime);
+            }
+        }
+
+        dispose();
+        GLFW.glfwTerminate();
 
     }
 
-    @Override
-    public void run() {
 
-    }
-
-
-    @Override
-    public void dispose() {
+    public static void dispose() {
         windowPool.dispose();
         cameraPool.dispose();
+
+        loaderScene.dispose();
+
+        for(Shader shader : shaders)
+            shader.dispose();
+
+        for(Texture texture : textures)
+            texture.dispose();
+
+        for(Mesh mesh : meshes)
+            mesh.dispose();
+
+        for(Scene scene : scenes)
+            scene.dispose();
+
+        shaders.clear();
+        textures.clear();
+        meshes.clear();
+        scenes.clear();
+
+
     }
 
 
