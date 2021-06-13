@@ -1,5 +1,6 @@
 package com.alice.mel.graphics;
 
+import com.alice.mel.engine.Game;
 import com.alice.mel.utils.Disposable;
 import com.alice.mel.utils.collections.Array;
 import org.joml.Matrix4f;
@@ -145,7 +146,8 @@ public abstract class Shader implements Disposable {
     }
 
     public void stop(){
-        GL32C.glUseProgram(0);
+        if(Game.loaderWindow != null)
+                GL32C.glUseProgram(0);
     }
 
     private static int loadShader(String shader, int type)

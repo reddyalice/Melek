@@ -44,6 +44,7 @@ public class Window implements Disposable {
 
 
     public Window(Camera camera, String title, int width, int height, boolean transparentFrameBuffer){
+
         GLFW.glfwWindowHint(GLFW.GLFW_TRANSPARENT_FRAMEBUFFER, transparentFrameBuffer ? GLFW.GLFW_TRUE : GLFW.GLFW_FALSE);
         id = GLFW.glfwCreateWindow(width, height, title, 0,  Game.loaderWindow == null ? 0 :  Game.loaderWindow.id);
 
@@ -54,7 +55,11 @@ public class Window implements Disposable {
         GLFW.glfwGetWindowPos(id, X,Y);
         position = new Vector2i(X.get(),Y.get());
         makeContextCurrent();
-        init.add("load", x -> Game.loaderScene.multiInit.broadcast(this));
+
+        if(Game.loaderWindow == null)
+            Game.loaderWindow = this;
+
+
         postUpdate.add("camera", x -> this.camera.update());
         preRender.add("makeCurrentAndClear", x -> {
              makeContextCurrent();
@@ -66,6 +71,8 @@ public class Window implements Disposable {
             GLFW.glfwPollEvents();
         });
         GL.createCapabilities();
+
+
 
         GLFW.glfwSetWindowSizeCallback(id, new GLFWWindowSizeCallback() {
             @Override
@@ -105,7 +112,6 @@ public class Window implements Disposable {
         preRender.dispose();
         render.dispose();
         postRender.dispose();
-        init.add("load", x -> Game.loaderScene.multiInit.broadcast(this));
 
         postUpdate.add("camera", x -> this.camera.update());
         preRender.add("makeCurrentAndClear", x -> {

@@ -2,6 +2,7 @@ package com.alice.mel.engine;
 
 import com.alice.mel.graphics.*;
 import com.alice.mel.utils.Disposable;
+import com.alice.mel.utils.Event;
 import com.alice.mel.utils.collections.Array;
 import org.lwjgl.glfw.GLFW;
 
@@ -15,43 +16,43 @@ public class Game {
 
     private static final int coreCount = Runtime.getRuntime().availableProcessors();
     public static final ExecutorService executor = Executors.newFixedThreadPool(coreCount);
-    public static final Scene loaderScene = new Scene();
-    public static final Window loaderWindow = loaderScene.createWindow(CameraType.Orthographic, "LoaderWindow", 640, 480);
+    public static Window loaderWindow;
     public static Window currentContext;
     public static Scene currentScene;
     public static float deltaTime = 1f/60f;
+    public static boolean initialized = false;
 
-    public static final Array<Shader> shaders = new Array<>();
-    public static final Array<Texture> textures = new Array<>();
-    public static final Array<Mesh> meshes = new Array<>();
+
     public static final Array<Scene> scenes = new Array<>();
+    public static final Event<Float> inputEvent = new Event<>();
+    public static boolean close = false;
 
+
+    public static void setScene(int index){
+        if (currentScene != null)
+            currentScene.close();
+        currentScene = scenes.get(index);
+        currentScene.Update(deltaTime);
+    }
+
+    public static void setScene(Scene scene){
+        int index = scenes.indexOf(scene, false);
+        setScene(index);
+    }
 
     public static void run() {
 
-        loaderWindow.hide();
-        loaderScene.init.add("load", x -> {
-            for(Shader shader : shaders)
-                shader.compile();
 
-            for(Texture texture : textures)
-                texture.genTexture();
-        });
 
-        loaderScene.multiInit.add("load", x -> {
-            for(Mesh mesh :meshes)
-                mesh.genMesh();
-        });
 
-        loaderScene.Update(1/60f);
-        loaderScene.close();
-        currentScene = scenes.get(0);
 
-        if(currentScene != null){
-            while(currentScene.getWindowCount() > 0){
-                currentScene.Update(deltaTime);
-            }
-        }
+                while (currentScene != null) {
+                    inputEvent.broadcast(deltaTime);
+                    currentScene.Update(deltaTime);
+
+                }
+
+
 
         dispose();
         GLFW.glfwTerminate();
@@ -60,26 +61,13 @@ public class Game {
 
 
     public static void dispose() {
-        windowPool.dispose();
-        cameraPool.dispose();
 
-        loaderScene.dispose();
-
-        for(Shader shader : shaders)
-            shader.dispose();
-
-        for(Texture texture : textures)
-            texture.dispose();
-
-        for(Mesh mesh : meshes)
-            mesh.dispose();
 
         for(Scene scene : scenes)
-            scene.dispose();
+            scene.close();
 
-        shaders.clear();
-        textures.clear();
-        meshes.clear();
+        windowPool.dispose();
+        cameraPool.dispose();
         scenes.clear();
 
 

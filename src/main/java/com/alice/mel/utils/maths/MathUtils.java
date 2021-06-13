@@ -1,7 +1,9 @@
 package com.alice.mel.utils.maths;
 
+import com.alice.mel.graphics.Window;
 import org.joml.Matrix4f;
 import org.joml.Random;
+import org.joml.Vector2i;
 import org.joml.Vector3f;
 
 public class MathUtils {
@@ -27,6 +29,18 @@ public class MathUtils {
                 rotateZ((float)Math.toRadians(rotation.z)).
                 scale(scale);
         return matrix;
+    }
+
+    public static void LookRelativeTo(Window window, Window relativeTo){
+        if(relativeTo.active) {
+            Vector2i wPos = relativeTo.getPosition();
+            Vector2i w2Pos = window.getPosition();
+            Vector2i wSize = relativeTo.getSize();
+            Vector2i w2Size = window.getSize();
+            float xDistance = (w2Pos.x + w2Size.x / 2f) - (wPos.x + wSize.x / 2f);
+            float yDistance = (w2Pos.y + w2Size.y / 2f) - (wPos.y + wSize.y / 2f);
+            window.camera.position.set(relativeTo.camera.position).add(xDistance, -yDistance, 0);
+        }
     }
 
 

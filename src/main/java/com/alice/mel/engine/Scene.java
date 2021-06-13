@@ -1,18 +1,20 @@
 package com.alice.mel.engine;
 
 
-import com.alice.mel.graphics.Camera;
-import com.alice.mel.graphics.CameraType;
-import com.alice.mel.graphics.Window;
+import com.alice.mel.graphics.*;
 import com.alice.mel.utils.Disposable;
 import com.alice.mel.utils.Event;
+import com.alice.mel.utils.collections.Array;
 import com.alice.mel.utils.collections.SnapshotArray;
 import org.javatuples.Pair;
 import org.lwjgl.glfw.GLFW;
+import org.lwjgl.glfw.GLFWErrorCallback;
 
 public final class Scene implements Disposable {
 
     private final SnapshotArray<Window> windows = new SnapshotArray<>();
+
+
 
     public final Event<Window> init = new Event<>();
     public final Event<Window> multiInit = new Event<>();
@@ -24,14 +26,47 @@ public final class Scene implements Disposable {
     public final Event<Pair<Camera, Float>> render = new Event<>();
     public final Event<Pair<Camera, Float>> postRender = new Event<>();
 
+    private final Event<Window> createWindow = new Event<>();
+    private final Event<Window> removeWindow = new Event<>();
+
+
     private boolean initilized = false;
+
+    public final Array<Shader> shaders = new Array<>();
+    public final Array<Texture> textures = new Array<>();
+    public final Array<Mesh> meshes = new Array<>();
 
     public Scene(){
 
+        if(!Game.initialized){
+            GLFWErrorCallback.createPrint(System.err).set();
+            boolean isInitialized  = GLFW.glfwInit();
+            if(!isInitialized){
+                System.err.println("Failed To initialized!");
+                System.exit(1);
+            }
+            Game.initialized = true;
+        }
+
+
+        init.add("load", x -> {
+            for(Shader shader : shaders)
+                shader.compile();
+
+            for(Texture texture : textures)
+                texture.genTexture();
+        });
+
+        multiInit.add("load", x -> {
+            for(Mesh mesh :meshes)
+                mesh.genMesh();
+        });
     }
 
     public Window createWindow(CameraType cameraType, String title, int width, int height, boolean transparentFrameBuffer){
+
         Window w = Game.windowPool.obtain(cameraType, title, width, height, transparentFrameBuffer);
+        w.show();
         addWindow(w);
         return w;
     }
@@ -42,19 +77,30 @@ public final class Scene implements Disposable {
 
 
     public void Update(float delta){
+
+
+
+
+
+
+
+
+
         preUpdate.broadcast(delta);
         update.broadcast(delta);
-        postUpdate.broadcast(delta);
-
-
-
-
 
         for(Window window : windows)
         {
 
+            if(!window.initialised) {
+                window.init.broadcast(this);
+                window.initialised = true;
+            }
+
             window.preRender.broadcast(delta);
             Game.currentContext = window;
+
+
 
 
             if(!initilized){
@@ -66,14 +112,12 @@ public final class Scene implements Disposable {
             }
 
 
-            if(!window.initialised) {
-                window.init.broadcast(this);
-                window.initialised = true;
-            }
+
 
             window.render.broadcast(delta);
             window.postRender.broadcast(delta);
         }
+        postUpdate.broadcast(delta);
 
     }
 
@@ -95,6 +139,14 @@ public final class Scene implements Disposable {
             postRender.broadcast(renderPass);
         });
 
+
+        window.makeContextCurrent();
+        multiInit.broadcast(window);
+        if(Game.currentContext != null)
+            Game.currentContext.makeContextCurrent();
+
+
+
         windows.add(window);
     }
 
@@ -110,6 +162,10 @@ public final class Scene implements Disposable {
 
     public Window getWindow(int index){
         return windows.get(index);
+    }
+
+    public Array<Window> getWindows(){
+        return windows;
     }
 
     public int getWindowCount(){
@@ -133,8 +189,26 @@ public final class Scene implements Disposable {
         preRender.dispose();
         render.dispose();
         postRender.dispose();
+
+
+        for(Shader shader : shaders)
+            shader.dispose();
+
+        shaders.clear();
+
+        for(Texture texture : textures)
+            texture.dispose();
+
+        textures.clear();
+
+        for(Mesh mesh : meshes)
+            mesh.dispose();
+
+        meshes.clear();
+
         for(Window window : windows)
-            window.dispose();
+            removeWindow(window);
+
         windows.clear();
 
     }

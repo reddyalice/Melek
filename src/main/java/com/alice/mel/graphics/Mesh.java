@@ -143,10 +143,13 @@ public class Mesh implements Disposable {
 
     @Override
     public void dispose() {
-        Game.loaderWindow.makeContextCurrent();
-        GL30.glDeleteVertexArrays(id);
-        for(int vbo:VBOS)
-            GL15.glDeleteBuffers(vbo);
+
+        if(Game.loaderWindow != null) {
+            Game.loaderWindow.makeContextCurrent();
+            GL30.glDeleteVertexArrays(id);
+            for (int vbo : VBOS)
+                GL15.glDeleteBuffers(vbo);
+        }
         VBOS.clear();
 
     }
