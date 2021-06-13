@@ -1,6 +1,5 @@
 package com.alice.mel.graphics;
 
-import com.alice.mel.engine.Game;
 import com.alice.mel.utils.Disposable;
 import com.alice.mel.utils.collections.Array;
 import org.lwjgl.BufferUtils;
@@ -14,24 +13,7 @@ import java.nio.IntBuffer;
 
 public class Mesh implements Disposable {
 
-    public static Mesh Quad = new Mesh(
-            new float[]{
-                        -0.5f, 0.5f,
-                        0.5f,  0.5f,
-                        0.5f,  -0.5f,
-                        -0.5f, -0.5f
-            },
-            new float[]{
-                    0, 0,
-                    1,  0,
-                    1,  1,
-                    0, 1
-            },
-            new int[]{
-                    0,1,2,
-                    2,3,0
-            }
-            );
+
 
 
 
@@ -141,16 +123,13 @@ public class Mesh implements Disposable {
         return buffer;
     }
 
+    public void disposeVAO(){
+        GL30.glDeleteVertexArrays(id);
+    }
+
     @Override
     public void dispose() {
-
-        if(Game.loaderWindow != null) {
-            Game.loaderWindow.makeContextCurrent();
-            GL30.glDeleteVertexArrays(id);
-            for (int vbo : VBOS)
-                GL15.glDeleteBuffers(vbo);
-        }
-        VBOS.clear();
-
+        for (int vbo : VBOS)
+            GL15.glDeleteBuffers(vbo);
     }
 }

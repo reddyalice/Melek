@@ -10,14 +10,21 @@ import org.javatuples.Pair;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWErrorCallback;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 public final class Scene implements Disposable {
 
+
     private final SnapshotArray<Window> windows = new SnapshotArray<>();
+    public final Window loaderWindow;
+    public Window currentContext;
 
-
+    public final WindowPool windowPool = new WindowPool(this);
+    public final CameraPool cameraPool = new CameraPool();
 
     public final Event<Window> init = new Event<>();
-    public final Event<Window> multiInit = new Event<>();
+    private final Event<Window> multiInit = new Event<>();
     public final Event<Float> preUpdate = new Event<>();
     public final Event<Float> update = new Event<>();
     public final Event<Float> postUpdate = new Event<>();
@@ -26,46 +33,96 @@ public final class Scene implements Disposable {
     public final Event<Pair<Camera, Float>> render = new Event<>();
     public final Event<Pair<Camera, Float>> postRender = new Event<>();
 
-    private final Event<Window> createWindow = new Event<>();
-    private final Event<Window> removeWindow = new Event<>();
 
 
     private boolean initilized = false;
 
-    public final Array<Shader> shaders = new Array<>();
-    public final Array<Texture> textures = new Array<>();
-    public final Array<Mesh> meshes = new Array<>();
+    private final SnapshotArray<Shader> shaders = new SnapshotArray<>();
+    private final SnapshotArray<Texture> textures = new SnapshotArray<>();
+    private final SnapshotArray<Mesh> meshes = new SnapshotArray<>();
+
+    private boolean active = false;
+
 
     public Scene(){
-
-        if(!Game.initialized){
-            GLFWErrorCallback.createPrint(System.err).set();
-            boolean isInitialized  = GLFW.glfwInit();
-            if(!isInitialized){
+        GLFWErrorCallback.createPrint(System.err).set();
+        boolean isInitialized  = GLFW.glfwInit();
+        if(!isInitialized){
                 System.err.println("Failed To initialized!");
                 System.exit(1);
-            }
-            Game.initialized = true;
         }
 
+        loaderWindow = createWindow(CameraType.Orthographic, "Loader", 640, 480);
+        removeWindow(loaderWindow);
 
-        init.add("load", x -> {
-            for(Shader shader : shaders)
-                shader.compile();
+    }
 
-            for(Texture texture : textures)
-                texture.genTexture();
-        });
+    public void loadTexture(Texture texture){
+        textures.add(texture);
+        loaderWindow.makeContextCurrent();
+        texture.genTexture();
+        if(currentContext != null)
+            currentContext.makeContextCurrent();
+    }
 
-        multiInit.add("load", x -> {
-            for(Mesh mesh :meshes)
-                mesh.genMesh();
-        });
+    public void loadMesh(Mesh mesh){
+        meshes.add(mesh);
+        loaderWindow.makeContextCurrent();
+        mesh.genMesh();
+        for(Window window : windows) {
+            window.makeContextCurrent();
+            mesh.genMesh();
+        }
+        if(currentContext != null)
+            currentContext.makeContextCurrent();
+
+        multiInit.add("mesh" + mesh.id, x -> mesh.genMesh());
+    }
+
+    public void loadShader(Shader shader){
+        shaders.add(shader);
+        loaderWindow.makeContextCurrent();
+        shader.compile();
+        if(currentContext != null)
+            currentContext.makeContextCurrent();
+    }
+
+    public void unloadTexture(Texture texture){
+        textures.removeValue(texture, false);
+        loaderWindow.makeContextCurrent();
+        texture.dispose();
+        if(currentContext != null)
+            currentContext.makeContextCurrent();
+    }
+
+    public void unloadMesh(Mesh mesh){
+        meshes.removeValue(mesh, false);
+        loaderWindow.makeContextCurrent();
+        mesh.disposeVAO();
+        mesh.dispose();
+        for(Window window : windows) {
+            window.makeContextCurrent();
+            mesh.disposeVAO();
+        }
+        if(currentContext != null)
+            currentContext.makeContextCurrent();
+
+        multiInit.remove("mesh" + mesh.id);
+
+    }
+
+    public void unloadShader(Shader shader){
+        shaders.removeValue(shader, false);
+        loaderWindow.makeContextCurrent();
+        shader.dispose();
+        if(currentContext != null)
+            currentContext.makeContextCurrent();
+
     }
 
     public Window createWindow(CameraType cameraType, String title, int width, int height, boolean transparentFrameBuffer){
 
-        Window w = Game.windowPool.obtain(cameraType, title, width, height, transparentFrameBuffer);
+        Window w = windowPool.obtain(cameraType, title, width, height, transparentFrameBuffer);
         w.show();
         addWindow(w);
         return w;
@@ -78,41 +135,26 @@ public final class Scene implements Disposable {
 
     public void Update(float delta){
 
-
-
-
-
-
-
-
-
         preUpdate.broadcast(delta);
         update.broadcast(delta);
 
+        if(!initilized){
+            loaderWindow.makeContextCurrent();
+                init.broadcast(loaderWindow);
+                initilized = true;
+                if(currentContext != null)
+                    currentContext.makeContextCurrent();
+        }
+
         for(Window window : windows)
         {
-
             if(!window.initialised) {
                 window.init.broadcast(this);
                 window.initialised = true;
             }
 
             window.preRender.broadcast(delta);
-            Game.currentContext = window;
-
-
-
-
-            if(!initilized){
-                if(window == Game.loaderWindow)
-                {
-                    init.broadcast(window);
-                    initilized = true;
-                }
-            }
-
-
-
+            currentContext = window;
 
             window.render.broadcast(delta);
             window.postRender.broadcast(delta);
@@ -142,8 +184,8 @@ public final class Scene implements Disposable {
 
         window.makeContextCurrent();
         multiInit.broadcast(window);
-        if(Game.currentContext != null)
-            Game.currentContext.makeContextCurrent();
+        if(currentContext != null)
+            currentContext.makeContextCurrent();
 
 
 
@@ -156,7 +198,7 @@ public final class Scene implements Disposable {
         update.remove("window" + window.id);
         postUpdate.remove("window" + window.id);
         window.render.remove("scene");
-        Game.windowPool.free(window);
+        windowPool.free(window);
 
     }
 
@@ -172,15 +214,6 @@ public final class Scene implements Disposable {
         return windows.size;
     }
 
-
-    public void close(){
-        for(Window window : windows)
-            removeWindow(window);
-        dispose();
-    }
-
-
-
     @Override
     public void dispose() {
         preUpdate.dispose();
@@ -190,26 +223,24 @@ public final class Scene implements Disposable {
         render.dispose();
         postRender.dispose();
 
-
         for(Shader shader : shaders)
-            shader.dispose();
-
+            unloadShader(shader);
         shaders.clear();
 
         for(Texture texture : textures)
-            texture.dispose();
-
+            unloadTexture(texture);
         textures.clear();
 
         for(Mesh mesh : meshes)
-            mesh.dispose();
-
+           unloadMesh(mesh);
         meshes.clear();
 
         for(Window window : windows)
             removeWindow(window);
-
         windows.clear();
 
+        windowPool.dispose();
+        cameraPool.dispose();
+        GLFW.glfwTerminate();
     }
 }

@@ -1,6 +1,5 @@
 package com.alice.mel.graphics;
 
-import com.alice.mel.engine.Game;
 import com.alice.mel.engine.Scene;
 import com.alice.mel.utils.Disposable;
 import com.alice.mel.utils.Event;
@@ -43,10 +42,10 @@ public class Window implements Disposable {
     private final Vector4f backgroundColor = new Vector4f(0,0,0,0);
 
 
-    public Window(Camera camera, String title, int width, int height, boolean transparentFrameBuffer){
+    public Window(Camera camera, Scene scene, String title, int width, int height, boolean transparentFrameBuffer){
 
         GLFW.glfwWindowHint(GLFW.GLFW_TRANSPARENT_FRAMEBUFFER, transparentFrameBuffer ? GLFW.GLFW_TRUE : GLFW.GLFW_FALSE);
-        id = GLFW.glfwCreateWindow(width, height, title, 0,  Game.loaderWindow == null ? 0 :  Game.loaderWindow.id);
+        id = GLFW.glfwCreateWindow(width, height, title, 0,  scene.loaderWindow == null ? 0 :  scene.loaderWindow.id);
 
         size = new Vector2i(width, height);
         this.camera = camera;
@@ -55,11 +54,7 @@ public class Window implements Disposable {
         GLFW.glfwGetWindowPos(id, X,Y);
         position = new Vector2i(X.get(),Y.get());
         makeContextCurrent();
-
-        if(Game.loaderWindow == null)
-            Game.loaderWindow = this;
-
-
+        this.scene = scene;
         postUpdate.add("camera", x -> this.camera.update());
         preRender.add("makeCurrentAndClear", x -> {
              makeContextCurrent();
@@ -81,12 +76,12 @@ public class Window implements Disposable {
                 camera.viewportWidth = width;
                 makeContextCurrent();
                 GL11.glViewport(0,0,width,height);
-                if(Game.currentContext != null)
-                    Game.currentContext.makeContextCurrent();
+                if(scene.currentContext != null)
+                    scene.currentContext.makeContextCurrent();
 
             }
         });
-        GL11.glViewport(0,0,640,480);
+        GL11.glViewport(0,0,width,height);
     }
 
 

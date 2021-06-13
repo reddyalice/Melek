@@ -29,90 +29,56 @@ public class LookingGlass {
 
     public static void main(String[] args) {
 
-        Basic3DShader shader = new Basic3DShader();
-        Texture texture = new Texture("src/main/resources/textures/cactus.png");
-        Texture texture1 = new Texture("src/main/resources/textures/cactus.png");
-        Mesh mesh = OBJLoader.loadOBJ("src/main/resources/models/cactus.obj");
-        Mesh mesh1 = Mesh.Quad;
-        Scene s = new Scene();
-        Scene se = new Scene();
+            Basic3DShader shader = new Basic3DShader();
+            //Texture texture = new Texture("src/main/resources/textures/cactus.png");
+            //Mesh mesh = OBJLoader.loadOBJ("src/main/resources/models/cactus.obj");
+            AssetManager as = new AssetManager();
+            Mesh mesh = as.getMesh("Quad3D");
+            Texture texture = as.getTexture("null");
+            Scene s = new Scene();
 
-        s.textures.add(texture);
-        s.meshes.add(mesh);
-        s.shaders.add(shader);
-
-        se.shaders.add(shader);
-        se.textures.add(texture1);
-        se.meshes.add(mesh1);
-
-        Game.scenes.add(s);
-        Game.scenes.add(se);
-        Window w = s.createWindow(CameraType.Orthographic, "Test", 640, 480, false);
+            s.loadTexture(texture);
+            s.loadMesh(mesh);
+            s.loadShader(shader);
 
 
-        se.init.add("t", t -> {
-            Window w2 = se.createWindow(CameraType.Orthographic,"Test1", 640, 480, true);
-            Vector4f color = new Vector4f(1,1,1,1f);
-            System.out.println("hey!");
+            Window w = s.createWindow(CameraType.Orthographic, "Test", 640, 480, false);
 
-            se.render.add("x", x -> {
 
-                shader.start();
-                shader.LoadCamera(x.getValue0());
-                shader.loadColor(color);
-                GL20.glEnable(GL11.GL_TEXTURE);
-                mesh.bind();
-                GL20.glActiveTexture(GL20.GL_TEXTURE0);
-                texture.bind();
-                shader.LoadTransformationMatrix(MathUtils.CreateTransformationMatrix(new Vector3f(0,0,-100), new Vector3f(0,0,0), new Vector3f(100,100,100)));
-                GL11.glDrawElements(GL11.GL_TRIANGLES, mesh.vertexCount, GL11.GL_UNSIGNED_INT, 0);
-                mesh.unbind();
-                GL20.glDisable(GL11.GL_TEXTURE);
-                texture.unbind();
-                shader.stop();
+            s.init.add("t", t -> {
+                Window w2 = s.createWindow(CameraType.Orthographic,"Test1", 640, 480, true);
+
+                Vector4f color = new Vector4f(1,1,1,1f);
+                s.render.add("x", x -> {
+
+                    shader.start();
+                    shader.LoadCamera(x.getValue0());
+                    shader.loadColor(color);
+                    GL20.glEnable(GL11.GL_TEXTURE);
+                    mesh.bind();
+                    GL20.glActiveTexture(GL20.GL_TEXTURE0);
+                    texture.bind();
+                    shader.LoadTransformationMatrix(MathUtils.CreateTransformationMatrix(new Vector3f(0,0,-100), new Vector3f(0,0,0), new Vector3f(100,100,100)));
+                    GL11.glDrawElements(GL11.GL_TRIANGLES, mesh.vertexCount, GL11.GL_UNSIGNED_INT, 0);
+                    mesh.unbind();
+                    GL20.glDisable(GL11.GL_TEXTURE);
+                    texture.unbind();
+                    shader.stop();
+
+                });
+                w2.update.add("move", x -> {
+                    MathUtils.LookRelativeTo(w2, w);
+                    if(InputHandler.getKey(s, GLFW.GLFW_KEY_A))
+                        s.unloadShader(shader);
+                });
             });
 
-
-        });
-
-        Game.inputEvent.add("x", x ->
-        {
-            if(InputHandler.getKey(GLFW.GLFW_KEY_F))
-                Game.setScene(1);
-        });
+            while (s.getWindowCount() > 0)
+                s.Update(1f/60f);
 
 
-        s.init.add("t", t -> {
-            Window w2 = s.createWindow(CameraType.Orthographic,"Test1", 640, 480, true);
-            Window w3 = s.createWindow(CameraType.Orthographic,"Test1", 640, 480, true);
-            Vector4f color = new Vector4f(1,1,1,1f);
-            s.render.add("x", x -> {
+            s.dispose();
 
-                shader.start();
-                shader.LoadCamera(x.getValue0());
-                shader.loadColor(color);
-                GL20.glEnable(GL11.GL_TEXTURE);
-                mesh.bind();
-                GL20.glActiveTexture(GL20.GL_TEXTURE0);
-                texture.bind();
-                shader.LoadTransformationMatrix(MathUtils.CreateTransformationMatrix(new Vector3f(0,0,-100), new Vector3f(0,0,0), new Vector3f(100,100,100)));
-                GL11.glDrawElements(GL11.GL_TRIANGLES, mesh.vertexCount, GL11.GL_UNSIGNED_INT, 0);
-                mesh.unbind();
-                GL20.glDisable(GL11.GL_TEXTURE);
-                texture.unbind();
-                shader.stop();
-            });
-            w2.update.add("move", x -> MathUtils.LookRelativeTo(w2, w));
-            w3.update.add("move", x -> MathUtils.LookRelativeTo(w3, w));
-        });
-
-        Game.setScene(0);
-        Game.setScene(1);
-
-
-
-
-        Game.run();
 
 
 

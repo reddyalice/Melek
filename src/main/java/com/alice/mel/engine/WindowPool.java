@@ -5,24 +5,31 @@ import com.alice.mel.graphics.Window;
 import com.alice.mel.utils.Disposable;
 import com.alice.mel.utils.collections.Array;
 
+
+
 public class WindowPool implements Disposable {
+
+
+
+
 
     public final int max;
     public int peak;
-
+    public final Scene scene;
     private final Array<Window> freedNonTransWindows;
     private final Array<Window> freedTransWindows;
 
 
-    public WindowPool () {
-        this(4, Integer.MAX_VALUE);
+    public WindowPool (Scene scene) {
+        this(scene,4, Integer.MAX_VALUE);
     }
 
-    public WindowPool (int initialCapacity) {
-        this(initialCapacity, Integer.MAX_VALUE);
+    public WindowPool (Scene scene, int initialCapacity) {
+        this(scene, initialCapacity, Integer.MAX_VALUE);
     }
 
-    public WindowPool (int initialCapacity, int max) {
+    public WindowPool (Scene scene, int initialCapacity, int max) {
+        this.scene = scene;
         freedNonTransWindows = new Array<>(false, initialCapacity);
         freedTransWindows = new Array<>(false, initialCapacity);
         this.max = max;
@@ -33,25 +40,25 @@ public class WindowPool implements Disposable {
         if(transparentFrameBuffer){
             if(freedTransWindows.size > 0){
                 Window window = freedTransWindows.pop();
-                window.camera = Game.cameraPool.obtain(cameraType, width, height);
+                window.camera = scene.cameraPool.obtain(cameraType, width, height);
                 window.setTitle(title);
                 window.setSize(width, height);
                 window.show();
                 window.active = true;
                 return window;
             }else
-                return new Window( Game.cameraPool.obtain(cameraType, width, height), title, width, height, true);
+                return new Window( scene.cameraPool.obtain(cameraType, width, height), scene, title, width, height, true);
         }else{
             if(freedNonTransWindows.size > 0){
                 Window window = freedNonTransWindows.pop();
-                window.camera = Game.cameraPool.obtain(cameraType, width, height);
+                window.camera = scene.cameraPool.obtain(cameraType, width, height);
                 window.setTitle(title);
                 window.setSize(width, height);
                 window.show();
                 window.active = true;
                 return window;
             }else
-                return new Window( Game.cameraPool.obtain(cameraType, width, height), title, width, height, false);
+                return new Window( scene.cameraPool.obtain(cameraType, width, height), scene, title, width, height, false);
         }
     }
 
@@ -79,17 +86,17 @@ public class WindowPool implements Disposable {
 
     private void discard(Window window) {
         window.active = false;
-        if(window != Game.loaderWindow)
+        if(window != scene.loaderWindow)
             window.dispose();
         else
             window.hide();
 
-        Game.cameraPool.free(window.camera);
+        scene.cameraPool.free(window.camera);
     }
 
     private void reset(Window window) {
        window.reset();
-       Game.cameraPool.free(window.camera);
+        scene.cameraPool.free(window.camera);
 
     }
 

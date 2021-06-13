@@ -36,6 +36,29 @@ public final class Texture implements Disposable {
         for(int i = 0; i < height; i++){
             for(int j = 0; j < width; j++){
                 int pixel = rawPixels[i*width + j];
+                System.out.println((pixel));
+                pixels.put((byte)((pixel >> 16) & 0xFF)); //RED
+                pixels.put((byte)((pixel >> 8) & 0xFF)); //GREEN
+                pixels.put((byte)(pixel & 0xFF)); //BLUE
+                pixels.put((byte)((pixel >> 24) & 0xFF)); //ALPHA
+            }
+        }
+
+        pixels.flip();
+    }
+
+    public Texture (int width, int height, int[] rawPixels) {
+
+
+
+        this.width = width;
+        this.height = height;
+
+        pixels = BufferUtils.createByteBuffer(width*height*4);
+
+        for(int i = 0; i < height; i++){
+            for(int j = 0; j < width; j++){
+                int pixel = rawPixels[i*width + j];
                 pixels.put((byte)((pixel >> 16) & 0xFF)); //RED
                 pixels.put((byte)((pixel >> 8) & 0xFF)); //GREEN
                 pixels.put((byte)(pixel & 0xFF)); //BLUE
@@ -70,8 +93,8 @@ public final class Texture implements Disposable {
 
     @Override
     public void dispose() {
-        if(id != 0)
-            GL11.glDeleteTextures(id);
+        GL11.glDeleteTextures(id);
+        id = -1;
     }
 }
 
