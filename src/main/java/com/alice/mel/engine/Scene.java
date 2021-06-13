@@ -58,65 +58,83 @@ public final class Scene implements Disposable {
     }
 
     public void loadTexture(Texture texture){
-        textures.add(texture);
-        loaderWindow.makeContextCurrent();
-        texture.genTexture();
-        if(currentContext != null)
-            currentContext.makeContextCurrent();
+        if(!textures.contains(texture, false)) {
+            textures.add(texture);
+            loaderWindow.makeContextCurrent();
+            texture.genTexture();
+            if (currentContext != null)
+                currentContext.makeContextCurrent();
+        }else
+            System.err.println("Texture already loaded!");
     }
 
     public void loadMesh(Mesh mesh){
-        meshes.add(mesh);
-        loaderWindow.makeContextCurrent();
-        mesh.genMesh();
-        for(Window window : windows) {
-            window.makeContextCurrent();
+        if(!meshes.contains(mesh, false)) {
+            meshes.add(mesh);
+            loaderWindow.makeContextCurrent();
             mesh.genMesh();
-        }
-        if(currentContext != null)
-            currentContext.makeContextCurrent();
+            for (Window window : windows) {
+                window.makeContextCurrent();
+                mesh.genMesh();
+            }
+            if (currentContext != null)
+                currentContext.makeContextCurrent();
 
-        multiInit.add("mesh" + mesh.id, x -> mesh.genMesh());
+            multiInit.add("mesh" + mesh.id, x -> mesh.genMesh());
+        }else
+            System.err.println("Mesh already loaded!");
     }
 
     public void loadShader(Shader shader){
-        shaders.add(shader);
-        loaderWindow.makeContextCurrent();
-        shader.compile();
-        if(currentContext != null)
-            currentContext.makeContextCurrent();
+        if(!shaders.contains(shader, false)) {
+            shaders.add(shader);
+            loaderWindow.makeContextCurrent();
+            shader.compile();
+            if (currentContext != null)
+                currentContext.makeContextCurrent();
+        }else
+            System.err.println("Shader already loaded!");
     }
 
     public void unloadTexture(Texture texture){
-        textures.removeValue(texture, false);
-        loaderWindow.makeContextCurrent();
-        texture.dispose();
-        if(currentContext != null)
-            currentContext.makeContextCurrent();
+        if(textures.contains(texture, false)) {
+            textures.removeValue(texture, false);
+            loaderWindow.makeContextCurrent();
+            texture.dispose();
+            if (currentContext != null)
+                currentContext.makeContextCurrent();
+        }else
+            System.err.println("No such Texture already loaded!");
     }
 
     public void unloadMesh(Mesh mesh){
-        meshes.removeValue(mesh, false);
-        loaderWindow.makeContextCurrent();
-        mesh.disposeVAO();
-        mesh.dispose();
-        for(Window window : windows) {
-            window.makeContextCurrent();
+        if(meshes.contains(mesh, false)) {
+            meshes.removeValue(mesh, false);
+            loaderWindow.makeContextCurrent();
             mesh.disposeVAO();
-        }
-        if(currentContext != null)
-            currentContext.makeContextCurrent();
+            mesh.dispose();
+            for (Window window : windows) {
+                window.makeContextCurrent();
+                mesh.disposeVAO();
+            }
+            if (currentContext != null)
+                currentContext.makeContextCurrent();
 
-        multiInit.remove("mesh" + mesh.id);
+            multiInit.remove("mesh" + mesh.id);
+        }else
+            System.err.println("No such Mesh already loaded!");
 
     }
 
     public void unloadShader(Shader shader){
-        shaders.removeValue(shader, false);
-        loaderWindow.makeContextCurrent();
-        shader.dispose();
-        if(currentContext != null)
-            currentContext.makeContextCurrent();
+        if(shaders.contains(shader, false)) {
+            shaders.removeValue(shader, false);
+            loaderWindow.makeContextCurrent();
+            shader.dispose();
+            if (currentContext != null)
+                currentContext.makeContextCurrent();
+        }else
+            System.err.println("No such Shader already loaded!");
 
     }
 

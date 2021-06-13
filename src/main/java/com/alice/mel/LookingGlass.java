@@ -38,6 +38,7 @@ public class LookingGlass {
             Scene s = new Scene();
 
             s.loadTexture(texture);
+            s.loadTexture(texture);
             s.loadMesh(mesh);
             s.loadShader(shader);
 
