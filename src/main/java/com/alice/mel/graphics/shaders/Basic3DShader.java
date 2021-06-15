@@ -1,5 +1,6 @@
 package com.alice.mel.graphics.shaders;
 
+import com.alice.mel.engine.Scene;
 import com.alice.mel.graphics.Camera;
 import com.alice.mel.graphics.Shader;
 import org.joml.Matrix4f;
@@ -19,18 +20,18 @@ public class Basic3DShader extends Shader {
     }
 
     @Override
-    protected void bindAttributes() {
-        bindAttribute(0, "position");
-        bindAttribute(1, "texCoords");
-        bindAttribute(2, "normal");
+    protected void bindAttributes(Scene scene) {
+        bindAttribute(scene,0, "position");
+        bindAttribute(scene,1, "texCoords");
+        bindAttribute(scene,2, "normal");
     }
 
     @Override
-    protected void getAllUniformLocations() {
-        location_transformationMatrix = getUniformLocation("transformationMatrix");
-        location_viewMatrix = getUniformLocation("viewMatrix");
-        location_projectionMatrix = getUniformLocation("projectionMatrix");
-        location_color = getUniformLocation("color");
+    protected void getAllUniformLocations(Scene scene) {
+        location_transformationMatrix = getUniformLocation(scene,"transformationMatrix");
+        location_viewMatrix = getUniformLocation(scene,"viewMatrix");
+        location_projectionMatrix = getUniformLocation(scene,"projectionMatrix");
+        location_color = getUniformLocation(scene,"color");
     }
 
 

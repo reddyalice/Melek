@@ -2,7 +2,6 @@ package com.alice.mel.engine;
 
 
 import com.alice.mel.graphics.*;
-import com.alice.mel.utils.Disposable;
 import com.alice.mel.utils.Event;
 import com.alice.mel.utils.collections.Array;
 import com.alice.mel.utils.collections.SnapshotArray;
@@ -10,10 +9,7 @@ import org.javatuples.Pair;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWErrorCallback;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
-public final class Scene implements Disposable {
+public final class Scene {
 
 
     private final SnapshotArray<Window> windows = new SnapshotArray<>();
@@ -29,9 +25,9 @@ public final class Scene implements Disposable {
     public final Event<Float> update = new Event<>();
     public final Event<Float> postUpdate = new Event<>();
 
-    public final Event<Pair<Camera, Float>> preRender = new Event<>();
-    public final Event<Pair<Camera, Float>> render = new Event<>();
-    public final Event<Pair<Camera, Float>> postRender = new Event<>();
+    public final Event<Pair<Window, Float>> preRender = new Event<>();
+    public final Event<Pair<Window, Float>> render = new Event<>();
+    public final Event<Pair<Window, Float>> postRender = new Event<>();
 
 
 
@@ -45,11 +41,14 @@ public final class Scene implements Disposable {
 
 
     public Scene(){
-        GLFWErrorCallback.createPrint(System.err).set();
-        boolean isInitialized  = GLFW.glfwInit();
-        if(!isInitialized){
+        if(Game.loaderScene == null) {
+            GLFWErrorCallback.createPrint(System.err).set();
+            boolean isInitialized = GLFW.glfwInit();
+            if (!isInitialized) {
                 System.err.println("Failed To initialized!");
                 System.exit(1);
+            }
+            Game.loaderScene = this;
         }
 
         loaderWindow = createWindow(CameraType.Orthographic, "Loader", 640, 480);
@@ -61,7 +60,7 @@ public final class Scene implements Disposable {
         if(!textures.contains(texture, false)) {
             textures.add(texture);
             loaderWindow.makeContextCurrent();
-            texture.genTexture();
+            texture.genTexture(this);
             if (currentContext != null)
                 currentContext.makeContextCurrent();
         }else
@@ -72,15 +71,15 @@ public final class Scene implements Disposable {
         if(!meshes.contains(mesh, false)) {
             meshes.add(mesh);
             loaderWindow.makeContextCurrent();
-            mesh.genMesh();
+            mesh.genMesh(loaderWindow);
             for (Window window : windows) {
                 window.makeContextCurrent();
-                mesh.genMesh();
+                mesh.genMesh(window);
             }
             if (currentContext != null)
                 currentContext.makeContextCurrent();
 
-            multiInit.add("mesh" + mesh.id, x -> mesh.genMesh());
+            multiInit.add("mesh" + mesh.ids.get(loaderWindow), x -> mesh.genMesh(x));
         }else
             System.err.println("Mesh already loaded!");
     }
@@ -89,7 +88,7 @@ public final class Scene implements Disposable {
         if(!shaders.contains(shader, false)) {
             shaders.add(shader);
             loaderWindow.makeContextCurrent();
-            shader.compile();
+            shader.compile(this);
             if (currentContext != null)
                 currentContext.makeContextCurrent();
         }else
@@ -100,7 +99,7 @@ public final class Scene implements Disposable {
         if(textures.contains(texture, false)) {
             textures.removeValue(texture, false);
             loaderWindow.makeContextCurrent();
-            texture.dispose();
+            texture.dispose(this);
             if (currentContext != null)
                 currentContext.makeContextCurrent();
         }else
@@ -111,16 +110,16 @@ public final class Scene implements Disposable {
         if(meshes.contains(mesh, false)) {
             meshes.removeValue(mesh, false);
             loaderWindow.makeContextCurrent();
-            mesh.disposeVAO();
+            mesh.disposeVAO(loaderWindow);
             mesh.dispose();
             for (Window window : windows) {
                 window.makeContextCurrent();
-                mesh.disposeVAO();
+                mesh.disposeVAO(window);
             }
             if (currentContext != null)
                 currentContext.makeContextCurrent();
 
-            multiInit.remove("mesh" + mesh.id);
+            multiInit.remove("mesh" + mesh.ids.get(loaderWindow));
         }else
             System.err.println("No such Mesh already loaded!");
 
@@ -130,7 +129,7 @@ public final class Scene implements Disposable {
         if(shaders.contains(shader, false)) {
             shaders.removeValue(shader, false);
             loaderWindow.makeContextCurrent();
-            shader.dispose();
+            shader.dispose(this);
             if (currentContext != null)
                 currentContext.makeContextCurrent();
         }else
@@ -139,7 +138,6 @@ public final class Scene implements Disposable {
     }
 
     public Window createWindow(CameraType cameraType, String title, int width, int height, boolean transparentFrameBuffer){
-
         Window w = windowPool.obtain(cameraType, title, width, height, transparentFrameBuffer);
         w.show();
         addWindow(w);
@@ -151,18 +149,22 @@ public final class Scene implements Disposable {
     }
 
 
+
     public void Update(float delta){
+
+        if(!initilized){
+            loaderWindow.makeContextCurrent();
+            init.broadcast(loaderWindow);
+            initilized = true;
+            if(currentContext != null)
+                currentContext.makeContextCurrent();
+        }
+
 
         preUpdate.broadcast(delta);
         update.broadcast(delta);
 
-        if(!initilized){
-            loaderWindow.makeContextCurrent();
-                init.broadcast(loaderWindow);
-                initilized = true;
-                if(currentContext != null)
-                    currentContext.makeContextCurrent();
-        }
+
 
         for(Window window : windows)
         {
@@ -181,7 +183,7 @@ public final class Scene implements Disposable {
 
     }
 
-    public void addWindow(Window window){
+    private void addWindow(Window window){
         window.setScene(this);
         preUpdate.add("window" + window.id, window.preUpdate::broadcast);
         update.add("window" + window.id, window.update::broadcast);
@@ -193,7 +195,7 @@ public final class Scene implements Disposable {
                 return;
             }
 
-            Pair<Camera, Float> renderPass = Pair.with(window.camera,x);
+            Pair<Window, Float> renderPass = Pair.with(window,x);
             preRender.broadcast(renderPass);
             render.broadcast(renderPass);
             postRender.broadcast(renderPass);
@@ -232,7 +234,6 @@ public final class Scene implements Disposable {
         return windows.size;
     }
 
-    @Override
     public void dispose() {
         preUpdate.dispose();
         update.dispose();
@@ -259,6 +260,5 @@ public final class Scene implements Disposable {
 
         windowPool.dispose();
         cameraPool.dispose();
-        GLFW.glfwTerminate();
     }
 }

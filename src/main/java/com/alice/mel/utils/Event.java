@@ -3,7 +3,7 @@ package com.alice.mel.utils;
 import java.util.HashMap;
 import java.util.function.Consumer;
 
-public class Event<T> implements Disposable{
+public class Event<T>{
 
     private final HashMap<String,Consumer<T>> consumers = new HashMap<String,Consumer<T>>();
 

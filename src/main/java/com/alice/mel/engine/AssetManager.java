@@ -3,11 +3,10 @@ package com.alice.mel.engine;
 import com.alice.mel.graphics.Mesh;
 import com.alice.mel.graphics.Shader;
 import com.alice.mel.graphics.Texture;
-import com.alice.mel.utils.Disposable;
 
 import java.util.HashMap;
 
-public final class AssetManager implements Disposable {
+public final class AssetManager {
 
     private final HashMap<String, Texture> textures = new HashMap<>();
     private final HashMap<String, Shader> shaders = new HashMap<>();
@@ -125,7 +124,6 @@ public final class AssetManager implements Disposable {
         shaders.remove(name);
     }
 
-    @Override
     public void dispose() {
         textures.clear();
         meshes.clear();

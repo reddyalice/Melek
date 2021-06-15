@@ -1,6 +1,5 @@
 package com.alice.mel.graphics;
 
-import com.alice.mel.utils.Disposable;
 import com.alice.mel.utils.collections.Array;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
@@ -10,14 +9,15 @@ import org.lwjgl.opengl.GL30;
 
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
+import java.util.HashMap;
 
-public class Mesh implements Disposable {
-
-
-
+public class Mesh {
 
 
-    public int id = 0;
+
+
+
+    public HashMap<Window, Integer> ids = new HashMap<>();
     public final int vertexCount;
     public final int dimension;
     public final float[] vertices;
@@ -47,17 +47,18 @@ public class Mesh implements Disposable {
         VBOS.ordered = true;
     }
 
-    public void genMesh(){
+    public void genMesh(Window window){
         if(VBOS.size == 0) {
-            id = GL30.glGenVertexArrays();
+            int id = GL30.glGenVertexArrays();
             GL30.glBindVertexArray(id);
             storeDataInAttributeList(0, dimension, vertices);
             storeDataInAttributeList(1, 2, textureCoords);
             if (dimension == 3)
                 storeDataInAttributeList(2, dimension, normals);
             bindIndices(indices);
+            ids.put(window, id);
         }else{
-            id = GL30.glGenVertexArrays();
+            int id = GL30.glGenVertexArrays();
             GL30.glBindVertexArray(id);
             GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, VBOS.get(0));
             GL20.glVertexAttribPointer(0, dimension, GL11.GL_FLOAT, false, 0, 0);
@@ -70,13 +71,13 @@ public class Mesh implements Disposable {
             }else{
                 GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, VBOS.get(2));
             }
-
+            ids.put(window, id);
         }
         GL30.glBindVertexArray(0);
     }
 
-    public void bind(){
-        GL30.glBindVertexArray(1);
+    public void bind(Window window){
+        GL30.glBindVertexArray(ids.get(window));
         GL20.glEnableVertexAttribArray(0);
         GL20.glEnableVertexAttribArray(1);
         if(dimension == 3) GL20.glEnableVertexAttribArray(2);
@@ -123,11 +124,13 @@ public class Mesh implements Disposable {
         return buffer;
     }
 
-    public void disposeVAO(){
-        GL30.glDeleteVertexArrays(id);
+    public void disposeVAO(Window window){
+        if(ids.containsKey(window))
+            GL30.glDeleteVertexArrays(ids.get(window));
+        ids.remove(window);
+
     }
 
-    @Override
     public void dispose() {
         for (int vbo : VBOS)
             GL15.glDeleteBuffers(vbo);

@@ -1,11 +1,9 @@
 package com.alice.mel.graphics;
 
-import com.alice.mel.utils.Disposable;
-import com.alice.mel.utils.maths.Ray;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
-public abstract class Camera implements Disposable {
+public abstract class Camera {
 
     public float near = 1;
     public float far = 100;
@@ -63,5 +61,5 @@ public abstract class Camera implements Disposable {
     }
 
     public abstract void update ();
-
+    public abstract void dispose();
 }

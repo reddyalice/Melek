@@ -2,9 +2,8 @@ package com.alice.mel.systems;
 
 import com.alice.mel.engine.Scene;
 import com.alice.mel.graphics.Camera;
-import com.alice.mel.utils.Disposable;
 
-public abstract class ComponentSystem implements Disposable {
+public abstract class ComponentSystem {
 
     public Scene scene;
 

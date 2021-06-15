@@ -2,12 +2,11 @@ package com.alice.mel.engine;
 
 import com.alice.mel.graphics.CameraType;
 import com.alice.mel.graphics.Window;
-import com.alice.mel.utils.Disposable;
 import com.alice.mel.utils.collections.Array;
 
 
 
-public class WindowPool implements Disposable {
+public class WindowPool {
 
 
 
@@ -100,7 +99,6 @@ public class WindowPool implements Disposable {
 
     }
 
-    @Override
     public void dispose() {
         for(Window window : freedNonTransWindows)
             window.dispose();

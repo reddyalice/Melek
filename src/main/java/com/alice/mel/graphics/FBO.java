@@ -1,6 +1,5 @@
 package com.alice.mel.graphics;
 
-import com.alice.mel.utils.Disposable;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 import org.lwjgl.opengl.GL14;
@@ -8,7 +7,7 @@ import org.lwjgl.opengl.GL30;
 
 import java.nio.ByteBuffer;
 
-public class FBO implements Disposable {
+public class FBO {
 
     public static final int NONE = 0;
     public static final int DEPTH_TEXTURE = 1;

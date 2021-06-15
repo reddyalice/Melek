@@ -1,7 +1,6 @@
 package com.alice.mel.graphics;
 
 import com.alice.mel.engine.Scene;
-import com.alice.mel.utils.Disposable;
 import com.alice.mel.utils.Event;
 import org.joml.Vector2i;
 import org.joml.Vector4f;
@@ -13,7 +12,7 @@ import org.lwjgl.opengl.GL11;
 
 import java.nio.IntBuffer;
 
-public class Window implements Disposable {
+public class Window {
 
     public final long id;
     public final boolean transparentFrameBuffer;
@@ -203,7 +202,6 @@ public class Window implements Disposable {
         return size;
     }
 
-    @Override
     public void dispose() {
         X.clear();
         Y.clear();
@@ -215,5 +213,6 @@ public class Window implements Disposable {
         preRender.dispose();
         render.dispose();
         postRender.dispose();
+        GLFW.glfwDestroyWindow(id);
     }
 }

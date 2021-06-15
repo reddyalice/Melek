@@ -1,6 +1,6 @@
 package com.alice.mel.graphics;
 
-import com.alice.mel.utils.Disposable;
+import com.alice.mel.engine.Scene;
 import com.alice.mel.utils.collections.Array;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
@@ -16,7 +16,7 @@ import java.io.IOException;
 import java.nio.FloatBuffer;
 import java.util.HashMap;
 
-public abstract class Shader implements Disposable {
+public abstract class Shader{
 
     public enum ShaderType{
         NONE,
@@ -25,7 +25,7 @@ public abstract class Shader implements Disposable {
         GEOMETRY
     }
 
-    public transient int id = 0;
+    public HashMap<Scene, Integer> ids = new HashMap<>();
     public final HashMap<Integer, String> sources = new HashMap<Integer, String>();
     private final FloatBuffer matrixBuffer = BufferUtils.createFloatBuffer(16);
 
@@ -102,21 +102,22 @@ public abstract class Shader implements Disposable {
     }
 
 
-    protected abstract void bindAttributes();
-    protected abstract void getAllUniformLocations();
+    protected abstract void bindAttributes(Scene scene);
+    protected abstract void getAllUniformLocations(Scene scene);
 
 
-    public void bindAttribute(int attribute, String variableName){
-        GL32C.glBindAttribLocation(id, attribute, variableName);
+    public void bindAttribute(Scene scene, int attribute, String variableName){
+        GL32C.glBindAttribLocation(ids.get(scene), attribute, variableName);
     }
 
 
-    public int getUniformLocation(String name){
-        return GL32C.glGetUniformLocation(id, name);
+    public int getUniformLocation(Scene scene, String name){
+        return GL32C.glGetUniformLocation(ids.get(scene), name);
     }
 
-    public int compile(){
-        id = GL32C.glCreateProgram();
+    public void compile(Scene scene){
+        int id = GL32C.glCreateProgram();
+        ids.put(scene, id);
         int[] shaders = new int[sources.size()];
 
         int i = 0;
@@ -126,22 +127,22 @@ public abstract class Shader implements Disposable {
             i++;
         }
 
-        bindAttributes();
+        bindAttributes(scene);
         GL32C.glLinkProgram(id);
 
         for(i = 0; i < shaders.length; i++)
             GL32C.glDeleteShader(shaders[i]);
 
-        getAllUniformLocations();
+        getAllUniformLocations(scene);
 
-        return id;
+
 
     }
 
-    public void start(){
-        if(id == 0)
-            compile();
-        GL32C.glUseProgram(id);
+    public void start(Scene scene){
+        if(ids.get(scene) == 0)
+            compile(scene);
+        GL32C.glUseProgram(ids.get(scene));
     }
 
     public void stop(){
@@ -243,11 +244,11 @@ public abstract class Shader implements Disposable {
     }
 
 
-    public void dispose()
+    public void dispose(Scene scene)
     {
         stop();
-        GL32C.glDeleteShader(id);
-        sources.clear();
+        GL32C.glDeleteShader(ids.get(scene));
+        //sources.clear();
     }
 
 
