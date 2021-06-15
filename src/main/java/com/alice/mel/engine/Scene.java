@@ -5,9 +5,13 @@ import com.alice.mel.graphics.*;
 import com.alice.mel.utils.Event;
 import com.alice.mel.utils.collections.Array;
 import com.alice.mel.utils.collections.SnapshotArray;
+import com.alice.mel.utils.maths.MathUtils;
 import org.javatuples.Pair;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWErrorCallback;
+
+import java.util.HashMap;
+import java.util.Objects;
 
 public final class Scene {
 
@@ -71,15 +75,15 @@ public final class Scene {
         if(!meshes.contains(mesh, false)) {
             meshes.add(mesh);
             loaderWindow.makeContextCurrent();
-            mesh.genMesh(loaderWindow);
+            mesh.genMesh(this, loaderWindow);
             for (Window window : windows) {
                 window.makeContextCurrent();
-                mesh.genMesh(window);
+                mesh.genMesh(this, window);
             }
             if (currentContext != null)
                 currentContext.makeContextCurrent();
 
-            multiInit.add("mesh" + mesh.ids.get(loaderWindow), x -> mesh.genMesh(x));
+            multiInit.add("mesh" + mesh.ids.get(this).get(loaderWindow), x -> mesh.genMesh(this, x));
         }else
             System.err.println("Mesh already loaded!");
     }
@@ -110,16 +114,16 @@ public final class Scene {
         if(meshes.contains(mesh, false)) {
             meshes.removeValue(mesh, false);
             loaderWindow.makeContextCurrent();
-            mesh.disposeVAO(loaderWindow);
-            mesh.dispose();
+            mesh.disposeVAO(this, loaderWindow);
+            mesh.dispose(this);
             for (Window window : windows) {
                 window.makeContextCurrent();
-                mesh.disposeVAO(window);
+                mesh.disposeVAO(this, window);
             }
             if (currentContext != null)
                 currentContext.makeContextCurrent();
 
-            multiInit.remove("mesh" + mesh.ids.get(loaderWindow));
+            multiInit.remove("mesh" + mesh.ids.get(this).get(loaderWindow));
         }else
             System.err.println("No such Mesh already loaded!");
 
@@ -261,4 +265,5 @@ public final class Scene {
         windowPool.dispose();
         cameraPool.dispose();
     }
+
 }

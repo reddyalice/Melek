@@ -60,8 +60,8 @@ public class LookingGlass {
                     shader.start(s);
                     shader.LoadCamera(x.getValue0().camera);
                     shader.loadColor(color);
-                 GL20.glEnable(GL11.GL_TEXTURE);
-                 mesh.bind(x.getValue0());
+                    GL20.glEnable(GL11.GL_TEXTURE);
+                    mesh.bind(s, x.getValue0());
                     GL20.glActiveTexture(GL20.GL_TEXTURE0);
                     texture.bind(s);
                     shader.LoadTransformationMatrix(MathUtils.CreateTransformationMatrix(new Vector3f(0,0,-100), new Vector3f(0,0,0), new Vector3f(100,100,100)));
@@ -74,6 +74,7 @@ public class LookingGlass {
 
         game.addActiveScene(s);
 
+
         Scene s2 = new Scene();
 
         s2.loadTexture(texture);
@@ -84,9 +85,9 @@ public class LookingGlass {
 
 
         s2.init.add("t", t -> {
-            Window w = s2.createWindow(CameraType.Orthographic, "Test", 640, 480, false);
+            Window w = s2.createWindow(CameraType.Orthographic, "Test2", 640, 480, false);
 
-            Window w2 = s2.createWindow(CameraType.Orthographic,"Test1", 640, 480, true);
+            Window w2 = s2.createWindow(CameraType.Orthographic,"Test3", 640, 480, true);
             w2.update.add("move", x -> {
                 MathUtils.LookRelativeTo(w2, w);
                 if(InputHandler.getKey(s2, GLFW.GLFW_KEY_A))
@@ -99,7 +100,7 @@ public class LookingGlass {
             shader.LoadCamera(x.getValue0().camera);
             shader.loadColor(color);
             GL20.glEnable(GL11.GL_TEXTURE);
-            mesh.bind(x.getValue0());
+            mesh.bind(s2, x.getValue0());
             GL20.glActiveTexture(GL20.GL_TEXTURE0);
             texture.bind(s2);
             shader.LoadTransformationMatrix(MathUtils.CreateTransformationMatrix(new Vector3f(0,0,-100), new Vector3f(0,0,0), new Vector3f(100,100,100)));

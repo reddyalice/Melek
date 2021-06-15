@@ -1,5 +1,6 @@
 package com.alice.mel.graphics;
 
+import com.alice.mel.engine.Scene;
 import com.alice.mel.utils.collections.Array;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
@@ -17,7 +18,7 @@ public class Mesh {
 
 
 
-    public HashMap<Window, Integer> ids = new HashMap<>();
+    public HashMap<Scene, HashMap<Window, Integer>> ids = new HashMap<>();
     public final int vertexCount;
     public final int dimension;
     public final float[] vertices;
@@ -25,7 +26,7 @@ public class Mesh {
     public final float[] normals;
     public final int[] indices;
 
-    private final Array<Integer> VBOS = new Array<>();
+    private final HashMap<Scene, Array<Integer>> VBOS = new HashMap<>();
 
     public Mesh(float[] vertices, float[] textureCoords, float[] normals, int[] indices) {
         this.dimension = 3;
@@ -34,7 +35,7 @@ public class Mesh {
         this.normals = normals;
         this.indices = indices;
         this.vertexCount = indices.length;
-        VBOS.ordered = true;
+
     }
 
     public Mesh(float[] vertices, float[] textureCoords, int[] indices) {
@@ -44,40 +45,45 @@ public class Mesh {
         this.normals = new float[0];
         this.indices = indices;
         this.vertexCount = indices.length;
-        VBOS.ordered = true;
+
     }
 
-    public void genMesh(Window window){
-        if(VBOS.size == 0) {
+    public void genMesh(Scene scene, Window window){
+        if(!VBOS.containsKey(scene))
+            VBOS.put(scene, new Array<>());
+        if(!ids.containsKey(scene))
+            ids.put(scene, new HashMap<>());
+
+        if(VBOS.get(scene).size == 0) {
             int id = GL30.glGenVertexArrays();
             GL30.glBindVertexArray(id);
-            storeDataInAttributeList(0, dimension, vertices);
-            storeDataInAttributeList(1, 2, textureCoords);
+            storeDataInAttributeList(scene,0, dimension, vertices);
+            storeDataInAttributeList(scene,1, 2, textureCoords);
             if (dimension == 3)
-                storeDataInAttributeList(2, dimension, normals);
-            bindIndices(indices);
-            ids.put(window, id);
+                storeDataInAttributeList(scene,2, dimension, normals);
+            bindIndices(scene, indices);
+            ids.get(scene).put(window, id);
         }else{
             int id = GL30.glGenVertexArrays();
             GL30.glBindVertexArray(id);
-            GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, VBOS.get(0));
+            GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, VBOS.get(scene).get(0));
             GL20.glVertexAttribPointer(0, dimension, GL11.GL_FLOAT, false, 0, 0);
-            GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, VBOS.get(1));
+            GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, VBOS.get(scene).get(1));
             GL20.glVertexAttribPointer(1, 2, GL11.GL_FLOAT, false, 0, 0);
             if(dimension == 3){
-                GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, VBOS.get(2));
+                GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, VBOS.get(scene).get(2));
                 GL20.glVertexAttribPointer(2, 1, GL11.GL_FLOAT, false, 0, 0);
-                GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, VBOS.get(3));
+                GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, VBOS.get(scene).get(3));
             }else{
-                GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, VBOS.get(2));
+                GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, VBOS.get(scene).get(2));
             }
-            ids.put(window, id);
+            ids.get(scene).put(window, id);
         }
         GL30.glBindVertexArray(0);
     }
 
-    public void bind(Window window){
-        GL30.glBindVertexArray(ids.get(window));
+    public void bind(Scene scene, Window window){
+        GL30.glBindVertexArray(ids.get(scene).get(window));
         GL20.glEnableVertexAttribArray(0);
         GL20.glEnableVertexAttribArray(1);
         if(dimension == 3) GL20.glEnableVertexAttribArray(2);
@@ -90,9 +96,9 @@ public class Mesh {
         GL30.glBindVertexArray(0);
     }
 
-    private void storeDataInAttributeList(int attributeNumber, int attributeSize, float[] data){
+    private void storeDataInAttributeList(Scene scene, int attributeNumber, int attributeSize, float[] data){
         int vboID = GL15.glGenBuffers();
-        VBOS.add(vboID);
+        VBOS.get(scene).add(vboID);
         GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vboID);
         FloatBuffer buffer = storeDataInFloatBuffer(data);
         GL15.glBufferData(GL15.GL_ARRAY_BUFFER, buffer, GL15.GL_STATIC_DRAW);
@@ -100,9 +106,9 @@ public class Mesh {
         GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
     }
 
-    private void bindIndices(int[] indices){
+    private void bindIndices(Scene scene, int[] indices){
         int vboID = GL15.glGenBuffers();
-        VBOS.add(vboID);
+        VBOS.get(scene).add(vboID);
         GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, vboID);
         IntBuffer buffer = storeDataInIntBuffer(indices);
         GL15.glBufferData(GL15.GL_ELEMENT_ARRAY_BUFFER, buffer, GL15.GL_STATIC_DRAW);
@@ -124,15 +130,14 @@ public class Mesh {
         return buffer;
     }
 
-    public void disposeVAO(Window window){
-        if(ids.containsKey(window))
-            GL30.glDeleteVertexArrays(ids.get(window));
-        ids.remove(window);
+    public void disposeVAO(Scene scene, Window window){
+        GL30.glDeleteVertexArrays(ids.get(scene).get(window));
+        ids.get(scene).remove(window);
 
     }
 
-    public void dispose() {
-        for (int vbo : VBOS)
+    public void dispose(Scene scene) {
+        for (int vbo : VBOS.get(scene))
             GL15.glDeleteBuffers(vbo);
     }
 }
