@@ -98,6 +98,9 @@ public class Window {
 
     public void reset(){
         hide();
+        setDecorated(true);
+        setWindowOpacity(1f);
+        setBackgroundColor(0,0,0,1);
         active = false;
         init.dispose();
         preUpdate.dispose();

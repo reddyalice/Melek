@@ -1,5 +1,6 @@
 package com.alice.mel.engine;
 
+import com.alice.mel.utils.collections.Array;
 import com.alice.mel.utils.collections.SnapshotArray;
 import org.lwjgl.glfw.GLFW;
 
@@ -12,11 +13,14 @@ public class Game {
     private static final int coreCount = Runtime.getRuntime().availableProcessors();
     public final ExecutorService executor = Executors.newFixedThreadPool(coreCount);
     public final AssetManager assetManager = new AssetManager();
-    public static Scene loaderScene = null;
+    public Scene loaderScene = null;
     private final SnapshotArray<Scene> activeScenes = new SnapshotArray<>();
+    private final Array<Scene> toDispose = new Array<>();
 
     public void addActiveScene(Scene scene){
         if(!activeScenes.contains(scene, false)){
+            if(toDispose.contains(scene, false))
+                toDispose.removeValue(scene, false);
             activeScenes.add(scene);
             scene.Update(deltaTime);
         }
@@ -25,6 +29,7 @@ public class Game {
     public void removeActiveScene(Scene scene, boolean destroy){
         activeScenes.removeValue(scene, false);
         if(destroy) scene.dispose();
+        else toDispose.add(scene);
     }
 
 
@@ -32,16 +37,23 @@ public class Game {
 
 
         while(activeScenes.size > 0){
+            long time = System.nanoTime();
             for(Scene scene : activeScenes)
                 if(scene.getWindowCount() > 0)
                 scene.Update(deltaTime);
                 else
                     removeActiveScene(scene, false);
+            time = System.nanoTime() - time;
+            deltaTime = time / 1000000000f;
         }
+
+        dispose();
 
     }
 
     public void dispose(){
+        for(Scene scene : toDispose)
+            scene.dispose();
         activeScenes.clear();
         GLFW.glfwTerminate();
     }

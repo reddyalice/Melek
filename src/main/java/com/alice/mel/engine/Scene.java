@@ -1,6 +1,7 @@
 package com.alice.mel.engine;
 
 
+import com.alice.mel.components.ComponentType;
 import com.alice.mel.graphics.*;
 import com.alice.mel.utils.Event;
 import com.alice.mel.utils.collections.Array;
@@ -37,22 +38,25 @@ public final class Scene {
 
     private boolean initilized = false;
 
-    private final SnapshotArray<Shader> shaders = new SnapshotArray<>();
-    private final SnapshotArray<Texture> textures = new SnapshotArray<>();
-    private final SnapshotArray<Mesh> meshes = new SnapshotArray<>();
+    private final SnapshotArray<String> shaders = new SnapshotArray<>();
+    private final SnapshotArray<String> textures = new SnapshotArray<>();
+    private final SnapshotArray<String> meshes = new SnapshotArray<>();
+    private final HashMap<ComponentType, Entity> componentEntityMap = new HashMap<ComponentType, Entity>();
 
-    private boolean active = false;
 
 
-    public Scene(){
-        if(Game.loaderScene == null) {
+    private final Game game;
+
+    public Scene(Game game){
+        this.game = game;
+        if(game.loaderScene == null) {
             GLFWErrorCallback.createPrint(System.err).set();
             boolean isInitialized = GLFW.glfwInit();
             if (!isInitialized) {
                 System.err.println("Failed To initialized!");
                 System.exit(1);
             }
-            Game.loaderScene = this;
+            game.loaderScene = this;
         }
 
         loaderWindow = createWindow(CameraType.Orthographic, "Loader", 640, 480);
@@ -60,9 +64,11 @@ public final class Scene {
 
     }
 
-    public void loadTexture(Texture texture){
-        if(!textures.contains(texture, false)) {
-            textures.add(texture);
+    public void loadTexture(String name){
+        Texture texture = game.assetManager.getTexture(name);
+        assert texture != null;
+        if(!textures.contains(name, false)) {
+            textures.add(name);
             loaderWindow.makeContextCurrent();
             texture.genTexture(this);
             if (currentContext != null)
@@ -71,9 +77,11 @@ public final class Scene {
             System.err.println("Texture already loaded!");
     }
 
-    public void loadMesh(Mesh mesh){
-        if(!meshes.contains(mesh, false)) {
-            meshes.add(mesh);
+    public void loadMesh(String name){
+        Mesh mesh = game.assetManager.getMesh(name);
+        assert mesh != null;
+        if(!meshes.contains(name, false)) {
+            meshes.add(name);
             loaderWindow.makeContextCurrent();
             mesh.genMesh(this, loaderWindow);
             for (Window window : windows) {
@@ -88,9 +96,11 @@ public final class Scene {
             System.err.println("Mesh already loaded!");
     }
 
-    public void loadShader(Shader shader){
-        if(!shaders.contains(shader, false)) {
-            shaders.add(shader);
+    public void loadShader(String name){
+        Shader shader = game.assetManager.getShader(name);
+        assert shader != null;
+        if(!shaders.contains(name, false)) {
+            shaders.add(name);
             loaderWindow.makeContextCurrent();
             shader.compile(this);
             if (currentContext != null)
@@ -99,9 +109,11 @@ public final class Scene {
             System.err.println("Shader already loaded!");
     }
 
-    public void unloadTexture(Texture texture){
-        if(textures.contains(texture, false)) {
-            textures.removeValue(texture, false);
+    public void unloadTexture(String name){
+        Texture texture = game.assetManager.getTexture(name);
+        assert texture != null;
+        if(textures.contains(name, false)) {
+            textures.removeValue(name, false);
             loaderWindow.makeContextCurrent();
             texture.dispose(this);
             if (currentContext != null)
@@ -110,9 +122,11 @@ public final class Scene {
             System.err.println("No such Texture already loaded!");
     }
 
-    public void unloadMesh(Mesh mesh){
-        if(meshes.contains(mesh, false)) {
-            meshes.removeValue(mesh, false);
+    public void unloadMesh(String name){
+        Mesh mesh = game.assetManager.getMesh(name);
+        assert mesh != null;
+        if(meshes.contains(name, false)) {
+            meshes.removeValue(name, false);
             loaderWindow.makeContextCurrent();
             mesh.disposeVAO(this, loaderWindow);
             mesh.dispose(this);
@@ -129,9 +143,11 @@ public final class Scene {
 
     }
 
-    public void unloadShader(Shader shader){
-        if(shaders.contains(shader, false)) {
-            shaders.removeValue(shader, false);
+    public void unloadShader(String name){
+        Shader shader = game.assetManager.getShader(name);
+        assert shader != null;
+        if(shaders.contains(name, false)) {
+            shaders.removeValue(name, false);
             loaderWindow.makeContextCurrent();
             shader.dispose(this);
             if (currentContext != null)
@@ -246,15 +262,15 @@ public final class Scene {
         render.dispose();
         postRender.dispose();
 
-        for(Shader shader : shaders)
+        for(String shader : shaders)
             unloadShader(shader);
         shaders.clear();
 
-        for(Texture texture : textures)
+        for(String texture : textures)
             unloadTexture(texture);
         textures.clear();
 
-        for(Mesh mesh : meshes)
+        for(String mesh : meshes)
            unloadMesh(mesh);
         meshes.clear();
 

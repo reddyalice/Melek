@@ -13,7 +13,7 @@ public class Watch implements Runnable{
     CanvasFrame canvas = new CanvasFrame("Web Cam");
     @Override
     public void run() {
-        new File("images").mkdir();
+        //new File("images").mkdir();
 
         FrameGrabber grabber = new OpenCVFrameGrabber(0); // 1 for next camera
         OpenCVFrameConverter.ToIplImage converter = new OpenCVFrameConverter.ToIplImage();
@@ -22,20 +22,19 @@ public class Watch implements Runnable{
         try {
             grabber.start();
 
-            while (true) {
+            while (canvas.isActive()) {
                 Frame frame = grabber.grab();
-
                 img = converter.convert(frame);
 
                 //the grabbed frame will be flipped, re-flip to make it right
-                cvFlip(img, img, 1);// l-r = 90_degrees_steps_anti_clockwise
+                //cvFlip(img, img, 1);// l-r = 90_degrees_steps_anti_clockwise
 
                 //save
-                cvSaveImage("images" + File.separator + (i++) + "-aa.jpg", img);
+                //cvSaveImage("images" + File.separator + (i++) + "-aa.jpg", img);
 
-                canvas.showImage(converter.convert(img));
+                canvas.showImage(frame);
 
-                Thread.sleep(INTERVAL);
+                //Thread.sleep(INTERVAL);
             }
         } catch (Exception e) {
             e.printStackTrace();
