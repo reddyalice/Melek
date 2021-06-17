@@ -7,6 +7,8 @@ import com.alice.mel.utils.Event;
 import com.alice.mel.utils.collections.Array;
 import com.alice.mel.utils.collections.SnapshotArray;
 import com.alice.mel.utils.maths.MathUtils;
+import com.alice.mel.utils.reflections.ClassReflection;
+import com.alice.mel.utils.reflections.ReflectionException;
 import org.javatuples.Pair;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWErrorCallback;
@@ -38,7 +40,7 @@ public final class Scene {
 
     private boolean initilized = false;
 
-    private final SnapshotArray<String> shaders = new SnapshotArray<>();
+    private final SnapshotArray<Class<? extends Shader>> shaders = new SnapshotArray<>();
     private final SnapshotArray<String> textures = new SnapshotArray<>();
     private final SnapshotArray<String> meshes = new SnapshotArray<>();
     private final HashMap<ComponentType, Entity> componentEntityMap = new HashMap<ComponentType, Entity>();
@@ -96,11 +98,11 @@ public final class Scene {
             System.err.println("Mesh already loaded!");
     }
 
-    public void loadShader(String name){
-        Shader shader = game.assetManager.getShader(name);
+    public void loadShader(Class<? extends Shader> shaderClass){
+        Shader shader = game.assetManager.getShader(shaderClass);
         assert shader != null;
-        if(!shaders.contains(name, false)) {
-            shaders.add(name);
+        if(!shaders.contains(shaderClass, false)) {
+            shaders.add(shaderClass);
             loaderWindow.makeContextCurrent();
             shader.compile(this);
             if (currentContext != null)
@@ -143,11 +145,11 @@ public final class Scene {
 
     }
 
-    public void unloadShader(String name){
-        Shader shader = game.assetManager.getShader(name);
+    public void unloadShader(Class<? extends Shader> shaderClass){
+        Shader shader = game.assetManager.getShader(shaderClass);
         assert shader != null;
-        if(shaders.contains(name, false)) {
-            shaders.removeValue(name, false);
+        if(shaders.contains(shaderClass, false)) {
+            shaders.removeValue(shaderClass, false);
             loaderWindow.makeContextCurrent();
             shader.dispose(this);
             if (currentContext != null)
@@ -262,8 +264,10 @@ public final class Scene {
         render.dispose();
         postRender.dispose();
 
-        for(String shader : shaders)
+        for(Class<? extends Shader> shader : shaders)
             unloadShader(shader);
+
+
         shaders.clear();
 
         for(String texture : textures)

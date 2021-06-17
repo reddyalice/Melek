@@ -3,13 +3,15 @@ package com.alice.mel.engine;
 import com.alice.mel.graphics.Mesh;
 import com.alice.mel.graphics.Shader;
 import com.alice.mel.graphics.Texture;
+import com.alice.mel.utils.reflections.ClassReflection;
+import com.alice.mel.utils.reflections.ReflectionException;
 
 import java.util.HashMap;
 
 public final class AssetManager {
 
     private final HashMap<String, Texture> textures = new HashMap<>();
-    private final HashMap<String, Shader> shaders = new HashMap<>();
+    private final HashMap<Class<? extends Shader>, Shader> shaders = new HashMap<>();
     private final HashMap<String, Mesh> meshes = new HashMap<>();
 
     public AssetManager(){
@@ -103,25 +105,31 @@ public final class AssetManager {
         textures.remove(name);
     }
 
-    public void addShader(String name, Shader shader){
-        if(shaders.containsKey(name)){
-            System.out.println("Shader with \"" + name +  "\" name already exist!" + "\n" + "Overwriting!");
+    public void addShader(Class<? extends Shader> shaderClass){
+        if(shaders.containsKey(shaderClass)){
+            System.out.println("Shader with \"" + shaderClass +  "\" class already exist!");
+        }else{
+            try {
+                shaders.put(shaderClass, ClassReflection.newInstance(shaderClass));
+            } catch (ReflectionException e) {
+                e.printStackTrace();
+            }
         }
-        shaders.put(name, shader);
+
     }
 
-    public Shader getShader(String name)
+    public<T extends Shader> T getShader(Class<T> shaderClass)
     {
-        if(shaders.containsKey(name))
-            return shaders.get(name);
+        if(shaders.containsKey(shaderClass))
+            return (T)shaders.get(shaderClass);
         else{
-            System.err.println("There is no Shader with the name of " + name);
+            System.err.println("There is no Shader with the name of " + shaderClass);
             return null;
         }
     }
 
-    public void removeShader(String name){
-        shaders.remove(name);
+    public void removeShader(Class<? extends  Shader> shaderClass){
+        shaders.remove(shaderClass);
     }
 
     public void dispose() {
