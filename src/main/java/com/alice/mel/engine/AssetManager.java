@@ -3,6 +3,7 @@ package com.alice.mel.engine;
 import com.alice.mel.graphics.Mesh;
 import com.alice.mel.graphics.Shader;
 import com.alice.mel.graphics.Texture;
+import com.alice.mel.utils.collections.ObjectMap;
 import com.alice.mel.utils.reflections.ClassReflection;
 import com.alice.mel.utils.reflections.ReflectionException;
 
@@ -11,7 +12,7 @@ import java.util.HashMap;
 public final class AssetManager {
 
     private final HashMap<String, Texture> textures = new HashMap<>();
-    private final HashMap<Class<? extends Shader>, Shader> shaders = new HashMap<>();
+    private final ObjectMap<Class<? extends Shader>, Shader> shaders = new ObjectMap<>();
     private final HashMap<String, Mesh> meshes = new HashMap<>();
 
     public AssetManager(){

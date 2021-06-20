@@ -4,6 +4,7 @@ import com.alice.mel.engine.Scene;
 import com.alice.mel.graphics.Camera;
 import com.alice.mel.graphics.Shader;
 import org.joml.Matrix4f;
+import org.joml.Vector2f;
 import org.joml.Vector4f;
 
 public class Basic2DShader extends Shader {
@@ -13,7 +14,8 @@ public class Basic2DShader extends Shader {
     private int location_viewMatrix;
     private int location_projectionMatrix;
     private int location_color;
-
+    private int location_textureOffset;
+    private int location_textureSize;
 
 
     public Basic2DShader() {
@@ -32,6 +34,8 @@ public class Basic2DShader extends Shader {
         location_viewMatrix = getUniformLocation(scene,"viewMatrix");
         location_projectionMatrix = getUniformLocation(scene,"projectionMatrix");
         location_color = getUniformLocation(scene,"color");
+        location_textureOffset = getUniformLocation(scene, "textureOffset");
+        location_textureSize = getUniformLocation(scene, "textureSize");
     }
 
 
@@ -49,7 +53,10 @@ public class Basic2DShader extends Shader {
     public void loadColor(Vector4f color){
         this.loadVector(location_color, color);
     }
-
+    public void loadOffset(Vector2f offset, Vector2f size){
+        this.loadVector(location_textureOffset, offset);
+        this.loadVector(location_textureSize, size);
+    }
 
 
 

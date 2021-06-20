@@ -6,7 +6,7 @@ import org.joml.Vector3f;
 public abstract class Camera {
 
     public float near = 1;
-    public float far = 100;
+    public float far = 10000;
 
     public float viewportWidth = 0;
     public float viewportHeight = 0;

@@ -3,6 +3,7 @@ package com.alice.mel.graphics;
 import com.alice.mel.engine.Scene;
 import com.alice.mel.utils.collections.Array;
 import org.joml.Matrix4f;
+import org.joml.Vector2f;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
 import org.lwjgl.BufferUtils;
@@ -191,6 +192,10 @@ public abstract class Shader{
     protected void loadBoolean(int location, boolean value){
         float toLoad = value ? 1 : 0;
         GL32C.glUniform1f(location, toLoad);
+    }
+
+    protected void loadVector(int location, Vector2f value){
+        GL32C.glUniform2f(location, value.x, value.y);
     }
 
     protected void loadVector(int location, Vector3f value){
