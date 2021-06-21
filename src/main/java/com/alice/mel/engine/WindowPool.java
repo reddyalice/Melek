@@ -4,13 +4,7 @@ import com.alice.mel.graphics.CameraType;
 import com.alice.mel.graphics.Window;
 import com.alice.mel.utils.collections.Array;
 
-
-
 public class WindowPool {
-
-
-
-
 
     public final int max;
     public int peak;

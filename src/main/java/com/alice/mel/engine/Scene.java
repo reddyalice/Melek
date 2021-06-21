@@ -1,20 +1,18 @@
 package com.alice.mel.engine;
 
 
+import com.alice.mel.components.Component;
 import com.alice.mel.components.ComponentType;
 import com.alice.mel.graphics.*;
 import com.alice.mel.utils.Event;
 import com.alice.mel.utils.collections.Array;
+import com.alice.mel.utils.collections.Pool;
 import com.alice.mel.utils.collections.SnapshotArray;
-import com.alice.mel.utils.maths.MathUtils;
-import com.alice.mel.utils.reflections.ClassReflection;
-import com.alice.mel.utils.reflections.ReflectionException;
 import org.javatuples.Pair;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWErrorCallback;
 
 import java.util.HashMap;
-import java.util.Objects;
 
 public final class Scene {
 
@@ -25,6 +23,7 @@ public final class Scene {
 
     public final WindowPool windowPool = new WindowPool(this);
     public final CameraPool cameraPool = new CameraPool();
+    public final EntityPool entityPool = new EntityPool(this);
 
     public final Event<Window> init = new Event<>();
     private final Event<Window> multiInit = new Event<>();
@@ -36,16 +35,17 @@ public final class Scene {
     public final Event<Pair<Window, Float>> render = new Event<>();
     public final Event<Pair<Window, Float>> postRender = new Event<>();
 
+    public final Event<Entity> entityAdded = new Event<>();
+    public final Event<Entity> entityRemoved = new Event<>();
 
 
-    private boolean initilized = false;
+    private boolean initialized = false;
 
     private final SnapshotArray<Class<? extends Shader>> shaders = new SnapshotArray<>();
     private final SnapshotArray<String> textures = new SnapshotArray<>();
     private final SnapshotArray<String> meshes = new SnapshotArray<>();
-    private final HashMap<ComponentType, Entity> componentEntityMap = new HashMap<ComponentType, Entity>();
-
-
+    private final HashMap<ComponentType, Array<Entity>> componentEntityMap = new HashMap<>();
+    private final Array<Entity> entities = new Array<>();
 
     private final Game game;
 
@@ -65,6 +65,39 @@ public final class Scene {
         removeWindow(loaderWindow);
 
     }
+
+    public Entity createEntity(){
+        return entityPool.obtain();
+    }
+
+    public void addEntity(Entity entity){
+        entities.add(entity);
+        for(Component component : entity.getComponents())
+        {
+            Array<Entity> ens = componentEntityMap.get(ComponentType.getFor(component.getClass()));
+            if(ens == null)
+                ens = new Array<>();
+            ens.add(entity);
+            componentEntityMap.put(ComponentType.getFor(component.getClass()), ens);
+        }
+        entityAdded.broadcast(entity);
+    }
+
+    public void removeEntity(Entity entity){
+        entityRemoved.broadcast(entity);
+        for(Component component : entity.getComponents())
+        {
+            Array<Entity> ens = componentEntityMap.get(ComponentType.getFor(component.getClass()));
+            if(ens != null) {
+                ens.removeValue(entity, false);
+                componentEntityMap.put(ComponentType.getFor(component.getClass()), ens);
+            }
+        }
+        entities.removeValue(entity, false);
+        entityPool.free(entity);
+    }
+
+
 
     public void loadTexture(String name){
         Texture texture = game.assetManager.getTexture(name);
@@ -174,10 +207,10 @@ public final class Scene {
 
     public void Update(float delta){
 
-        if(!initilized){
+        if(!initialized){
             loaderWindow.makeContextCurrent();
             init.broadcast(loaderWindow);
-            initilized = true;
+            initialized = true;
             if(currentContext != null)
                 currentContext.makeContextCurrent();
         }
@@ -285,5 +318,6 @@ public final class Scene {
         windowPool.dispose();
         cameraPool.dispose();
     }
+
 
 }

@@ -6,6 +6,7 @@ import com.alice.mel.utils.Signal;
 import com.alice.mel.utils.collections.Array;
 import com.alice.mel.utils.collections.Bag;
 import com.alice.mel.utils.collections.Bits;
+import com.alice.mel.utils.collections.ImmutableArray;
 
 public class Entity {
 
@@ -15,8 +16,20 @@ public class Entity {
     private final Bag<Component> components = new Bag<>();
     private final Array<Component> componentsArray = new Array<>();
     private final Bits componentBits = new Bits();
-    private final Bits familyBits = new Bits();
 
+    private Scene scene;
+
+    public Entity(Scene scene){
+        this.scene = scene;
+    }
+
+    public void setScene(Scene scene){
+        this.scene = scene;
+    }
+
+    public Scene getScene(){
+        return scene;
+    }
 
     public Component addComponent(Component component){
         Class<? extends Component> componentClass = component.getClass();
@@ -52,6 +65,24 @@ public class Entity {
         }
     }
 
+    public void removeAllComponents () {
+        while (componentsArray.size > 0) {
+            removeComponent(componentsArray.get(0).getClass());
+        }
+    }
+    
+    public ImmutableArray<Component> getComponents(){
+        return new ImmutableArray<>(componentsArray);
+    }
+
+    public void addToScene(){
+        scene.addEntity(this);
+    }
+
+    public void removeFromScene(){
+        scene.removeEntity(this);
+    }
+
     public <T extends Component> T getComponent (Class<T> componentClass) {
         return getComponent(ComponentType.getFor(componentClass));
     }
@@ -71,6 +102,8 @@ public class Entity {
     }
 
 
+
+
     public boolean hasComponent (ComponentType componentType) {
         return componentBits.get(componentType.getIndex());
     }
@@ -83,12 +116,5 @@ public class Entity {
         componentRemoved.dispatch(this);
     }
 
-    public Bits getComponentBits () {
-        return componentBits;
-    }
-
-    public Bits getFamilyBits(){
-        return familyBits;
-    }
 
 }

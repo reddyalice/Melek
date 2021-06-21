@@ -18,10 +18,10 @@ public final class AssetManager {
     public AssetManager(){
         addMesh("Quad", new Mesh(
                 new float[]{
-                        -0.5f, 0.5f,
-                        0.5f,  0.5f,
-                        0.5f,  -0.5f,
-                        -0.5f, -0.5f
+                        -1f, 1f,
+                        1f,  1f,
+                        1f,  -1f,
+                        -1f, -1f
                 },
                 new float[]{
                         0, 0,
@@ -37,10 +37,10 @@ public final class AssetManager {
 
         addMesh("Quad3D", new Mesh(
                 new float[]{
-                        -0.5f, 0.5f, 0,
-                        0.5f,  0.5f, 0,
-                        0.5f,  -0.5f, 0,
-                        -0.5f, -0.5f, 0
+                        -1f, 1f, 0,
+                        1f,  1f, 0,
+                        1f,  -0.5f, 0,
+                        -1f, -1f, 0
                 },
                 new float[]{
                         0, 0,

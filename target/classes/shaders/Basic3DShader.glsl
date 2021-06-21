@@ -10,14 +10,18 @@ out vec2 pass_texCoords;
 uniform mat4 transformationMatrix;
 uniform mat4 viewMatrix;
 uniform mat4 projectionMatrix;
-
+uniform vec2 textureScale;
+uniform vec2 textureOffset;
 
 void main(void){
 
     vec4 worldPosition = transformationMatrix * vec4(position, 1.0);
     gl_Position = projectionMatrix * viewMatrix * worldPosition;
 
-    pass_texCoords = texCoords;
+    vec2 finalTexCoords = texCoords;
+    finalTexCoords.x = texCoords.x / textureScale.x + textureOffset.x;
+    finalTexCoords.y = texCoords.y / textureScale.y + textureOffset.y;
+    pass_texCoords = finalTexCoords;
 
 }
 

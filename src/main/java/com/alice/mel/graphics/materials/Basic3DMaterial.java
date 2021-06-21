@@ -7,8 +7,8 @@ import org.joml.Vector2f;
 
 public class Basic3DMaterial extends Material {
 
-    public final Vector2f textureOffset = new Vector2f(0,0);
-    public final Vector2f textureScale = new Vector2f(1,1);
+    public final Vector2f textureOffset = new Vector2f(0f,0f);
+    public final Vector2f textureScale = new Vector2f(1f,1f);
     public Basic3DMaterial() {
         super(Basic3DShader.class);
     }

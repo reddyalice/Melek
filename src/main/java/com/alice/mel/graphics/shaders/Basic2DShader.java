@@ -15,7 +15,7 @@ public class Basic2DShader extends Shader {
     private int location_projectionMatrix;
     private int location_color;
     private int location_textureOffset;
-    private int location_textureSize;
+    private int location_textureScale;
 
 
     public Basic2DShader() {
@@ -35,7 +35,7 @@ public class Basic2DShader extends Shader {
         location_projectionMatrix = getUniformLocation(scene,"projectionMatrix");
         location_color = getUniformLocation(scene,"color");
         location_textureOffset = getUniformLocation(scene, "textureOffset");
-        location_textureSize = getUniformLocation(scene, "textureSize");
+        location_textureScale = getUniformLocation(scene, "textureScale");
     }
 
 
@@ -53,9 +53,10 @@ public class Basic2DShader extends Shader {
     public void loadColor(Vector4f color){
         this.loadVector(location_color, color);
     }
-    public void loadOffset(Vector2f offset, Vector2f size){
+
+    public void loadOffset(Vector2f offset, Vector2f scale){
         this.loadVector(location_textureOffset, offset);
-        this.loadVector(location_textureSize, size);
+        this.loadVector(location_textureScale, scale);
     }
 
 
