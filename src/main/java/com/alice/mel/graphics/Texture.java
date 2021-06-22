@@ -114,7 +114,6 @@ public final class Texture {
     }
 
     public void dispose(Scene scene) {
-        if(ids.containsKey(scene))
         GL11.glDeleteTextures(ids.get(scene));
         ids.remove(scene);
     }
