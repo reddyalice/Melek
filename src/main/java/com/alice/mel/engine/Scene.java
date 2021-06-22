@@ -159,6 +159,18 @@ public final class Scene {
             System.err.println("Shader already loaded!");
     }
 
+    public boolean hasTexture(String textureName){
+        return textures.contains(textureName, false);
+    }
+
+    public boolean hasMesh(String meshName){
+        return meshes.contains(meshName, false);
+    }
+
+    public boolean hasShader(Class<? extends Shader> shaderClass){
+        return shaders.contains(shaderClass, false);
+    }
+
     public void unloadTexture(String name){
         Texture texture = game.assetManager.getTexture(name);
         assert texture != null;

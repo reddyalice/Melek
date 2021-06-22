@@ -8,13 +8,6 @@
     <artifactId>Melek</artifactId>
     <version>1.0-SNAPSHOT</version>
 
-    <repositories>
-        <repository>
-            <id>SpinyOwl</id>
-            <url>https://raw.githubusercontent.com/SpinyOwl/repo/releases</url>
-        </repository>
-    </repositories>
-
     <properties>
         <maven.compiler.source>14</maven.compiler.source>
         <maven.compiler.target>14</maven.compiler.target>
@@ -228,11 +221,6 @@
             <version>${lwjgl3-awt.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.liquidengine</groupId>
-            <artifactId>legui</artifactId>
-            <version>3.3.1</version>
-        </dependency>
-        <dependency>
             <groupId>cz.advel.jbullet</groupId>
             <artifactId>jbullet</artifactId>
             <version>20101010-1</version>
@@ -244,9 +232,9 @@
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>org.bytedeco</groupId>
-            <artifactId>javacv-platform</artifactId>
-            <version>1.5.5</version>
+            <groupId>com.github.sarxos</groupId>
+            <artifactId>webcam-capture</artifactId>
+            <version>0.3.12</version>
         </dependency>
         <dependency>
             <groupId>org.jetbrains</groupId>

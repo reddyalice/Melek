@@ -29,12 +29,12 @@ public class RenderingSystem extends ComponentSystem{
         if(entities != null)
         for(Entity entity : entities){
             RenderingComponent rend = entity.getComponent(RenderingComponent.class);
-            scene.loadShader(rend.material.shaderClass);
+            if(scene.hasShader(rend.material.shaderClass)) scene.loadShader(rend.material.shaderClass);
             Shader shader = assetManager.getShader(rend.material.shaderClass);
             Material material = rend.material;
-            scene.loadTexture(rend.textureName);
+            if(scene.hasTexture(rend.textureName)) scene.loadTexture(rend.textureName);
             Texture texture = assetManager.getTexture(rend.textureName);
-            scene.loadMesh(rend.meshName);
+            if(scene.hasMesh(rend.meshName)) scene.loadMesh(rend.meshName);
             Mesh mesh = assetManager.getMesh(rend.meshName);
 
             HashMap<Mesh, HashMap<Texture, HashMap<Material, Array<Entity>>>> batch0 = renderMap.get(shader);
@@ -92,12 +92,12 @@ public class RenderingSystem extends ComponentSystem{
         scene.entityAdded.add("RenderingSystem", entity -> {
             if(entity.hasComponent(RenderingComponent.class)) {
                 RenderingComponent rend = entity.getComponent(RenderingComponent.class);
-                scene.loadShader(rend.material.shaderClass);
+                if(!scene.hasShader(rend.material.shaderClass)) scene.loadShader(rend.material.shaderClass);
                 Shader shader = assetManager.getShader(rend.material.shaderClass);
                 Material material = rend.material;
-                scene.loadTexture(rend.textureName);
+                if(!scene.hasTexture(rend.textureName)) scene.loadTexture(rend.textureName);
                 Texture texture = assetManager.getTexture(rend.textureName);
-                scene.loadMesh(rend.meshName);
+                if(!scene.hasMesh(rend.meshName)) scene.loadMesh(rend.meshName);
                 Mesh mesh = assetManager.getMesh(rend.meshName);
 
                 HashMap<Mesh, HashMap<Texture, HashMap<Material, Array<Entity>>>> batch0 = renderMap.get(shader);
