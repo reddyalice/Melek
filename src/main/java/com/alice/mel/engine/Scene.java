@@ -4,8 +4,10 @@ package com.alice.mel.engine;
 import com.alice.mel.components.Component;
 import com.alice.mel.components.ComponentType;
 import com.alice.mel.graphics.*;
+import com.alice.mel.systems.ComponentSystem;
 import com.alice.mel.utils.Event;
 import com.alice.mel.utils.collections.Array;
+import com.alice.mel.utils.collections.ImmutableArray;
 import com.alice.mel.utils.collections.Pool;
 import com.alice.mel.utils.collections.SnapshotArray;
 import org.javatuples.Pair;
@@ -45,7 +47,8 @@ public final class Scene {
     private final SnapshotArray<String> textures = new SnapshotArray<>();
     private final SnapshotArray<String> meshes = new SnapshotArray<>();
     private final HashMap<ComponentType, Array<Entity>> componentEntityMap = new HashMap<>();
-    private final Array<Entity> entities = new Array<>();
+    private final SnapshotArray<Entity> entities = new SnapshotArray<>();
+    private final SnapshotArray<ComponentSystem> componentSystems = new SnapshotArray<>();
 
     private final Game game;
 
@@ -97,7 +100,19 @@ public final class Scene {
         entityPool.free(entity);
     }
 
+    public void addSystem(ComponentSystem system){
+        componentSystems.add(system);
+        update.add(system.getClass().getSimpleName(), system::update);
+        render.add(system.getClass().getSimpleName(), x -> system.render(x.getValue0(), x.getValue1()));
+        system.addedToSceneInternal(this);
+    }
 
+    public void removeSystem(ComponentSystem system){
+        componentSystems.removeValue(system, false);
+        update.remove(system.getClass().getSimpleName());
+        render.remove(system.getClass().getSimpleName());
+        system.removedFromSceneInternal(this);
+    }
 
     public void loadTexture(String name){
         Texture texture = game.assetManager.getTexture(name);
@@ -203,7 +218,16 @@ public final class Scene {
         return createWindow(cameraType, title, width, height, false);
     }
 
+    public ImmutableArray<Entity> getEntitiesFor(ComponentType componentType){
+        if(componentEntityMap.get(componentType) != null)
+            return new ImmutableArray<>(componentEntityMap.get(componentType));
+        else
+            return null;
+    }
 
+    public ImmutableArray<Entity> getEntitiesFor(Class<? extends Component> componentClass) {
+        return getEntitiesFor(ComponentType.getFor(componentClass));
+    }
 
     public void Update(float delta){
 

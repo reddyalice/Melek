@@ -27,7 +27,6 @@ public class ObjectSet<T> implements Iterable<T> {
         this(initialCapacity, 0.8f);
     }
 
-
     public ObjectSet (int initialCapacity, float loadFactor) {
         if (loadFactor <= 0f || loadFactor >= 1f)
             throw new IllegalArgumentException("loadFactor must be > 0 and < 1: " + loadFactor);

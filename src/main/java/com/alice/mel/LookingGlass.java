@@ -1,6 +1,7 @@
 package com.alice.mel;
 
 
+import com.alice.mel.components.RenderingComponent;
 import com.alice.mel.engine.*;
 import com.alice.mel.graphics.CameraType;
 import com.alice.mel.graphics.Mesh;
@@ -9,6 +10,7 @@ import com.alice.mel.graphics.Window;
 import com.alice.mel.graphics.materials.Basic3DMaterial;
 import com.alice.mel.graphics.shaders.Basic2DShader;
 import com.alice.mel.graphics.shaders.Basic3DShader;
+import com.alice.mel.systems.RenderingSystem;
 import com.alice.mel.utils.maths.MathUtils;
 import com.alice.mel.utils.reflections.ClassReflection;
 import org.joml.Vector2i;
@@ -43,40 +45,30 @@ public class LookingGlass {
 
             Scene s = new Scene(game);
 
-                s.loadTexture("Texture1");
-                s.loadMesh("Mesh1");
-                s.loadShader(Basic3DShader.class);
+            Entity en = s.createEntity();
+            en.scale.set(100, 100, 100);
+            en.position.set(0,0, 0);
+            en.addComponent(new RenderingComponent(new Basic3DMaterial(), "Mesh1", "Texture1"));
 
 
-                s.init.add("t", t -> {
-                    Window w = s.createWindow(CameraType.Orthographic, "Test", 640, 480, false);
+            s.addSystem(new RenderingSystem(game.assetManager));
+        s.addEntity(en);
 
-                    Window w2 = s.createWindow(CameraType.Orthographic, "Test1", 640, 480, true);
 
-                    w2.update.add("move", x -> {
-                        MathUtils.LookRelativeTo(w2, w);
-                        if (InputHandler.getKey(s, GLFW.GLFW_KEY_A))
-                            s.unloadTexture("Texture1");
-                    });
+            s.init.add("t", t -> {
+                Window w = s.createWindow(CameraType.Orthographic, "Test", 640, 480, false);
 
+                Window w2 = s.createWindow(CameraType.Orthographic, "Test1", 640, 480, true);
+
+                w2.update.add("move", x -> {
+                    MathUtils.LookRelativeTo(w2, w);
+                    if (InputHandler.getKey(s, GLFW.GLFW_KEY_A))
+                        s.unloadTexture("Texture1");
                 });
 
-                s.render.add("x", x -> {
-                    game.assetManager.getShader(Basic3DShader.class).start(s);
-                    game.assetManager.getShader(Basic3DShader.class).LoadCamera(x.getValue0().camera);
-                    game.assetManager.getShader(Basic3DShader.class).loadColor(color);
-                    new Basic3DMaterial().loadValues(game.assetManager.getShader(Basic3DShader.class));
-                    GL20.glEnable(GL11.GL_TEXTURE);
-                    mesh.bind(s, x.getValue0());
-                    GL20.glActiveTexture(GL20.GL_TEXTURE0);
-                    texture.bind(s);
-                    game.assetManager.getShader(Basic3DShader.class).LoadTransformationMatrix(MathUtils.CreateTransformationMatrix(new Vector3f(0,0,-300), new Vector3f(0,0,0), new Vector3f(100,100,100)));
-                    GL11.glDrawElements(GL11.GL_TRIANGLES, mesh.vertexCount, GL11.GL_UNSIGNED_INT, 0);
-                    mesh.unbind();
-                    GL20.glDisable(GL11.GL_TEXTURE);
-                    texture.unbind();
-                    game.assetManager.getShader(Basic3DShader.class).stop();
-                });
+            });
+
+
 
         game.addActiveScene(s);
         game.Update();

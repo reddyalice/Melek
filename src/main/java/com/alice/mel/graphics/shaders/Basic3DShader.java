@@ -39,11 +39,11 @@ public class Basic3DShader extends Shader {
     }
 
 
-    public void LoadTransformationMatrix(Matrix4f matrix){
+    public void loadTransformationMatrix(Matrix4f matrix){
         this.loadMatrix(location_transformationMatrix, matrix);
     }
 
-    public void LoadCamera(Camera camera){
+    public void loadCamera(Camera camera){
         this.loadMatrix(location_viewMatrix, camera.viewMatrix);
         this.loadMatrix(location_projectionMatrix, camera.projectionMatrix);
     }

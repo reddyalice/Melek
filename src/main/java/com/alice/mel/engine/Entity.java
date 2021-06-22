@@ -7,11 +7,16 @@ import com.alice.mel.utils.collections.Array;
 import com.alice.mel.utils.collections.Bag;
 import com.alice.mel.utils.collections.Bits;
 import com.alice.mel.utils.collections.ImmutableArray;
+import org.joml.Vector3f;
 
 public class Entity {
 
     public final Signal<Entity> componentAdded = new Signal<>();
     public final Signal<Entity> componentRemoved = new Signal<>();
+
+    public final Vector3f position = new Vector3f();
+    public final Vector3f rotation = new Vector3f();
+    public final Vector3f scale = new Vector3f(1,1,1);
 
     private final Bag<Component> components = new Bag<>();
     private final Array<Component> componentsArray = new Array<>();
@@ -100,9 +105,6 @@ public class Entity {
     public <T extends Component> boolean hasComponent(Class<T> componentClass){
         return hasComponent(ComponentType.getFor(componentClass));
     }
-
-
-
 
     public boolean hasComponent (ComponentType componentType) {
         return componentBits.get(componentType.getIndex());
