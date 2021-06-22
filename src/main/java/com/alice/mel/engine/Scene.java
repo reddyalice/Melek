@@ -175,11 +175,11 @@ public final class Scene {
         Texture texture = game.assetManager.getTexture(name);
         assert texture != null;
         if(textures.contains(name, false)) {
-            textures.removeValue(name, false);
             loaderWindow.makeContextCurrent();
             texture.dispose(this);
             if (currentContext != null)
                 currentContext.makeContextCurrent();
+            textures.removeValue(name, false);
         }else
             System.err.println("No such Texture already loaded!");
     }

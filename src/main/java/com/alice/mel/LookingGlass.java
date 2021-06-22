@@ -53,11 +53,11 @@ public class LookingGlass {
         s.addSystem(new RenderingSystem(game.assetManager));
             Entity en = s.createEntity();
             en.scale.set(200, 200, 200);
-            en.position.set(0,0, -1);
+            en.position.set(0,0, -100);
             en.addComponent(new RenderingComponent(new Basic2DMaterial(), "Quad", "Texture1"));
             Entity en1 = s.createEntity();
             en1.scale.set(100, 100, 100);
-            en1.position.set(500,0, 0);
+            en1.position.set(500,0, -99);
             en1.addComponent(new RenderingComponent(new Basic2DMaterial(), "Quad", "Texture1"));
 
             en.addToScene();
@@ -66,14 +66,23 @@ public class LookingGlass {
 
 
             s.init.add("t", t -> {
-                Window w = s.createWindow(CameraType.Orthographic, "Test", 640, 480, false);
+                Window w = s.createWindow(CameraType.Perspective, "Test", 640, 480, false);
 
-                Window w2 = s.createWindow(CameraType.Orthographic, "Test1", 640, 480, true);
+                Window w2 = s.createWindow(CameraType.Perspective, "Test1", 640, 480, true);
 
                 w2.update.add("move", x -> {
                     MathUtils.LookRelativeTo(w2, w);
-                    if (InputHandler.getKey(s, GLFW.GLFW_KEY_A))
+                    if (InputHandler.getKey(s, GLFW.GLFW_KEY_A)) {
                         s.unloadTexture("Texture1");
+                        Texture ter = new Texture(webcam.getImage());
+                        game.assetManager.removeTexture("Texture1");
+                        game.assetManager.addTexture("Texture1", ter);
+                        s.loaderWindow.makeContextCurrent();
+                        s.loadTexture("Texture1");
+                        if (s.currentContext != null)
+                            s.currentContext.makeContextCurrent();
+                    }
+
                 });
 
             });
