@@ -44,15 +44,20 @@ public class LookingGlass {
 
 
             Scene s = new Scene(game);
-
+        s.addSystem(new RenderingSystem(game.assetManager));
             Entity en = s.createEntity();
             en.scale.set(100, 100, 100);
-            en.position.set(0,0, 0);
+            en.position.set(0,0, -1);
             en.addComponent(new RenderingComponent(new Basic3DMaterial(), "Mesh1", "Texture1"));
 
+            Entity en1 = s.createEntity();
+            en1.scale.set(100, 100, 100);
+            en1.position.set(200,0, -1);
+            en1.addComponent(new RenderingComponent(new Basic3DMaterial(), "Mesh1", "Texture1"));
 
-            s.addSystem(new RenderingSystem(game.assetManager));
-        s.addEntity(en);
+            en.addToScene();
+            en1.addToScene();
+
 
 
             s.init.add("t", t -> {
