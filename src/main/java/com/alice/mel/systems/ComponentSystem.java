@@ -9,6 +9,12 @@ public abstract class ComponentSystem implements Comparable<ComponentSystem>{
     public Scene scene;
     public int priority = 0;
 
+    public ComponentSystem(int priority){
+        this.priority = priority;
+    }
+
+    public ComponentSystem(){ }
+
     public abstract void addedToScene(Scene scene);
     public abstract void removedFromScene(Scene scene);
     public abstract void update(float deltaTime);

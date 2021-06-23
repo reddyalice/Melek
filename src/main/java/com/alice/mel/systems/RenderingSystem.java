@@ -22,7 +22,10 @@ public class RenderingSystem extends ComponentSystem{
     public RenderingSystem(AssetManager assetManager){
         this.assetManager = assetManager;
     }
-
+    public RenderingSystem(int priority, AssetManager assetManager){
+        super(priority);
+        this.assetManager = assetManager;
+    }
 
     @Override
     public void addedToScene(Scene scene) {

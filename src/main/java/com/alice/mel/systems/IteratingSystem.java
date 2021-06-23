@@ -16,6 +16,11 @@ public abstract class IteratingSystem extends ComponentSystem{
         this.requiredComponents = new ImmutableArray<>(new Array<>(requiredComponents));
     }
 
+    public IteratingSystem(int priority, Class<? extends Component>... requiredComponents){
+        super(priority);
+        this.requiredComponents = new ImmutableArray<>(new Array<>(requiredComponents));
+    }
+
     @Override
     public void addedToScene(Scene scene) {
         for(Class<? extends Component> component : requiredComponents){
