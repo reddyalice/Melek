@@ -11,6 +11,8 @@ import com.alice.mel.utils.collections.ImmutableArray;
 import com.alice.mel.utils.collections.Pool;
 import com.alice.mel.utils.collections.SnapshotArray;
 import org.javatuples.Pair;
+import org.jbox2d.common.Vec2;
+import org.jbox2d.dynamics.World;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWErrorCallback;
 
@@ -50,6 +52,7 @@ public final class Scene {
     private final SnapshotArray<Entity> entities = new SnapshotArray<>();
     private final SnapshotArray<ComponentSystem> componentSystems = new SnapshotArray<>();
 
+    private final World world = new World(new Vec2(0, 9.8f));
     private final Game game;
 
     public Scene(Game game){

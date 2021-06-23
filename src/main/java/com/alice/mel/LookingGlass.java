@@ -66,9 +66,9 @@ public class LookingGlass {
 
 
             s.init.add("t", t -> {
-                Window w = s.createWindow(CameraType.Perspective, "Test", 640, 480, false);
+                Window w = s.createWindow(CameraType.Orthographic, "Test", 640, 480, false);
 
-                Window w2 = s.createWindow(CameraType.Perspective, "Test1", 640, 480, true);
+                Window w2 = s.createWindow(CameraType.Orthographic, "Test1", 640, 480, true);
 
                 w2.update.add("move", x -> {
                     MathUtils.LookRelativeTo(w2, w);
