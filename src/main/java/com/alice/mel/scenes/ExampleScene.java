@@ -29,7 +29,7 @@ public class ExampleScene extends SceneAdaptor {
         Window w2 = createWindow(CameraType.Orthographic, "Test1", 640, 480, true);
 
         Webcam webcam = Webcam.getDefault();
-        webcam.open(true);
+        webcam.open();
         addSystem(new RenderingSystem(game.assetManager));
         Entity en = createEntity();
         en.scale.set(200, 200, 200);

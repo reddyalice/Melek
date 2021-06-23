@@ -2,10 +2,12 @@ package com.alice.mel.systems;
 
 import com.alice.mel.engine.Scene;
 import com.alice.mel.graphics.Window;
+import org.jetbrains.annotations.NotNull;
 
-public abstract class ComponentSystem {
+public abstract class ComponentSystem implements Comparable<ComponentSystem>{
 
     public Scene scene;
+    public int priority = 0;
 
     public abstract void addedToScene(Scene scene);
     public abstract void removedFromScene(Scene scene);
@@ -26,5 +28,8 @@ public abstract class ComponentSystem {
         return scene;
     }
 
-
+    @Override
+    public int compareTo(@NotNull ComponentSystem o) {
+        return Integer.compare(priority, o.priority);
+    }
 }

@@ -128,6 +128,7 @@ public final class Scene {
 
     public void addSystem(ComponentSystem system){
         componentSystems.add(system);
+        componentSystems.sort();
         update.add(system.getClass().getSimpleName(), system::update);
         render.add(system.getClass().getSimpleName(), x -> system.render(x.getValue0(), x.getValue1()));
         system.addedToSceneInternal(this);
