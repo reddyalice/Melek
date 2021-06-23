@@ -8,8 +8,8 @@ public abstract class Camera {
     public float near = 1;
     public float far = 10000;
 
-    public float viewportWidth = 0;
-    public float viewportHeight = 0;
+    public float viewportWidth ;
+    public float viewportHeight;
 
     public final Vector3f position = new Vector3f();
     public final Vector3f direction = new Vector3f(0,0,-1);

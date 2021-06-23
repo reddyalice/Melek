@@ -27,11 +27,11 @@ public abstract class Shader{
     }
 
     public HashMap<Scene, Integer> ids = new HashMap<>();
-    public final HashMap<Integer, String> sources = new HashMap<Integer, String>();
+    public final HashMap<Integer, String> sources = new HashMap<>();
     private final FloatBuffer matrixBuffer = BufferUtils.createFloatBuffer(16);
 
     public Shader(String shaderOrShaderFilePath, boolean isShaderSource){
-        Array<String> lines = new Array<String>();
+        Array<String> lines = new Array<>();
         ShaderType type = ShaderType.NONE;
         if(isShaderSource){
             lines.addAll(shaderOrShaderFilePath.split("\n"));
@@ -63,13 +63,13 @@ public abstract class Shader{
             if(lines.get(i).contains("#shader")){
                 if(lines.get(i).contains("vertex")){
                     type = ShaderType.VERTEX;
-                    sources.put(GL32C.GL_VERTEX_SHADER, new String());
+                    sources.put(GL32C.GL_VERTEX_SHADER, "");
                 }else if(lines.get(i).contains("fragment")){
                     type = ShaderType.FRAGMENT;
-                    sources.put(GL32C.GL_FRAGMENT_SHADER, new String());
+                    sources.put(GL32C.GL_FRAGMENT_SHADER, "");
                 }else if(lines.get(i).contains("geometry")){
                     type = ShaderType.GEOMETRY;
-                    sources.put(GL32C.GL_GEOMETRY_SHADER, new String());
+                    sources.put(GL32C.GL_GEOMETRY_SHADER, "");
                 }
             }else{
                 String sb;
@@ -158,18 +158,12 @@ public abstract class Shader{
         GL32C.glCompileShader(shaderID);
         if(GL32C.glGetShaderi(shaderID, GL32C.GL_COMPILE_STATUS) == GL32C.GL_FALSE){
             System.out.println(GL32C.glGetShaderInfoLog(shaderID, 500));
-            String error = "";
-            switch(type){
-                case GL32C.GL_VERTEX_SHADER :
-                    error = "vertex";
-                    break;
-                case GL32C.GL_FRAGMENT_SHADER :
-                    error =  "fragment";
-                    break;
-                case GL32C.GL_GEOMETRY_SHADER :
-                    error = "geometry";
-                    break;
-            }
+            String error = switch (type) {
+                case GL32C.GL_VERTEX_SHADER -> "vertex";
+                case GL32C.GL_FRAGMENT_SHADER -> "fragment";
+                case GL32C.GL_GEOMETRY_SHADER -> "geometry";
+                default -> "";
+            };
             System.err.println("Couldn't compile " + error + " shader!");
             System.exit(-1);
         }
@@ -185,7 +179,6 @@ public abstract class Shader{
 
     protected void loadMatrix(int location, Matrix4f value){
         value.get(matrixBuffer);
-        //matrixBuffer.flip();
         GL32C.glUniformMatrix4fv(location, false, matrixBuffer);
     }
 
@@ -224,22 +217,12 @@ public abstract class Shader{
 
 
     protected void loadVectorArray(int location, Vector3f[] value){
-
         float[] tmp = new float[value.length * 3];
         for(int i = 0; i < value.length; i++){
-            if(i < value.length){
-                tmp[3 * i] = value[i].x;
-                tmp[3 * i + 1] = value[i].y;
-                tmp[3 * i + 2] = value[i].z;
-
-            }
-            else{
-                tmp[3 * i] = 0;
-                tmp[3 * i + 1] = 0;
-                tmp[3 * i + 2] = 0;
-            }
+            tmp[3 * i] = value[i].x;
+            tmp[3 * i + 1] = value[i].y;
+            tmp[3 * i + 2] = value[i].z;
         }
-
         GL32C.glUniform3fv(location, tmp);
     }
 

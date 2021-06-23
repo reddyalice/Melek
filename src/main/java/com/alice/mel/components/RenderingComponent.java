@@ -1,7 +1,6 @@
 package com.alice.mel.components;
 
 import com.alice.mel.graphics.Material;
-import com.alice.mel.graphics.Shader;
 
 public class RenderingComponent extends Component{
     public Material material;

@@ -104,7 +104,7 @@ public class Mesh {
         }else
         {
             System.err.println("A Non-2D Mesh cannot be transformed to a 2D one");
-            System.err.println("You can only regen meshes with same dimension");
+            System.err.println("You can only regen meshes using same dimensions");
         }
     }
 
@@ -126,7 +126,7 @@ public class Mesh {
         }else
         {
             System.err.println("A Non-3D Mesh cannot be transformed to a 3D one");
-            System.err.println("You can only regend meshes with same dimension");
+            System.err.println("You can only regend meshes using same dimensions");
 
         }
     }

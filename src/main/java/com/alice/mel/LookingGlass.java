@@ -11,27 +11,20 @@ import com.alice.mel.graphics.shaders.Basic2DShader;
 import com.alice.mel.systems.RenderingSystem;
 import com.alice.mel.utils.maths.MathUtils;
 import com.github.sarxos.webcam.Webcam;
-import org.joml.Vector4f;
 import org.lwjgl.glfw.GLFW;
 import java.util.Objects;
 
 public class LookingGlass {
 
-
-
-
-
     public static void main(String[] args) {
 
-
-            //Texture texture = new Texture("src/main/resources/textures/cactus.png");
+            Texture texture = new Texture("src/main/resources/textures/cactus.png");
             //Mesh mesh = OBJLoader.loadOBJ("src/main/resources/models/cactus.obj");
-            Vector4f color = new Vector4f(1,1,1,1f);
             Game game = new Game();
             game.assetManager.addShader(Basic2DShader.class);
             Webcam webcam = Webcam.getDefault();
             webcam.open();
-            Texture texture = new Texture(webcam.getImage());
+            //Texture texture = new Texture(webcam.getImage());
 
             game.assetManager.addTexture("Texture1", texture);
 
@@ -61,7 +54,6 @@ public class LookingGlass {
                     MathUtils.LookRelativeTo(w2, w);
                     if (InputHandler.getKey(s, GLFW.GLFW_KEY_A)) {
                         Objects.requireNonNull(game.assetManager.getTexture("Texture1")).regenTexture(s, webcam.getImage());
-
                     }
 
                 });

@@ -23,8 +23,8 @@ public class CameraPool {
     }
 
     public CameraPool (int initialCapacity, int max) {
-        freedOrthoCameras = new Array<Camera>(false, initialCapacity);
-        freedPersCameras = new Array<Camera>(false, initialCapacity);
+        freedOrthoCameras = new Array<>(false, initialCapacity);
+        freedPersCameras = new Array<>(false, initialCapacity);
         this.max = max;
     }
 
@@ -82,7 +82,7 @@ public class CameraPool {
         for(Camera camera : freedPersCameras)
             camera.dispose();
 
-        freedOrthoCameras.clear();;
+        freedOrthoCameras.clear();
         freedPersCameras.clear();
     }
 

@@ -1,9 +1,6 @@
 package com.alice.mel.graphics;
 
 import com.alice.mel.engine.Entity;
-import com.alice.mel.utils.reflections.ClassReflection;
-
-import java.util.Objects;
 
 public abstract class Material {
     public final Class<? extends  Shader> shaderClass;

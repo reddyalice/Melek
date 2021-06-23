@@ -8,7 +8,6 @@ import com.alice.mel.systems.ComponentSystem;
 import com.alice.mel.utils.Event;
 import com.alice.mel.utils.collections.Array;
 import com.alice.mel.utils.collections.ImmutableArray;
-import com.alice.mel.utils.collections.Pool;
 import com.alice.mel.utils.collections.SnapshotArray;
 import org.javatuples.Pair;
 import org.jbox2d.common.Vec2;

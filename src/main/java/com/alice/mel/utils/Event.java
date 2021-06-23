@@ -5,7 +5,7 @@ import java.util.function.Consumer;
 
 public class Event<T>{
 
-    private final HashMap<String,Consumer<T>> consumers = new HashMap<String,Consumer<T>>();
+    private final HashMap<String,Consumer<T>> consumers = new HashMap<>();
 
     public void add(String key, Consumer<T> consumer) {
         consumers.put(key,  consumer);

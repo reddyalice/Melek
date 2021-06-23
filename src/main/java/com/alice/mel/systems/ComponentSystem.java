@@ -1,13 +1,11 @@
 package com.alice.mel.systems;
 
 import com.alice.mel.engine.Scene;
-import com.alice.mel.graphics.Camera;
 import com.alice.mel.graphics.Window;
 
 public abstract class ComponentSystem {
 
     public Scene scene;
-    public int priority = 0;
 
     public abstract void addedToScene(Scene scene);
     public abstract void removedFromScene(Scene scene);

@@ -11,7 +11,6 @@ public class OrthographicCamera extends Camera {
 
     public OrthographicCamera (float viewportWidth, float viewportHeight) {
         super(viewportWidth, viewportHeight);
-        //setToOrtho(false, viewportWidth, viewportHeight);
         this.near = 0;
         update();
     }
@@ -26,19 +25,6 @@ public class OrthographicCamera extends Camera {
         viewMatrix.identity().lookAt(position, tmp.set(position).add(direction), up);
     }
 
-    public void setToOrtho (boolean yDown, float viewportWidth, float viewportHeight) {
-        if (yDown) {
-            up.set(0, -1, 0);
-            direction.set(0, 0, 1);
-        } else {
-            up.set(0, 1, 0);
-            direction.set(0, 0, -1);
-        }
-        position.set(zoom * viewportWidth / 2.0f, zoom * viewportHeight / 2.0f, 0);
-        this.viewportWidth = viewportWidth;
-        this.viewportHeight = viewportHeight;
-        update();
-    }
 
     public void rotate (float angle) {
         rotate(direction, angle);

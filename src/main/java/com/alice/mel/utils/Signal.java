@@ -3,10 +3,10 @@ package com.alice.mel.utils;
 import com.alice.mel.utils.collections.SnapshotArray;
 
 public class Signal<T> {
-    private SnapshotArray<Listener<T>> listeners;
+    private final SnapshotArray<Listener<T>> listeners;
 
     public Signal () {
-        listeners = new SnapshotArray<Listener<T>>();
+        listeners = new SnapshotArray<>();
     }
 
 

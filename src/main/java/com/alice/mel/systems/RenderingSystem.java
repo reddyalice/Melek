@@ -12,6 +12,7 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
 
 import java.util.HashMap;
+import java.util.Objects;
 
 public class RenderingSystem extends ComponentSystem{
 
@@ -34,7 +35,7 @@ public class RenderingSystem extends ComponentSystem{
             Material material = rend.material;
             scene.loaderWindow.makeContextCurrent();
             if (!scene.hasShader(rend.material.shaderClass)) scene.loadShader(rend.material.shaderClass);
-            if (!scene.hasTexture(rend.textureName)) scene.loadTexture(rend.textureName);
+            if (scene.hasTexture(rend.textureName)) scene.loadTexture(rend.textureName);
             if (!scene.hasMesh(rend.meshName)) scene.loadMesh(rend.meshName);
             if(scene.currentContext != null) scene.currentContext.makeContextCurrent();
 
@@ -97,7 +98,7 @@ public class RenderingSystem extends ComponentSystem{
 
                 scene.loaderWindow.makeContextCurrent();
                 if (!scene.hasShader(rend.material.shaderClass)) scene.loadShader(rend.material.shaderClass);
-                if (!scene.hasTexture(rend.textureName)) scene.loadTexture(rend.textureName);
+                if (scene.hasTexture(rend.textureName)) scene.loadTexture(rend.textureName);
                 if (!scene.hasMesh(rend.meshName)) scene.loadMesh(rend.meshName);
                 if(scene.currentContext != null) scene.currentContext.makeContextCurrent();
                 HashMap<String, HashMap<String, HashMap<Material, Array<Entity>>>> batch0 = renderMap.get(rend.material.shaderClass);
@@ -199,25 +200,25 @@ public class RenderingSystem extends ComponentSystem{
     @Override
     public void render(Window window, float deltaTime) {
         for(Class<? extends Shader> shaderClass : renderMap.keys()){
-            assetManager.getShader(shaderClass).start(scene);
+            Objects.requireNonNull(assetManager.getShader(shaderClass)).start(scene);
             for(String meshName : renderMap.get(shaderClass).keySet()){
-                assetManager.getMesh(meshName).bind(scene, window);
+                Objects.requireNonNull(assetManager.getMesh(meshName)).bind(scene, window);
                 for(String textureName : renderMap.get(shaderClass).get(meshName).keySet()){
                     GL20.glEnable(GL11.GL_TEXTURE);
                     GL20.glActiveTexture(GL20.GL_TEXTURE0);
-                    assetManager.getTexture(textureName).bind(scene);
+                    Objects.requireNonNull(assetManager.getTexture(textureName)).bind(scene);
                     for(Material material : renderMap.get(shaderClass).get(meshName).get(textureName).keySet()){
                         for(Entity entity : renderMap.get(shaderClass).get(meshName).get(textureName).get(material)){
                             material.loadValues(assetManager.getShader(shaderClass), window.camera, entity);
-                            GL11.glDrawElements(GL11.GL_TRIANGLES, assetManager.getMesh(meshName).getVertexCount(), GL11.GL_UNSIGNED_INT, 0);
+                            GL11.glDrawElements(GL11.GL_TRIANGLES, Objects.requireNonNull(assetManager.getMesh(meshName)).getVertexCount(), GL11.GL_UNSIGNED_INT, 0);
                         }
                     }
                     GL20.glDisable(GL11.GL_TEXTURE);
-                    assetManager.getTexture(textureName).unbind();
+                    Objects.requireNonNull(assetManager.getTexture(textureName)).unbind();
                 }
-                assetManager.getMesh(meshName).unbind();
+                Objects.requireNonNull(assetManager.getMesh(meshName)).unbind();
             }
-            assetManager.getShader(shaderClass).stop();
+            Objects.requireNonNull(assetManager.getShader(shaderClass)).stop();
         }
     }
 }

@@ -4,7 +4,7 @@ import com.alice.mel.graphics.Camera;
 import org.joml.Vector3f;
 
 public class PerspectiveCamera extends Camera {
-    public float fieldOfView = 67;
+    public float fieldOfView;
 
     public PerspectiveCamera (float fieldOfViewY, float viewportWidth, float viewportHeight) {
         super(viewportWidth, viewportHeight);
