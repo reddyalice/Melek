@@ -4,29 +4,16 @@ package com.alice.mel;
 import com.alice.mel.components.RenderingComponent;
 import com.alice.mel.engine.*;
 import com.alice.mel.graphics.CameraType;
-import com.alice.mel.graphics.Mesh;
 import com.alice.mel.graphics.Texture;
 import com.alice.mel.graphics.Window;
 import com.alice.mel.graphics.materials.Basic2DMaterial;
-import com.alice.mel.graphics.materials.Basic3DMaterial;
 import com.alice.mel.graphics.shaders.Basic2DShader;
-import com.alice.mel.graphics.shaders.Basic3DShader;
 import com.alice.mel.systems.RenderingSystem;
 import com.alice.mel.utils.maths.MathUtils;
-import com.alice.mel.utils.reflections.ClassReflection;
 import com.github.sarxos.webcam.Webcam;
-import org.joml.Vector2i;
-import org.joml.Vector3f;
 import org.joml.Vector4f;
 import org.lwjgl.glfw.GLFW;
-import org.lwjgl.glfw.GLFWErrorCallback;
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL20;
-import org.lwjgl.system.CallbackI;
-
-import java.awt.image.BufferedImage;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.Objects;
 
 public class LookingGlass {
 
@@ -73,14 +60,8 @@ public class LookingGlass {
                 w2.update.add("move", x -> {
                     MathUtils.LookRelativeTo(w2, w);
                     if (InputHandler.getKey(s, GLFW.GLFW_KEY_A)) {
-                        s.unloadTexture("Texture1");
-                        Texture ter = new Texture(webcam.getImage());
-                        game.assetManager.removeTexture("Texture1");
-                        game.assetManager.addTexture("Texture1", ter);
-                        s.loaderWindow.makeContextCurrent();
-                        s.loadTexture("Texture1");
-                        if (s.currentContext != null)
-                            s.currentContext.makeContextCurrent();
+                        Objects.requireNonNull(game.assetManager.getTexture("Texture1")).regenTexture(s, webcam.getImage());
+
                     }
 
                 });

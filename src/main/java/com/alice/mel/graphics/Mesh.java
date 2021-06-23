@@ -18,13 +18,13 @@ public class Mesh {
 
 
 
-    public HashMap<Scene, HashMap<Window, Integer>> ids = new HashMap<>();
-    public final int vertexCount;
-    public final int dimension;
-    public final float[] vertices;
-    public final float[] textureCoords;
-    public final float[] normals;
-    public final int[] indices;
+    private final HashMap<Scene, HashMap<Window, Integer>> ids = new HashMap<>();
+    private int vertexCount;
+    private final int dimension;
+    private float[] vertices;
+    private float[] textureCoords;
+    private float[] normals;
+    private int[] indices;
 
     private final HashMap<Scene, Array<Integer>> VBOS = new HashMap<>();
 
@@ -82,6 +82,56 @@ public class Mesh {
         GL30.glBindVertexArray(0);
     }
 
+    public void regenMesh(Scene scene, float[] vertices, float[] textureCoords, float[] normals, int[] indices){
+        if(dimension == 2) {
+            this.vertices = vertices;
+            this.textureCoords = textureCoords;
+            this.normals = normals;
+            this.indices = indices;
+            this.vertexCount = indices.length;
+            GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, VBOS.get(scene).get(0));
+            FloatBuffer ver = storeDataInFloatBuffer(vertices);
+            GL15.glBufferData(GL15.GL_ARRAY_BUFFER, ver, GL15.GL_STATIC_DRAW);
+            GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, VBOS.get(scene).get(1));
+            FloatBuffer tex = storeDataInFloatBuffer(textureCoords);
+            GL15.glBufferData(GL15.GL_ARRAY_BUFFER, tex, GL15.GL_STATIC_DRAW);
+            GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, VBOS.get(scene).get(2));
+            FloatBuffer norm = storeDataInFloatBuffer(normals);
+            GL15.glBufferData(GL15.GL_ARRAY_BUFFER, norm, GL15.GL_STATIC_DRAW);
+            GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, VBOS.get(scene).get(3));
+            IntBuffer buffer = storeDataInIntBuffer(indices);
+            GL15.glBufferData(GL15.GL_ELEMENT_ARRAY_BUFFER, buffer, GL15.GL_STATIC_DRAW);
+        }else
+        {
+            System.err.println("A Non-2D Mesh cannot be transformed to a 2D one");
+            System.err.println("You can only regen meshes with same dimension");
+        }
+    }
+
+    public void regenMesh(Scene scene, float[] vertices, float[] textureCoords, int[] indices){
+        if(dimension == 3) {
+            this.vertices = vertices;
+            this.textureCoords = textureCoords;
+            this.indices = indices;
+            this.vertexCount = indices.length;
+            GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, VBOS.get(scene).get(0));
+            FloatBuffer ver = storeDataInFloatBuffer(vertices);
+            GL15.glBufferData(GL15.GL_ARRAY_BUFFER, ver, GL15.GL_STATIC_DRAW);
+            GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, VBOS.get(scene).get(1));
+            FloatBuffer tex = storeDataInFloatBuffer(textureCoords);
+            GL15.glBufferData(GL15.GL_ARRAY_BUFFER, tex, GL15.GL_STATIC_DRAW);
+            GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, VBOS.get(scene).get(2));
+            IntBuffer buffer = storeDataInIntBuffer(indices);
+            GL15.glBufferData(GL15.GL_ELEMENT_ARRAY_BUFFER, buffer, GL15.GL_STATIC_DRAW);
+        }else
+        {
+            System.err.println("A Non-3D Mesh cannot be transformed to a 3D one");
+            System.err.println("You can only regend meshes with same dimension");
+
+        }
+    }
+
+
     public void bind(Scene scene, Window window){
         GL30.glBindVertexArray(ids.get(scene).get(window));
         GL20.glEnableVertexAttribArray(0);
@@ -134,6 +184,34 @@ public class Mesh {
         GL30.glDeleteVertexArrays(ids.get(scene).get(window));
         ids.get(scene).remove(window);
 
+    }
+
+    public int getVertexCount() {
+        return vertexCount;
+    }
+
+    public float[] getNormals() {
+        return normals;
+    }
+
+    public int getDimension() {
+        return dimension;
+    }
+
+    public float[] getTextureCoords() {
+        return textureCoords;
+    }
+
+    public float[] getVertices() {
+        return vertices;
+    }
+
+    public int[] getIndices() {
+        return indices;
+    }
+
+    public int getVAOid(Scene scene, Window window){
+        return ids.get(scene).get(window);
     }
 
     public void dispose(Scene scene) {

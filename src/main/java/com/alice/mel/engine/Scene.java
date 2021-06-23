@@ -144,7 +144,7 @@ public final class Scene {
             if (currentContext != null)
                 currentContext.makeContextCurrent();
 
-            multiInit.add("mesh" + mesh.ids.get(this).get(loaderWindow), x -> mesh.genMesh(this, x));
+            multiInit.add("mesh" + mesh.getVAOid(this, loaderWindow), x -> mesh.genMesh(this, x));
         }else
             System.err.println("Mesh already loaded!");
     }
@@ -192,6 +192,7 @@ public final class Scene {
         assert mesh != null;
         if(meshes.contains(name, false)) {
             meshes.removeValue(name, false);
+            multiInit.remove("mesh" + mesh.getVAOid(this, loaderWindow));
             loaderWindow.makeContextCurrent();
             mesh.disposeVAO(this, loaderWindow);
             mesh.dispose(this);
@@ -201,8 +202,6 @@ public final class Scene {
             }
             if (currentContext != null)
                 currentContext.makeContextCurrent();
-
-            multiInit.remove("mesh" + mesh.ids.get(this).get(loaderWindow));
         }else
             System.err.println("No such Mesh already loaded!");
 

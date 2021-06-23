@@ -209,7 +209,7 @@ public class RenderingSystem extends ComponentSystem{
                     for(Material material : renderMap.get(shaderClass).get(meshName).get(textureName).keySet()){
                         for(Entity entity : renderMap.get(shaderClass).get(meshName).get(textureName).get(material)){
                             material.loadValues(assetManager.getShader(shaderClass), window.camera, entity);
-                            GL11.glDrawElements(GL11.GL_TRIANGLES, assetManager.getMesh(meshName).vertexCount, GL11.GL_UNSIGNED_INT, 0);
+                            GL11.glDrawElements(GL11.GL_TRIANGLES, assetManager.getMesh(meshName).getVertexCount(), GL11.GL_UNSIGNED_INT, 0);
                         }
                     }
                     GL20.glDisable(GL11.GL_TEXTURE);
