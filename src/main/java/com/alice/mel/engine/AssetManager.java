@@ -39,7 +39,7 @@ public final class AssetManager {
                 new float[]{
                         -1f, 1f, 0,
                         1f,  1f, 0,
-                        1f,  -0.5f, 0,
+                        1f,  -1f, 0,
                         -1f, -1f, 0
                 },
                 new float[]{

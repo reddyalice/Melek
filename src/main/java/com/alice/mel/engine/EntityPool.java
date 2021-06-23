@@ -28,7 +28,7 @@ public class EntityPool {
         if (freedEntites.size > 0)
             return freedEntites.pop();
         else
-            return new Entity(scene);
+            return new Entity();
 
     }
 
@@ -50,14 +50,14 @@ public class EntityPool {
 
     private void reset(Entity entity) {
         entity.removeAllComponents();
-        entity.componentAdded.removeAllListeners();
-        entity.componentRemoved.removeAllListeners();
+        entity.componentAdded.dispose();
+        entity.componentRemoved.dispose();
     }
 
     private void discard(Entity entity) {
         entity.removeAllComponents();
-        entity.componentAdded.removeAllListeners();
-        entity.componentRemoved.removeAllListeners();
+        entity.componentAdded.dispose();
+        entity.componentRemoved.dispose();
     }
 
 

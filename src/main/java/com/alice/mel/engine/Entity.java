@@ -2,7 +2,7 @@ package com.alice.mel.engine;
 
 import com.alice.mel.components.Component;
 import com.alice.mel.components.ComponentType;
-import com.alice.mel.utils.Signal;
+import com.alice.mel.utils.Event;
 import com.alice.mel.utils.collections.Array;
 import com.alice.mel.utils.collections.Bag;
 import com.alice.mel.utils.collections.Bits;
@@ -11,8 +11,8 @@ import org.joml.Vector3f;
 
 public class Entity {
 
-    public final Signal<Entity> componentAdded = new Signal<>();
-    public final Signal<Entity> componentRemoved = new Signal<>();
+    public final Event<Component> componentAdded = new Event<>();
+    public final Event<Component> componentRemoved = new Event<>();
 
     public final Vector3f position = new Vector3f();
     public final Vector3f rotation = new Vector3f();
@@ -21,20 +21,6 @@ public class Entity {
     private final Bag<Component> components = new Bag<>();
     private final Array<Component> componentsArray = new Array<>();
     private final Bits componentBits = new Bits();
-
-    private Scene scene;
-
-    public Entity(Scene scene){
-        this.scene = scene;
-    }
-
-    public void setScene(Scene scene){
-        this.scene = scene;
-    }
-
-    public Scene getScene(){
-        return scene;
-    }
 
     public Component addComponent(Component component){
         Class<? extends Component> componentClass = component.getClass();
@@ -52,7 +38,7 @@ public class Entity {
         components.set(componentTypeIndex, component);
         componentsArray.add(component);
         componentBits.set(componentTypeIndex);
-        notifyComponentAdded();
+        componentAdded.broadcast(getComponent(componentClass));
         return component;
     }
 
@@ -65,7 +51,7 @@ public class Entity {
                components.set(componentTypeIndex, null);
                componentsArray.removeValue(removeComponent, true);
                componentBits.clear(componentTypeIndex);
-               notifyComponentRemoved();
+               componentRemoved.broadcast(removeComponent);
            }
         }
     }
@@ -80,13 +66,6 @@ public class Entity {
         return new ImmutableArray<>(componentsArray);
     }
 
-    public void addToScene(){
-        scene.addEntity(this);
-    }
-
-    public void removeFromScene(){
-        scene.removeEntity(this);
-    }
 
     public <T extends Component> T getComponent (Class<T> componentClass) {
         return getComponent(ComponentType.getFor(componentClass));
@@ -110,13 +89,7 @@ public class Entity {
         return componentBits.get(componentType.getIndex());
     }
 
-    public void notifyComponentAdded() {
-        componentAdded.dispatch(this);
-    }
 
-    public void notifyComponentRemoved() {
-        componentRemoved.dispatch(this);
-    }
 
 
 }

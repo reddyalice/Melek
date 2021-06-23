@@ -39,6 +39,8 @@ public final class Scene {
     public final Event<Pair<Window, Float>> postRender = new Event<>();
 
     public final Event<Entity> entityAdded = new Event<>();
+    public final Event<Entity> entityModified = new Event<>();
+
     public final Event<Entity> entityRemoved = new Event<>();
 
 
@@ -51,7 +53,7 @@ public final class Scene {
     private final SnapshotArray<Entity> entities = new SnapshotArray<>();
     private final SnapshotArray<ComponentSystem> componentSystems = new SnapshotArray<>();
 
-    private final World world = new World(new Vec2(0, 9.8f));
+    public final World world = new World(new Vec2(0, 9.8f));
     private final Game game;
 
     public Scene(Game game){
@@ -72,7 +74,9 @@ public final class Scene {
     }
 
     public Entity createEntity(){
-        return entityPool.obtain();
+        Entity en = entityPool.obtain();
+        addEntity(en);
+        return en;
     }
 
     public void addEntity(Entity entity){
@@ -85,6 +89,26 @@ public final class Scene {
             ens.add(entity);
             componentEntityMap.put(ComponentType.getFor(component.getClass()), ens);
         }
+        entity.componentAdded.add(entity.toString(),component -> {
+            Array<Entity> ens = componentEntityMap.get(ComponentType.getFor(component.getClass()));
+            if(ens == null)
+                ens = new Array<>();
+            ens.add(entity);
+            componentEntityMap.put(ComponentType.getFor(component.getClass()), ens);
+            entityModified.broadcast(entity);
+        });
+        entity.componentRemoved.add(entity.toString(),component -> {
+            Array<Entity> ens = componentEntityMap.get(ComponentType.getFor(component.getClass()));
+            if(ens != null){
+                
+                ens.removeValue(entity, false);
+                if(ens.isEmpty())
+                    componentEntityMap.remove(ComponentType.getFor(component.getClass()));
+                else
+                    componentEntityMap.put(ComponentType.getFor(component.getClass()), ens);
+            }
+            entityModified.broadcast(entity);
+        });
         entityAdded.broadcast(entity);
     }
 
