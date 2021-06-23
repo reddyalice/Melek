@@ -35,7 +35,7 @@ public class RenderingSystem extends ComponentSystem{
             Material material = rend.material;
             scene.loaderWindow.makeContextCurrent();
             if (!scene.hasShader(rend.material.shaderClass)) scene.loadShader(rend.material.shaderClass);
-            if (scene.hasTexture(rend.textureName)) scene.loadTexture(rend.textureName);
+            if (!scene.hasTexture(rend.textureName)) scene.loadTexture(rend.textureName);
             if (!scene.hasMesh(rend.meshName)) scene.loadMesh(rend.meshName);
             if(scene.currentContext != null) scene.currentContext.makeContextCurrent();
 
@@ -98,7 +98,7 @@ public class RenderingSystem extends ComponentSystem{
 
                 scene.loaderWindow.makeContextCurrent();
                 if (!scene.hasShader(rend.material.shaderClass)) scene.loadShader(rend.material.shaderClass);
-                if (scene.hasTexture(rend.textureName)) scene.loadTexture(rend.textureName);
+                if (!scene.hasTexture(rend.textureName)) scene.loadTexture(rend.textureName);
                 if (!scene.hasMesh(rend.meshName)) scene.loadMesh(rend.meshName);
                 if(scene.currentContext != null) scene.currentContext.makeContextCurrent();
                 HashMap<String, HashMap<String, HashMap<Material, Array<Entity>>>> batch0 = renderMap.get(rend.material.shaderClass);
