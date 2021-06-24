@@ -56,6 +56,10 @@ public final class Scene {
     public final World world = new World(new Vec2(0, 9.8f));
     private final Game game;
 
+    /**
+     * Creates a scene with a loader window
+     * @param game Game the scene loaded to
+     */
     public Scene(Game game){
         this.game = game;
         if(game.loaderScene == null) {
@@ -68,17 +72,27 @@ public final class Scene {
             game.loaderScene = this;
         }
 
+        GLFW.glfwWindowHint(GLFW.GLFW_VISIBLE, GLFW.GLFW_FALSE);
         loaderWindow = createWindow(CameraType.Orthographic, "Loader", 640, 480);
+        GLFW.glfwWindowHint(GLFW.GLFW_VISIBLE, GLFW.GLFW_TRUE);
         removeWindow(loaderWindow);
 
     }
 
+    /**
+     * Create or obtain an entity from freed ones
+     * @return Obtained and added entity
+     */
     public Entity createEntity(){
         Entity en = entityPool.obtain();
         addEntity(en);
         return en;
     }
 
+    /**
+     * Add entity to scebe
+     * @param entity Entity to be add
+     */
     public void addEntity(Entity entity){
         entities.add(entity);
         for(Component component : entity.getComponents())
@@ -112,6 +126,10 @@ public final class Scene {
         entityAdded.broadcast(entity);
     }
 
+    /**
+     * Remove entity from the Scene and free the entity to scenes pool
+     * @param entity
+     */
     public void removeEntity(Entity entity){
         entityRemoved.broadcast(entity);
         for(Component component : entity.getComponents())
@@ -126,6 +144,10 @@ public final class Scene {
         entityPool.free(entity);
     }
 
+    /**
+     * Add a ComponentSystem to the Scene
+     * @param system ComponentSystem that will be added
+     */
     public void addSystem(ComponentSystem system){
         componentSystems.add(system);
         componentSystems.sort();
@@ -134,6 +156,10 @@ public final class Scene {
         system.addedToSceneInternal(this);
     }
 
+    /**
+     * Remove ComponentSystem from the scene
+     * @param system System that will be removed
+     */
     public void removeSystem(ComponentSystem system){
         componentSystems.removeValue(system, false);
         update.remove(system.getClass().getSimpleName());
@@ -141,6 +167,10 @@ public final class Scene {
         system.removedFromSceneInternal(this);
     }
 
+    /**
+     * Load the Texture registered in the Asset Manager to the scene
+     * @param name Registered name of the texture that will be loaded
+     */
     public void loadTexture(String name){
         Texture texture = game.assetManager.getTexture(name);
         assert texture != null;
@@ -154,6 +184,10 @@ public final class Scene {
             System.err.println("Texture already loaded!");
     }
 
+    /**
+     * Load the Mesh registered in the Asset Manager to the scene
+     * @param name Registered name of the texture that will be loaded
+     */
     public void loadMesh(String name){
         Mesh mesh = game.assetManager.getMesh(name);
         assert mesh != null;
@@ -173,6 +207,10 @@ public final class Scene {
             System.err.println("Mesh already loaded!");
     }
 
+    /**
+     * Load the shader registered in the Asset Manager to the Scene
+     * @param shaderClass Class of the Shader that will be load
+     */
     public void loadShader(Class<? extends Shader> shaderClass){
         Shader shader = game.assetManager.getShader(shaderClass);
         assert shader != null;
@@ -186,18 +224,37 @@ public final class Scene {
             System.err.println("Shader already loaded!");
     }
 
+    /**
+     * Does the Scene has the texture registered in the Asset Manager loaded
+     * @param textureName Name the Texture registered as
+     * @return true if scene has the texture loaded else false
+     */
     public boolean hasTexture(String textureName){
         return textures.contains(textureName, false);
     }
 
+    /**
+     * Does the Scene has the texture registered in the Asset Manager loaded
+     * @param meshName Name the Mesh registered as
+     * @return true if the scene has the mesh loaded else false
+     */
     public boolean hasMesh(String meshName){
         return meshes.contains(meshName, false);
     }
 
+    /**
+     * Does the Scene has the Shader registered in the Asset Manager loaded
+     * @param shaderClass Class of the Shader registered
+     * @return true if the scene has the shader loaded else false
+     */
     public boolean hasShader(Class<? extends Shader> shaderClass){
         return shaders.contains(shaderClass, false);
     }
 
+    /**
+     * Unload the Texture from scene using registered name from Asset Manager
+     * @param name Name the texture registered as
+     */
     public void unloadTexture(String name){
         Texture texture = game.assetManager.getTexture(name);
         assert texture != null;
@@ -211,6 +268,10 @@ public final class Scene {
             System.err.println("No such Texture already loaded!");
     }
 
+    /**
+     * Unload the Mesh from scene using registered name from Asset Manager
+     * @param name Name the Mesh registered as
+     */
     public void unloadMesh(String name){
         Mesh mesh = game.assetManager.getMesh(name);
         assert mesh != null;
@@ -231,6 +292,10 @@ public final class Scene {
 
     }
 
+    /**
+     * Unload the Shader from scene using shader class
+     * @param shaderClass Class of the shader
+     */
     public void unloadShader(Class<? extends Shader> shaderClass){
         Shader shader = game.assetManager.getShader(shaderClass);
         assert shader != null;
@@ -245,6 +310,15 @@ public final class Scene {
 
     }
 
+    /**
+     * Create or obtain a freed window
+     * @param cameraType CameraType window camera will have
+     * @param title Window Title
+     * @param width Window Width
+     * @param height Window Height
+     * @param transparentFrameBuffer Does Window has a transparent Frame Buffer
+     * @return Window that is created and added
+     */
     public Window createWindow(CameraType cameraType, String title, int width, int height, boolean transparentFrameBuffer){
         Window w = windowPool.obtain(cameraType, title, width, height, transparentFrameBuffer);
         w.show();
@@ -252,10 +326,23 @@ public final class Scene {
         return w;
     }
 
+    /**
+     * Create or obtain a freed window
+     * @param cameraType CameraType window camera will have
+     * @param title Window Title
+     * @param width Window Width
+     * @param height Window Height
+     * @return Window that is created and added
+     */
     public Window createWindow(CameraType cameraType, String title, int width, int height){
         return createWindow(cameraType, title, width, height, false);
     }
 
+    /**
+     * Get Entities that has certain Component
+     * @param componentType ComponentType that corresponds to componentClass
+     * @return Immutable Array of entities that has that component
+     */
     public ImmutableArray<Entity> getEntitiesFor(ComponentType componentType){
         if(componentEntityMap.get(componentType) != null)
             return new ImmutableArray<>(componentEntityMap.get(componentType));
@@ -263,10 +350,19 @@ public final class Scene {
             return null;
     }
 
+    /**
+     * Get Entities that has certain Component
+     * @param componentClass
+     * @return Immutable Array of entities that has that components
+     */
     public ImmutableArray<Entity> getEntitiesFor(Class<? extends Component> componentClass) {
         return getEntitiesFor(ComponentType.getFor(componentClass));
     }
 
+    /**
+     * Update the scene
+     * @param delta deltaTime passed between Updates in game
+     */
     public void Update(float delta){
 
         if(!initialized){

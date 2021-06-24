@@ -12,14 +12,13 @@ public class LookingGlass {
 
     public static void main(String[] args) {
 
-            Texture texture = new Texture("src/main/resources/textures/cactus.png");
-            //Mesh mesh = OBJLoader.loadOBJ("src/main/resources/models/cactus.obj");
+
+
             Game game = new Game();
-            game.assetManager.addShader(Basic3DShader.class);
-            game.assetManager.addTexture("Texture1", texture);
+
             ExampleScene ex = new ExampleScene(game);
             ex.addToGame();
-            game.Update();
+            game.run();
 
     }
 }

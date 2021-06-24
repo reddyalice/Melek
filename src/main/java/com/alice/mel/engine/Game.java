@@ -7,7 +7,11 @@ import org.lwjgl.glfw.GLFW;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class Game {
+/**
+ * Game class that handles scenes
+ * @author Bahar Demircan
+ */
+public class Game implements Runnable{
 
     public static float deltaTime = 1f/60f;
     private static final int coreCount = Runtime.getRuntime().availableProcessors();
@@ -17,6 +21,11 @@ public class Game {
     private final SnapshotArray<Scene> activeScenes = new SnapshotArray<>();
     private final Array<Scene> toDispose = new Array<>();
 
+
+    /**
+     * Add a scene to currently running active scene array
+     * @param scene Scene to be added
+     */
     public void addActiveScene(Scene scene){
         if(!activeScenes.contains(scene, false)){
             if(toDispose.contains(scene, false))
@@ -26,31 +35,39 @@ public class Game {
         }
     }
 
+    /**
+     * Remove the scene from active running scenes
+     * @param scene Scene to removed
+     * @param destroy If Scene will be disposed after removing
+     */
     public void removeActiveScene(Scene scene, boolean destroy){
         activeScenes.removeValue(scene, false);
         if(destroy) scene.dispose();
         else toDispose.add(scene);
     }
 
-
-    public void Update(){
-
-
+    /**
+     * Run the game with active scenes
+     */
+    @Override
+    public void run(){
         while(activeScenes.size > 0){
-            long time = System.nanoTime();
+            long time = System.nanoTime(); // Lame delta Timing
             for(Scene scene : activeScenes)
-                if(scene.getWindowCount() > 0)
-                scene.Update(deltaTime);
+                if(scene.getWindowCount() > 0) // As long as scene has windows to update its state
+                scene.Update(deltaTime); // Scene update
                 else
-                    removeActiveScene(scene, false);
+                    removeActiveScene(scene, false); //Remove the scene without destroying it
             time = System.nanoTime() - time;
             deltaTime = time / 1000000000f;
         }
-
         dispose();
-
     }
 
+    /**
+     * Dispose All scenes scheduled for disposal
+     * Clear Active Scenes and Terminate GLFW
+     */
     public void dispose(){
         for(Scene scene : toDispose)
             scene.dispose();

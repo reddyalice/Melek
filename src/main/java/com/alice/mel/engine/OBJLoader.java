@@ -7,8 +7,18 @@ import org.joml.Vector2f;
 import org.joml.Vector3f;
 
 import java.io.*;
+
+/**
+ * .obj File Loader class
+ * @author Bahar Demircan
+ */
 public class OBJLoader {
 
+    /**
+     * Loads a 3D Mesh from a obj file
+     * @param objFileName File path
+     * @return Mesh that is created
+     */
     public static Mesh loadOBJ(String objFileName) {
         FileReader isr = null;
         File objFile = new File(objFileName);
