@@ -9,6 +9,10 @@ import com.alice.mel.utils.reflections.ReflectionException;
 
 import java.util.HashMap;
 
+/**
+ * An Asset Manager for Asset Handling between all scenes and windows
+ * @author Bahar Demircan
+ */
 public final class AssetManager {
 
     private final HashMap<String, Texture> textures = new HashMap<>();
@@ -64,6 +68,12 @@ public final class AssetManager {
 
     }
 
+
+    /**
+     * Add Mesh to the the Asset Manager
+     * @param name Name the Mesh will registered with
+     * @param mesh Mesh data itself
+     */
     public void addMesh(String name, Mesh mesh){
         if(meshes.containsKey(name)){
             System.out.println("Mesh with " + name + " name already exist!" + "\n" + "Overwriting!");
@@ -71,6 +81,11 @@ public final class AssetManager {
         meshes.put(name, mesh);
     }
 
+    /**
+     * Get the registered mesh from the Asset Manager
+     * @param name Name the Mesh is registered as
+     * @return Registered Mesh if the name is valid else null
+     */
     public Mesh getMesh(String name)
     {
         if(meshes.containsKey(name))
@@ -81,10 +96,20 @@ public final class AssetManager {
         }
     }
 
+    /**
+     * Remove Mesh data from the Asset Manager
+     * @param name Name the Mesh registered as
+     */
     public void removeMesh(String name){
         meshes.remove(name);
     }
 
+
+    /**
+     * Add Texture to the Asset Manager
+     * @param name Name the texture will register with
+     * @param texture Texture data itself
+     */
     public void addTexture(String name, Texture texture){
         if(textures.containsKey(name)){
             System.out.println("Texture with \"" + name +  "\" name already exist!" + "\n" + "Overwriting!");
@@ -92,6 +117,11 @@ public final class AssetManager {
         textures.put(name, texture);
     }
 
+    /**
+     * Get the registered Texture from the Asset Manager
+     * @param name Name the Texture registered as
+     * @return Registered Texture if given name is valid else null
+     */
     public Texture getTexture(String name)
     {
         if(textures.containsKey(name))
@@ -102,10 +132,18 @@ public final class AssetManager {
         }
     }
 
+    /**
+     * Remove the Texture data from the Asset Manager
+     * @param name Name the Texture registered as
+     */
     public void removeTexture(String name) {
         textures.remove(name);
     }
 
+    /**
+     * Add Shader to the Asset Manager
+     * @param shaderClass Class of the Shader that will be added
+     */
     public void addShader(Class<? extends Shader> shaderClass){
         if(shaders.containsKey(shaderClass)){
             System.out.println("Shader with \"" + shaderClass +  "\" class already exist!");
@@ -119,6 +157,12 @@ public final class AssetManager {
 
     }
 
+    /**
+     * Get the registered Shader from the Asset Manager
+     * @param shaderClass Class of the registered Shader
+     * @param <T> Type of the registered shader
+     * @return Registered shader if given class was registered else null
+     */
     public<T extends Shader> T getShader(Class<T> shaderClass)
     {
         if(shaders.containsKey(shaderClass))
@@ -129,10 +173,17 @@ public final class AssetManager {
         }
     }
 
+    /**
+     * Remove the Shader from the Asset Manager
+     * @param shaderClass Class of the Shader
+     */
     public void removeShader(Class<? extends  Shader> shaderClass){
         shaders.remove(shaderClass);
     }
 
+    /**
+     * Dispose all registered data
+     */
     public void dispose() {
         textures.clear();
         meshes.clear();

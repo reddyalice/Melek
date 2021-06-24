@@ -1,7 +1,7 @@
 package com.alice.mel.graphics;
 
 import com.alice.mel.engine.Scene;
-import com.alice.mel.utils.Event;
+import com.alice.mel.utils.KeyedEvent;
 import org.joml.Vector2i;
 import org.joml.Vector4f;
 import org.lwjgl.BufferUtils;
@@ -29,13 +29,13 @@ public class Window {
     private final IntBuffer WIDTH =  BufferUtils.createIntBuffer(1);
     private final IntBuffer HEIGHT = BufferUtils.createIntBuffer(1);
 
-    public final Event<Scene> init = new Event<>();
-    public final Event<Float> preUpdate = new Event<>();
-    public final Event<Float> update = new Event<>();
-    public final Event<Float> postUpdate = new Event<>();
-    public final Event<Float> preRender = new Event<>();
-    public final Event<Float> render = new Event<>();
-    public final Event<Float> postRender = new Event<>();
+    public final KeyedEvent<Scene> init = new KeyedEvent<>();
+    public final KeyedEvent<Float> preUpdate = new KeyedEvent<>();
+    public final KeyedEvent<Float> update = new KeyedEvent<>();
+    public final KeyedEvent<Float> postUpdate = new KeyedEvent<>();
+    public final KeyedEvent<Float> preRender = new KeyedEvent<>();
+    public final KeyedEvent<Float> render = new KeyedEvent<>();
+    public final KeyedEvent<Float> postRender = new KeyedEvent<>();
 
     public Camera camera;
     private final Vector4f backgroundColor = new Vector4f(0,0,0,0);

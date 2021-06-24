@@ -2,28 +2,43 @@ package com.alice.mel.engine;
 
 import com.alice.mel.utils.collections.Array;
 
+/**
+ * And Entity Pool to avoid allocation
+ * @author Bahar Demircan
+ */
 public class EntityPool {
 
     public final int max;
     public int peak;
-    public final Scene scene;
+
     public final Array<Entity> freedEntites;
 
 
-    public EntityPool (Scene scene) {
-        this(scene,4, Integer.MAX_VALUE);
+    public EntityPool () {
+        this(4, Integer.MAX_VALUE);
     }
 
-    public EntityPool (Scene scene, int initialCapacity) {
-        this(scene, initialCapacity, Integer.MAX_VALUE);
+    /**
+     * @param initialCapacity Initial Capacity for freed entity Array
+     */
+    public EntityPool (int initialCapacity) {
+        this(initialCapacity, Integer.MAX_VALUE);
     }
 
-    public EntityPool (Scene scene, int initialCapacity, int max) {
-        this.scene = scene;
+    /**
+     * @param initialCapacity Initial Capacity for freed entity Array
+     * @param max Maximum Capacity for freed entity Array
+     */
+    public EntityPool (int initialCapacity, int max) {
+
         freedEntites = new Array<>(false, initialCapacity);
         this.max = max;
     }
 
+    /**
+     * Create or get an entity from freed Array
+     * @return Obtained Entity
+     */
     public Entity obtain () {
         if (freedEntites.size > 0)
             return freedEntites.pop();
@@ -32,6 +47,10 @@ public class EntityPool {
 
     }
 
+    /**
+     * Free Entity for recycling later
+     * @param entity Entity to be freed
+     */
     public void free (Entity entity) {
         if (entity == null) throw new IllegalArgumentException("Entity cannot be null.");
 
@@ -43,9 +62,6 @@ public class EntityPool {
             } else {
                 discard(entity);
             }
-
-
-
     }
 
     private void reset(Entity entity) {
@@ -60,7 +76,9 @@ public class EntityPool {
         entity.componentRemoved.dispose();
     }
 
-
+    /**
+     * Dispose all freed Arrays and clear them
+     */
     public void dispose() {
         for(Entity entity : freedEntites)
             discard(entity);

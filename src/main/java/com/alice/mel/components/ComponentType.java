@@ -3,6 +3,10 @@ package com.alice.mel.components;
 import com.alice.mel.utils.collections.Bits;
 import com.alice.mel.utils.collections.ObjectMap;
 
+/** A nice seperator for Components based on Class
+ * Has nice features like indexing
+ * @author Bahar Demircan
+ */
 public class ComponentType {
     private static final ObjectMap<Class<? extends Component>, ComponentType> assignedComponentTypes = new ObjectMap<>();
     private static int typeIndex = 0;

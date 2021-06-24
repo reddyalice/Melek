@@ -5,7 +5,7 @@ import com.alice.mel.components.Component;
 import com.alice.mel.components.ComponentType;
 import com.alice.mel.graphics.*;
 import com.alice.mel.systems.ComponentSystem;
-import com.alice.mel.utils.Event;
+import com.alice.mel.utils.KeyedEvent;
 import com.alice.mel.utils.collections.Array;
 import com.alice.mel.utils.collections.ImmutableArray;
 import com.alice.mel.utils.collections.SnapshotArray;
@@ -26,22 +26,22 @@ public final class Scene {
 
     public final WindowPool windowPool = new WindowPool(this);
     public final CameraPool cameraPool = new CameraPool();
-    public final EntityPool entityPool = new EntityPool(this);
+    public final EntityPool entityPool = new EntityPool();
 
-    public final Event<Window> init = new Event<>();
-    private final Event<Window> multiInit = new Event<>();
-    public final Event<Float> preUpdate = new Event<>();
-    public final Event<Float> update = new Event<>();
-    public final Event<Float> postUpdate = new Event<>();
+    public final KeyedEvent<Window> init = new KeyedEvent<>();
+    private final KeyedEvent<Window> multiInit = new KeyedEvent<>();
+    public final KeyedEvent<Float> preUpdate = new KeyedEvent<>();
+    public final KeyedEvent<Float> update = new KeyedEvent<>();
+    public final KeyedEvent<Float> postUpdate = new KeyedEvent<>();
 
-    public final Event<Pair<Window, Float>> preRender = new Event<>();
-    public final Event<Pair<Window, Float>> render = new Event<>();
-    public final Event<Pair<Window, Float>> postRender = new Event<>();
+    public final KeyedEvent<Pair<Window, Float>> preRender = new KeyedEvent<>();
+    public final KeyedEvent<Pair<Window, Float>> render = new KeyedEvent<>();
+    public final KeyedEvent<Pair<Window, Float>> postRender = new KeyedEvent<>();
 
-    public final Event<Entity> entityAdded = new Event<>();
-    public final Event<Entity> entityModified = new Event<>();
+    public final KeyedEvent<Entity> entityAdded = new KeyedEvent<>();
+    public final KeyedEvent<Entity> entityModified = new KeyedEvent<>();
 
-    public final Event<Entity> entityRemoved = new Event<>();
+    public final KeyedEvent<Entity> entityRemoved = new KeyedEvent<>();
 
 
     private boolean initialized = false;
@@ -89,7 +89,7 @@ public final class Scene {
             ens.add(entity);
             componentEntityMap.put(ComponentType.getFor(component.getClass()), ens);
         }
-        entity.componentAdded.add(entity.toString(),component -> {
+        entity.componentAdded.add(component -> {
             Array<Entity> ens = componentEntityMap.get(ComponentType.getFor(component.getClass()));
             if(ens == null)
                 ens = new Array<>();
@@ -97,7 +97,7 @@ public final class Scene {
             componentEntityMap.put(ComponentType.getFor(component.getClass()), ens);
             entityModified.broadcast(entity);
         });
-        entity.componentRemoved.add(entity.toString(),component -> {
+        entity.componentRemoved.add(component -> {
             Array<Entity> ens = componentEntityMap.get(ComponentType.getFor(component.getClass()));
             if(ens != null){
                 

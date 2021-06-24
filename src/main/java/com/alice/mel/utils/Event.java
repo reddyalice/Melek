@@ -1,29 +1,21 @@
 package com.alice.mel.utils;
 
+import com.alice.mel.utils.collections.SnapshotArray;
+
 import java.util.HashMap;
 import java.util.function.Consumer;
 
 public class Event<T>{
 
-    private final HashMap<String,Consumer<T>> consumers = new HashMap<>();
+    private final SnapshotArray<Consumer<T>> consumers = new SnapshotArray<>();
 
-    public void add(String key, Consumer<T> consumer) {
-        consumers.put(key,  consumer);
+    public void add(Consumer<T> consumer) {
+        consumers.add(consumer);
     }
 
     public void broadcast(T in) {
-        for(String c : consumers.keySet())
-            if(consumers.containsKey(c))
-                consumers.get(c).accept(in);
-    }
-
-    public void call(String key, T in){
-        if(consumers.containsKey(key))
-            consumers.get(key).accept(in);
-    }
-
-    public void remove(String key) {
-        consumers.remove(key);
+        for(Consumer<T> consumer : consumers)
+            consumer.accept(in);
     }
 
     public void dispose() {
