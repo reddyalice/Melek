@@ -17,6 +17,10 @@ import org.lwjgl.glfw.GLFWErrorCallback;
 
 import java.util.HashMap;
 
+/**
+ * Scene class where the magic happens
+ * @author Bahar Demircan
+ */
 public final class Scene {
 
 
@@ -425,6 +429,10 @@ public final class Scene {
         windows.add(window);
     }
 
+    /**
+     * Remove the window from The Scene and free it for later use
+     * @param window Window to be remove
+     */
     public void removeWindow(Window window){
         windows.removeValue(window, false);
         preUpdate.remove("window" + window.id);
@@ -435,18 +443,34 @@ public final class Scene {
 
     }
 
+    /**
+     * Get the window that is in the scene
+     * @param index Index of the window
+     * @return Window to be retrieved
+     */
     public Window getWindow(int index){
         return windows.get(index);
     }
 
+    /**
+     * Get the Window Array
+     * @return Window Array
+     */
     public Array<Window> getWindows(){
         return windows;
     }
 
+    /**
+     * Get the current window count of the scene
+     * @return Window count
+     */
     public int getWindowCount(){
         return windows.size;
     }
 
+    /**
+     * Dispose and Unload the events, assets, arrays and pools
+     */
     public void dispose() {
         preUpdate.dispose();
         update.dispose();
