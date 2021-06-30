@@ -60,6 +60,7 @@ public class Game implements Runnable{
                     removeActiveScene(scene, false); //Remove the scene without destroying it
             time = System.nanoTime() - time;
             deltaTime = time / 1000000000f;
+            System.out.println(1f / deltaTime);
         }
         dispose();
     }

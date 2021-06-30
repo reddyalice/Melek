@@ -4,6 +4,10 @@ import com.alice.mel.graphics.CameraType;
 import com.alice.mel.graphics.Window;
 import com.alice.mel.utils.collections.Array;
 
+/**
+ * A Window pool to avoid allocation
+ * @author Bahar Demircan
+ */
 public class WindowPool {
 
     public final int max;
@@ -12,15 +16,26 @@ public class WindowPool {
     private final Array<Window> freedNonTransWindows;
     private final Array<Window> freedTransWindows;
 
-
+    /**
+     * @param scene Scene It's loaded to
+     */
     public WindowPool (Scene scene) {
         this(scene,4, Integer.MAX_VALUE);
     }
 
+    /**
+     * @param scene Scene It's loaded to
+     * @param initialCapacity Initial Capacity of freed Window Arrays
+     */
     public WindowPool (Scene scene, int initialCapacity) {
         this(scene, initialCapacity, Integer.MAX_VALUE);
     }
 
+    /**
+     * @param scene Scene It's loaded to
+     * @param initialCapacity Initial Capacity of freed Window Arrays
+     * @param max Maximum Capacity of the freed Window Arrays
+     */
     public WindowPool (Scene scene, int initialCapacity, int max) {
         this.scene = scene;
         freedNonTransWindows = new Array<>(false, initialCapacity);
@@ -28,6 +43,15 @@ public class WindowPool {
         this.max = max;
     }
 
+    /**
+     * Create or recycle a Window from freed ones
+     * @param cameraType CameraType window camera will have
+     * @param title Window Title
+     * @param width Window Width
+     * @param height Window Height
+     * @param transparentFrameBuffer Does Window has a transparent Frame Buffer
+     * @return Window that is obtained
+     */
     public Window obtain (CameraType cameraType, String title, int width, int height, boolean transparentFrameBuffer) {
 
         if(transparentFrameBuffer){
@@ -55,6 +79,10 @@ public class WindowPool {
         }
     }
 
+    /**
+     * Free the Window for later use
+     * @param window Window to free
+     */
     public void free (Window window) {
         if (window == null) throw new IllegalArgumentException("Window cannot be null.");
 
@@ -93,6 +121,9 @@ public class WindowPool {
 
     }
 
+    /**
+     * Dispose All freed windows and clear freed arrays
+     */
     public void dispose() {
         for(Window window : freedNonTransWindows)
             window.dispose();
