@@ -39,11 +39,11 @@ public class ExampleScene extends SceneAdaptor {
         Entity en = createEntity();
         en.scale.set(100, 100, 100);
         en.position.set(0,0, -100);
-        en.addComponent(new RenderingComponent(new Basic3DMaterial(), "Mesh1", "Texture1"));
+        en.addComponent(new RenderingComponent( "Mesh1", new Basic3DMaterial("Texture1")));
         Entity en1 = createEntity();
         en1.scale.set(50, 50, 50);
         en1.position.set(500,0, -99);
-        en1.addComponent(new RenderingComponent(new Basic3DMaterial(), "Mesh1", "Texture1"));
+        en1.addComponent(new RenderingComponent( "Mesh1", new Basic3DMaterial("Texture1")));
 
 
         w2.update.add("move", x -> {
