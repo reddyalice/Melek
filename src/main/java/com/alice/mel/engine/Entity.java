@@ -7,6 +7,7 @@ import com.alice.mel.utils.collections.Array;
 import com.alice.mel.utils.collections.Bag;
 import com.alice.mel.utils.collections.Bits;
 import com.alice.mel.utils.collections.ImmutableArray;
+import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
 /**
@@ -20,7 +21,7 @@ public class Entity {
     public final Event<Component> componentRemoved = new Event<>();
 
     public final Vector3f position = new Vector3f();
-    public final Vector3f rotation = new Vector3f();
+    public final Quaternionf rotation = new Quaternionf();
     public final Vector3f scale = new Vector3f(1,1,1);
 
     private final Bag<Component> components = new Bag<>();

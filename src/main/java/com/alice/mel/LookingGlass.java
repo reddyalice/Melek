@@ -12,8 +12,6 @@ public class LookingGlass {
 
     public static void main(String[] args) {
 
-
-
             Game game = new Game();
 
             ExampleScene ex = new ExampleScene(game);

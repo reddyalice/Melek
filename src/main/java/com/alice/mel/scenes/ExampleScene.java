@@ -2,10 +2,7 @@ package com.alice.mel.scenes;
 
 import com.alice.mel.components.RenderingComponent;
 import com.alice.mel.engine.*;
-import com.alice.mel.graphics.CameraType;
-import com.alice.mel.graphics.Mesh;
-import com.alice.mel.graphics.Texture;
-import com.alice.mel.graphics.Window;
+import com.alice.mel.graphics.*;
 import com.alice.mel.graphics.materials.Basic2DMaterial;
 import com.alice.mel.graphics.materials.Basic3DMaterial;
 import com.alice.mel.graphics.shaders.Basic3DShader;
@@ -26,29 +23,35 @@ public class ExampleScene extends SceneAdaptor {
     public void Init(Window loaderWindow) {
 
         Texture texture = new Texture("src/main/resources/textures/cactus.png");
-        Mesh mesh = OBJLoader.loadOBJ("src/main/resources/models/cactus.obj");
+        Texture textureC = new Texture("src/main/resources/textures/cardedge.png");
 
+        Mesh mesh = OBJLoader.loadOBJ("src/main/resources/models/cactus.obj");
+        Material material = new Basic3DMaterial("Texture1");
+        Material B = new Basic3DMaterial("Texture2");
         game.assetManager.addShader(Basic3DShader.class);
         game.assetManager.addTexture("Texture1", texture);
+        game.assetManager.addTexture("Texture2", textureC);
         game.assetManager.addMesh("Mesh1", mesh);
 
         Window w = createWindow(CameraType.Orthographic, "Test", 640, 480, false);
         Window w2 = createWindow(CameraType.Orthographic, "Test1", 640, 480, true);
+        Window w3 = createWindow(CameraType.Orthographic, "Test2", 640, 480, true);
+
 
         addSystem(new RenderingSystem(game.assetManager));
         Entity en = createEntity();
         en.scale.set(100, 100, 100);
         en.position.set(0,0, -100);
-        en.addComponent(new RenderingComponent( "Mesh1", new Basic3DMaterial("Texture1")));
+        en.addComponent(new RenderingComponent( "Mesh1", material));
         Entity en1 = createEntity();
         en1.scale.set(50, 50, 50);
         en1.position.set(500,0, -99);
-        en1.addComponent(new RenderingComponent( "Mesh1", new Basic3DMaterial("Texture1")));
+        en1.addComponent(new RenderingComponent( "Mesh1", material));
 
 
-        w2.update.add("move", x -> {
-            MathUtils.LookRelativeTo(w2, w);
-        });
+        w2.update.add("move", x -> MathUtils.LookRelativeTo(w2, w));
+        w3.update.add("move", x -> MathUtils.LookRelativeTo(w3, w));
+
     }
 
     @Override

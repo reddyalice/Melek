@@ -128,7 +128,7 @@ public final class AssetManager {
             return textures.get(name);
         else{
             System.err.println("There is no Texture with the name of " + name);
-            return null;
+            return textures.get("null");
         }
     }
 

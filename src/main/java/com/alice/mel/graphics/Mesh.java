@@ -12,11 +12,11 @@ import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.util.HashMap;
 
-public class Mesh {
-
-
-
-
+/**
+ * Mesh data holder class
+ * @author Bahar Demircan
+ */
+public final class Mesh {
 
     private final HashMap<Scene, HashMap<Window, Integer>> ids = new HashMap<>();
     private int vertexCount;
@@ -27,7 +27,15 @@ public class Mesh {
     private int[] indices;
 
     private final HashMap<Scene, Array<Integer>> VBOS = new HashMap<>();
+    private final HashMap<Scene, Integer> EBOS = new HashMap<>();
 
+    /**
+     * Constructor for a 3D Mesh
+     * @param vertices Vertex Array of the Mesh
+     * @param textureCoords Texture Coordinates of the Mesh
+     * @param normals Normals of the Mesh
+     * @param indices Index Array of the Mesh
+     */
     public Mesh(float[] vertices, float[] textureCoords, float[] normals, int[] indices) {
         this.dimension = 3;
         this.vertices = vertices;
@@ -73,10 +81,8 @@ public class Mesh {
             if(dimension == 3){
                 GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, VBOS.get(scene).get(2));
                 GL20.glVertexAttribPointer(2, 1, GL11.GL_FLOAT, false, 0, 0);
-                GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, VBOS.get(scene).get(3));
-            }else{
-                GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, VBOS.get(scene).get(2));
             }
+            GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, EBOS.get(scene));
             ids.get(scene).put(window, id);
         }
         GL30.glBindVertexArray(0);
@@ -98,7 +104,7 @@ public class Mesh {
             GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, VBOS.get(scene).get(2));
             FloatBuffer norm = storeDataInFloatBuffer(normals);
             GL15.glBufferData(GL15.GL_ARRAY_BUFFER, norm, GL15.GL_STATIC_DRAW);
-            GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, VBOS.get(scene).get(3));
+            GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, EBOS.get(scene));
             IntBuffer buffer = storeDataInIntBuffer(indices);
             GL15.glBufferData(GL15.GL_ELEMENT_ARRAY_BUFFER, buffer, GL15.GL_STATIC_DRAW);
         }else
@@ -120,7 +126,7 @@ public class Mesh {
             GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, VBOS.get(scene).get(1));
             FloatBuffer tex = storeDataInFloatBuffer(textureCoords);
             GL15.glBufferData(GL15.GL_ARRAY_BUFFER, tex, GL15.GL_STATIC_DRAW);
-            GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, VBOS.get(scene).get(2));
+            GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, EBOS.get(scene));
             IntBuffer buffer = storeDataInIntBuffer(indices);
             GL15.glBufferData(GL15.GL_ELEMENT_ARRAY_BUFFER, buffer, GL15.GL_STATIC_DRAW);
         }else
@@ -157,9 +163,9 @@ public class Mesh {
     }
 
     private void bindIndices(Scene scene, int[] indices){
-        int vboID = GL15.glGenBuffers();
-        VBOS.get(scene).add(vboID);
-        GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, vboID);
+        int eboID = GL15.glGenBuffers();
+        EBOS.put(scene, eboID);
+        GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, eboID);
         IntBuffer buffer = storeDataInIntBuffer(indices);
         GL15.glBufferData(GL15.GL_ELEMENT_ARRAY_BUFFER, buffer, GL15.GL_STATIC_DRAW);
 
@@ -214,8 +220,11 @@ public class Mesh {
         return ids.get(scene).get(window);
     }
 
+
     public void dispose(Scene scene) {
         for (int vbo : VBOS.get(scene))
             GL15.glDeleteBuffers(vbo);
+        GL15.glDeleteBuffers(EBOS.get(scene));
+
     }
 }
