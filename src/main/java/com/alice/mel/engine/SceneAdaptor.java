@@ -184,4 +184,14 @@ public abstract class SceneAdaptor {
         removeFromGame(true);
     }
 
+    /**
+     * Get Key Press from the scene
+     * @param keyCode Key code
+     * @return Is key pressed
+     */
+    public final boolean getKey(int keyCode) {
+        return InputHandler.getKey(scene, keyCode);
+    }
+
+
 }

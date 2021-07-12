@@ -287,6 +287,7 @@ public final class Scene {
             mesh.dispose(this);
             for (Window window : windows) {
                 window.makeContextCurrent();
+                if(window != loaderWindow)
                 mesh.disposeVAO(this, window);
             }
             if (currentContext != null)

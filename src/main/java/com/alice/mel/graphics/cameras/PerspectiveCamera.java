@@ -10,7 +10,6 @@ public class PerspectiveCamera extends Camera {
         super(viewportWidth, viewportHeight);
         this.fieldOfView = fieldOfViewY;
         update();
-        up.set(-up.x, -up.y, -up.z);
     }
 
    private final Vector3f tmp = new Vector3f();

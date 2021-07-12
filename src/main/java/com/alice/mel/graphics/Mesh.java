@@ -46,6 +46,12 @@ public final class Mesh {
 
     }
 
+    /**
+     * Constructor for a 2D Mesh
+     * @param vertices Vertex Array of Mesh
+     * @param textureCoords Texture Coordinates of the Mesh
+     * @param indices Index Array of the Mesh
+     */
     public Mesh(float[] vertices, float[] textureCoords, int[] indices) {
         this.dimension = 2;
         this.vertices = vertices;
@@ -56,6 +62,11 @@ public final class Mesh {
 
     }
 
+    /**
+     * Load mesh values to the gpu
+     * @param scene Scene to be loaded to
+     * @param window Window that VAOs are going to be generated for
+     */
     public void genMesh(Scene scene, Window window){
         if(!VBOS.containsKey(scene))
             VBOS.put(scene, new Array<>());
@@ -88,8 +99,16 @@ public final class Mesh {
         GL30.glBindVertexArray(0);
     }
 
+    /**
+     * Regenerate the 3D mesh
+     * @param scene Scene the Mesh loaded to
+     * @param vertices New Vertex Array of the Mesh
+     * @param textureCoords New Texture Coordinates of the Mesh
+     * @param normals New Normals of the Mesh
+     * @param indices New Index Array of the Mesh
+     */
     public void regenMesh(Scene scene, float[] vertices, float[] textureCoords, float[] normals, int[] indices){
-        if(dimension == 2) {
+        if(dimension == 3) {
             this.vertices = vertices;
             this.textureCoords = textureCoords;
             this.normals = normals;
@@ -109,13 +128,20 @@ public final class Mesh {
             GL15.glBufferData(GL15.GL_ELEMENT_ARRAY_BUFFER, buffer, GL15.GL_STATIC_DRAW);
         }else
         {
-            System.err.println("A Non-2D Mesh cannot be transformed to a 2D one");
+            System.err.println("A Non-3D Mesh cannot be transformed to a 3D one");
             System.err.println("You can only regen meshes using same dimensions");
         }
     }
 
+    /**
+     * Regenerate a 2D Mesh
+     * @param scene Scene the Mesh loaded to
+     * @param vertices New Vertex Array of the Mesh
+     * @param textureCoords New Texture Coordinates of the Mesh
+     * @param indices New Index Array of the Mesh
+     */
     public void regenMesh(Scene scene, float[] vertices, float[] textureCoords, int[] indices){
-        if(dimension == 3) {
+        if(dimension == 2) {
             this.vertices = vertices;
             this.textureCoords = textureCoords;
             this.indices = indices;
@@ -131,13 +157,18 @@ public final class Mesh {
             GL15.glBufferData(GL15.GL_ELEMENT_ARRAY_BUFFER, buffer, GL15.GL_STATIC_DRAW);
         }else
         {
-            System.err.println("A Non-3D Mesh cannot be transformed to a 3D one");
-            System.err.println("You can only regend meshes using same dimensions");
+            System.err.println("A Non-2D Mesh cannot be transformed to a 2D one");
+            System.err.println("You can only regen meshes using same dimensions");
 
         }
     }
 
 
+    /**
+     * Bind Mesh
+     * @param scene Scene that is loaded to
+     * @param window Window that is currently rendering
+     */
     public void bind(Scene scene, Window window){
         GL30.glBindVertexArray(ids.get(scene).get(window));
         GL20.glEnableVertexAttribArray(0);
@@ -145,6 +176,9 @@ public final class Mesh {
         if(dimension == 3) GL20.glEnableVertexAttribArray(2);
     }
 
+    /**
+     * Unbind the mesh
+     */
     public void unbind(){
         if(dimension == 3) GL20.glDisableVertexAttribArray(2);
         GL20.glDisableVertexAttribArray(1);
@@ -186,11 +220,17 @@ public final class Mesh {
         return buffer;
     }
 
+    /**
+     * Dispose VAO
+     * @param scene Scene it is loaded to
+     * @param window Window its rendering to
+     */
     public void disposeVAO(Scene scene, Window window){
         GL30.glDeleteVertexArrays(ids.get(scene).get(window));
         ids.get(scene).remove(window);
 
     }
+
 
     public int getVertexCount() {
         return vertexCount;
@@ -221,10 +261,15 @@ public final class Mesh {
     }
 
 
+    /**
+     * Dispose the Mesh and clear
+     * @param scene
+     */
     public void dispose(Scene scene) {
         for (int vbo : VBOS.get(scene))
             GL15.glDeleteBuffers(vbo);
         GL15.glDeleteBuffers(EBOS.get(scene));
-
+        VBOS.clear();
+        EBOS.clear();
     }
 }

@@ -195,8 +195,12 @@ public class RenderingSystem extends ComponentSystem{
                                 batch2.removeValue(entity, false);
                                 if (batch2.isEmpty()) {
                                     batch1.remove(material);
+                                    for (String textureName : material.textureNames)
+                                        if (scene.hasTexture(textureName)) scene.unloadTexture(textureName);
                                     batch0.remove(rend.meshName);
+                                    if(scene.hasMesh(rend.meshName)) scene.unloadMesh(rend.meshName);
                                     renderMap.remove(material.shaderClass);
+                                    if(scene.hasShader(material.shaderClass)) scene.unloadShader(material.shaderClass);
                                 }
 
                             }

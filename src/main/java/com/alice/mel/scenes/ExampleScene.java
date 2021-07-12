@@ -9,6 +9,7 @@ import com.alice.mel.graphics.shaders.Basic3DShader;
 import com.alice.mel.systems.RenderingSystem;
 import com.alice.mel.utils.maths.MathUtils;
 import com.github.sarxos.webcam.Webcam;
+import org.joml.Vector2f;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.Objects;
@@ -24,7 +25,6 @@ public class ExampleScene extends SceneAdaptor {
 
         Texture texture = new Texture("src/main/resources/textures/cactus.png");
         Texture textureC = new Texture("src/main/resources/textures/cardedge.png");
-
         Mesh mesh = OBJLoader.loadOBJ("src/main/resources/models/cactus.obj");
         Material material = new Basic3DMaterial("Texture1");
         Material B = new Basic3DMaterial("Texture2");
@@ -59,9 +59,26 @@ public class ExampleScene extends SceneAdaptor {
 
     }
 
+    private final Vector2f move = new Vector2f(0,0);
+
     @Override
     public void Update(float deltaTime) {
+        if(getKey(GLFW.GLFW_KEY_G))
+            if(scene.getEntitiesFor(RenderingComponent.class).size() > 1)
+                scene.removeEntity(scene.getEntitiesFor(RenderingComponent.class).get(0));
 
+        move.set(0,0);
+        if(getKey(GLFW.GLFW_KEY_W))
+            move.add(0,1);
+        if(getKey(GLFW.GLFW_KEY_S))
+            move.add(0,-1);
+        if(getKey(GLFW.GLFW_KEY_A))
+            move.add(-1,0);
+        if(getKey(GLFW.GLFW_KEY_D))
+            move.add(1,0);
+
+        if(move.x != 0 || move.y != 0) move.normalize().mul(deltaTime).mul(100f);
+        scene.loaderWindow.camera.position.add(move.x, move.y, 0);
     }
 
     @Override

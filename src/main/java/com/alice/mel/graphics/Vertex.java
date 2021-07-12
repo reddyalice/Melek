@@ -2,16 +2,20 @@ package com.alice.mel.graphics;
 
 import org.joml.Vector3f;
 
+/**
+ * Vertex Data Holder
+ * @author Bahar Demircan
+ */
 public class Vertex {
 
     private static final int NO_INDEX = -1;
 
-    private Vector3f position;
+    private final Vector3f position;
     private int textureIndex = NO_INDEX;
     private int normalIndex = NO_INDEX;
     private Vertex duplicateVertex = null;
-    private int index;
-    private float length;
+    private final int index;
+    private final float length;
 
     public Vertex(int index, Vector3f position){
         this.index = index;

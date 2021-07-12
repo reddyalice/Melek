@@ -17,6 +17,10 @@ import java.io.IOException;
 import java.nio.FloatBuffer;
 import java.util.HashMap;
 
+/**
+ * Class for loading the Shader
+ * @author Bahar Demircan
+ */
 public abstract class Shader{
 
     public enum ShaderType{
@@ -30,6 +34,10 @@ public abstract class Shader{
     public final HashMap<Integer, String> sources = new HashMap<>();
     private final FloatBuffer matrixBuffer = BufferUtils.createFloatBuffer(16);
 
+    /**
+     * @param shaderOrShaderFilePath Shader Source or File Path to the shader file
+     * @param isShaderSource Is the String give shader source
+     */
     public Shader(String shaderOrShaderFilePath, boolean isShaderSource){
         Array<String> lines = new Array<>();
         ShaderType type = ShaderType.NONE;
@@ -107,15 +115,30 @@ public abstract class Shader{
     protected abstract void getAllUniformLocations(Scene scene);
 
 
+    /**
+     * Bind Attribute to the location
+     * @param scene Scene that loads the shader
+     * @param attribute Attribute Location
+     * @param variableName Attribute Variable name
+     */
     public void bindAttribute(Scene scene, int attribute, String variableName){
         GL32C.glBindAttribLocation(ids.get(scene), attribute, variableName);
     }
 
-
+    /**
+     * Get the Location of a Uniform Variable
+     * @param scene Scene the shader loaded to
+     * @param name Name of the Uniform variable
+     * @return Location of the Uniform variable
+     */
     public int getUniformLocation(Scene scene, String name){
         return GL32C.glGetUniformLocation(ids.get(scene), name);
     }
 
+    /**
+     * Compile the shader
+     * @param scene Scene its loaded to
+     */
     public void compile(Scene scene){
         int id = GL32C.glCreateProgram();
         ids.put(scene, id);
@@ -140,12 +163,19 @@ public abstract class Shader{
 
     }
 
+    /**
+     * Start the Shader (Use program)
+     * @param scene Scene It's loaded to
+     */
     public void start(Scene scene){
         if(ids.get(scene) == 0)
             compile(scene);
         GL32C.glUseProgram(ids.get(scene));
     }
 
+    /**
+     * Stop the Shader (Use program 0)
+     */
     public void stop(){
         GL32C.glUseProgram(0);
     }
@@ -232,6 +262,10 @@ public abstract class Shader{
     }
 
 
+    /**
+     * Stop and Dispose the shader
+     * @param scene Scene it's loaded to
+     */
     public void dispose(Scene scene)
     {
         stop();
