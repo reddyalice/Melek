@@ -5,10 +5,9 @@ import com.alice.mel.components.Component;
 import com.alice.mel.components.ComponentType;
 import com.alice.mel.graphics.*;
 import com.alice.mel.systems.ComponentSystem;
+import com.alice.mel.systems.Family;
 import com.alice.mel.utils.KeyedEvent;
-import com.alice.mel.utils.collections.Array;
-import com.alice.mel.utils.collections.ImmutableArray;
-import com.alice.mel.utils.collections.SnapshotArray;
+import com.alice.mel.utils.collections.*;
 import org.javatuples.Pair;
 import org.jbox2d.common.Vec2;
 import org.jbox2d.dynamics.World;
@@ -54,6 +53,7 @@ public final class Scene {
     private final SnapshotArray<String> textures = new SnapshotArray<>();
     private final SnapshotArray<String> meshes = new SnapshotArray<>();
     private final HashMap<ComponentType, Array<Entity>> componentEntityMap = new HashMap<>();
+    private final ObjectMap<Family, Array<Entity>> families = new ObjectMap<>();
     private final SnapshotArray<Entity> entities = new SnapshotArray<>();
     private final SnapshotArray<ComponentSystem> componentSystems = new SnapshotArray<>();
 
@@ -127,6 +127,7 @@ public final class Scene {
             }
             entityModified.broadcast(entity);
         });
+        updateEntityFamily(entity);
         entityAdded.broadcast(entity);
     }
 
@@ -353,6 +354,7 @@ public final class Scene {
             return new ImmutableArray<>(componentEntityMap.get(componentType));
         else
             return null;
+
     }
 
     /**
@@ -363,6 +365,51 @@ public final class Scene {
     public ImmutableArray<Entity> getEntitiesFor(Class<? extends Component> componentClass) {
         return getEntitiesFor(ComponentType.getFor(componentClass));
     }
+
+
+    /**
+     * Get Entities that has certain Components
+     * @param componentFamily Family of components
+     * @return Immutable Array of entities that has that components
+     */
+    public ImmutableArray<Entity> getEntitiesFor(Family componentFamily){
+        return registerEntities(componentFamily);
+    }
+
+    private ImmutableArray<Entity> registerEntities(Family componentFamily){
+        Array<Entity> entities = families.get(componentFamily);
+
+        if(entities == null){
+            families.put(componentFamily, new Array<>());
+
+            for(Entity entity : entities)
+                updateEntityFamily(entity);
+        }
+
+
+
+        return new ImmutableArray<>(entities);
+    }
+
+    private void updateEntityFamily(Entity entity){
+        for(Family componentFamily : families.keys()){
+            final int index = componentFamily.getIndex();
+            final Bits entityFamilyBits = entity.getFamilyBits();
+
+            boolean belongsToTheFamily = entityFamilyBits.get(index);
+            boolean matches = componentFamily.matches(entity);
+
+            if(belongsToTheFamily != matches){
+                final Array<Entity> familyEntities = families.get(componentFamily);
+                if(matches)
+                    familyEntities.add(entity);
+                else
+                    familyEntities.removeValue(entity, false);
+            }
+        }
+    }
+
+
 
     /**
      * Update the scene

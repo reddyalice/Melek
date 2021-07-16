@@ -12,6 +12,10 @@ import org.lwjgl.opengl.GL11;
 
 import java.nio.IntBuffer;
 
+/**
+ * Window data handler
+ * @author Bahar Demircan
+ */
 public class Window {
 
     public final long id;
@@ -41,6 +45,14 @@ public class Window {
     private final Vector4f backgroundColor = new Vector4f(0,0,0,0);
 
 
+    /**
+     * @param camera Camera that window uses
+     * @param scene Scene It's created to
+     * @param title Window Title
+     * @param width Window width
+     * @param height Window height
+     * @param transparentFrameBuffer Does the Window have a transparent frame buffer
+     */
     public Window(Camera camera, Scene scene, String title, int width, int height, boolean transparentFrameBuffer){
 
         GLFW.glfwWindowHint(GLFW.GLFW_TRANSPARENT_FRAMEBUFFER, transparentFrameBuffer ? GLFW.GLFW_TRUE : GLFW.GLFW_FALSE);
@@ -84,19 +96,30 @@ public class Window {
         GL11.glViewport(0,0,width,height);
     }
 
-
+    /**
+     * Focus on the Window
+     */
     public void focus(){
         GLFW.glfwFocusWindow(id);
     }
 
+    /**
+     * Show Window
+     */
     public void show(){
         GLFW.glfwShowWindow(id);
     }
 
+    /**
+     * Hide Window
+     */
     public void hide(){
         GLFW.glfwHideWindow(id);
     }
 
+    /**
+     * Reset Window properties
+     */
     public void reset(){
         hide();
         setDecorated(true);
@@ -124,14 +147,25 @@ public class Window {
 
     }
 
+    /**
+     * Make Window Context current
+     */
     public void makeContextCurrent(){
         GLFW.glfwMakeContextCurrent(id);
     }
 
+    /**
+     * Swap Buffers
+     */
     public void swapBuffers(){
         GLFW.glfwSwapBuffers(id);
     }
 
+    /**
+     * Translate (Move) Window
+     * @param x Amount of translation horizontally
+     * @param y Amount of translation vertically
+     */
     public void translate(int x, int y){
         Vector2i pos = getPosition();
         pos.x += x;
@@ -139,57 +173,114 @@ public class Window {
         setPosition(pos);
     }
 
+    /**
+     * Set Current scene to the window
+     * @param scene
+     */
     public void setScene(Scene scene){
         this.scene = scene;
     }
 
+    /**
+     * Set Window background color
+     * @param r Red Component of the background color
+     * @param g Green Component of the background color
+     * @param b Blue Component of the background color
+     * @param a Alpha Component of the background
+     */
     public void setBackgroundColor(float r, float g, float b, float a){
         backgroundColor.set(r,g,b,a);
     }
 
+    /**
+     * Set the Title of the Window
+     * @param title Window Title
+     */
     public void setTitle(String title){
         GLFW.glfwSetWindowTitle(id, title);
         this.title = title;
     }
 
+    /**
+     * Set if window is decorated
+     * @param decorated Is Decorated
+     */
     public void setDecorated(boolean decorated){
         GLFW.glfwSetWindowAttrib(id, GLFW.GLFW_DECORATED, decorated ? GLFW.GLFW_TRUE : GLFW.GLFW_FALSE);
     }
 
+    /**
+     * Set Window Opacity
+     * @param opacity Window opacity
+     */
     public void setWindowOpacity(float opacity){
         GLFW.glfwSetWindowOpacity(id, opacity);
     }
 
+    /**
+     * Set Window Position
+     * @param x X coordinate of the new position
+     * @param y Y coordinate of the new position
+     */
     public void setPosition(int x, int y){
         GLFW.glfwSetWindowPos(id, x,y);
         position.set(x,y);
     }
 
+    /**
+     * Set Window Position
+     * @param position Vector of the new position
+     */
     public void setPosition(Vector2i position){
         setPosition(position.x, position.y);
     }
 
+    /**
+     * Set Window Size
+     * @param width New Window Width
+     * @param height New Window Height
+     */
     public void setSize(int width, int height){
         GLFW.glfwSetWindowSize(id, width,height);
         size.set(width,height);
     }
 
+    /**
+     * Set Window Size
+     * @param size New Window size vector
+     */
     public void setSize(Vector2i size){
         setSize(size.x, size.y);
     }
 
+    /**
+     * Get the Scene Window belongs to
+     * @return Scene that window belongs to
+     */
     public Scene getScene(){
         return scene;
     }
 
+    /**
+     * Get the current background color of the window
+     * @return Background color of the Window
+     */
     public Vector4f getBackgroundColor() {
         return backgroundColor;
     }
 
+    /**
+     * Get the current title of the window
+     * @return Title of the Window
+     */
     public String getTitle(){
         return title;
     }
 
+    /**
+     * Get Window position
+     * @return Window Position
+     */
     public Vector2i getPosition(){
         X.clear();
         Y.clear();
@@ -198,6 +289,10 @@ public class Window {
         return position;
     }
 
+    /**
+     * Get the current size of the window
+     * @return Size of the Window
+     */
     public Vector2i getSize(){
         WIDTH.clear();
         HEIGHT.clear();
@@ -206,6 +301,9 @@ public class Window {
         return size;
     }
 
+    /**
+     * Dispose the window
+     */
     public void dispose() {
         X.clear();
         Y.clear();

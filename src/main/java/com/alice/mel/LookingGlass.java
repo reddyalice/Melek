@@ -1,12 +1,7 @@
 package com.alice.mel;
 
-
-
 import com.alice.mel.engine.*;
-import com.alice.mel.graphics.Texture;
-import com.alice.mel.graphics.shaders.Basic3DShader;
 import com.alice.mel.scenes.ExampleScene;
-
 
 public class LookingGlass {
 

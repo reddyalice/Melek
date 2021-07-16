@@ -9,68 +9,46 @@ import com.alice.mel.utils.collections.ImmutableArray;
 
 public abstract class IteratingSystem extends ComponentSystem{
 
-    protected final ImmutableArray<Class<? extends Component>> requiredComponents;
+    protected final Family requiredFamily;
     protected final Array<Entity> entites = new Array<>();
 
-    public IteratingSystem(Class<? extends Component>... requiredComponents){
-        this.requiredComponents = new ImmutableArray<>(new Array<>(requiredComponents));
+    public IteratingSystem(Family requiredFamily){
+        this.requiredFamily = requiredFamily;
     }
 
-    public IteratingSystem(int priority, Class<? extends Component>... requiredComponents){
+    public IteratingSystem(int priority, Family requiredFamily){
         super(priority);
-        this.requiredComponents = new ImmutableArray<>(new Array<>(requiredComponents));
+        this.requiredFamily = requiredFamily;
     }
 
     @Override
     public void addedToScene(Scene scene) {
 
-       if(requiredComponents != null) {
-           if(requiredComponents.size() > 0) {
-               {
-                   ImmutableArray<Entity> entArray = scene.getEntitiesFor(requiredComponents.get(0));
-                   boolean eligible = true;
-                   for (Entity en : entArray) {
-                       if (!entites.contains(en, false)) {
-                           for (Class<? extends Component> component : requiredComponents) {
-                               eligible = en.hasComponent(component);
-                               if(!eligible) break;
-                           }
-                       } else
-                           eligible = false;
-                       if (eligible) entites.add(en);
-                   }
-               }
+        if (requiredFamily != null) {
+            entites.addAll(scene.getEntitiesFor(requiredFamily).toArray());
 
-               scene.entityAdded.add(getClass().getName(), en -> {
-                   boolean eligible = true;
-                   if (!entites.contains(en, false)) {
-                       for (Class<? extends Component> component : requiredComponents) {
-                           eligible = en.hasComponent(component);
-                           if(!eligible) break;
-                       }
-                   } else
-                       eligible = false;
-                   if (eligible) entites.add(en);
-               });
+            scene.entityAdded.add(getClass().getName(), en -> {
+                if(requiredFamily.matches(en))
+                    entites.add(en);
+            });
 
-               scene.entityModified.add(getClass().getName(), en -> {
-                   boolean eligible = true;
-                   if (!entites.contains(en, false)) {
-                       for (Class<? extends Component> component : requiredComponents) {
-                           eligible = en.hasComponent(component);
-                           if(!eligible) break;
-                       }
-                   } else
-                       eligible = false;
-                   if (eligible) entites.add(en);
-               });
+            scene.entityModified.add(getClass().getName(), en -> {
+                if(entites.contains(en, false))
+                    if(!requiredFamily.matches(en))
+                        entites.removeValue(en, false);
+                else
+                    if(requiredFamily.matches(en))
+                        entites.add(en);
 
-               scene.entityRemoved.add(getClass().getName(), en -> {
-                   if (entites.contains(en, false))
-                       entites.removeValue(en, false);
-               });
-           }
-       }
+            });
+
+            scene.entityRemoved.add(getClass().getName(), en -> {
+                if (entites.contains(en, false))
+                    entites.removeValue(en, false);
+            });
+        }
+
+
 
     }
 

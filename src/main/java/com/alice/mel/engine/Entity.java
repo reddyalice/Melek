@@ -27,6 +27,7 @@ public class Entity {
     private final Bag<Component> components = new Bag<>();
     private final Array<Component> componentsArray = new Array<>();
     private final Bits componentBits = new Bits();
+    private final Bits familyBits = new Bits();
 
     /**
      * Add Component to the Entity
@@ -134,6 +135,21 @@ public class Entity {
         return componentBits.get(componentType.getIndex());
     }
 
+    /**
+     * Get Component Bits
+     * @return Component Bits
+     */
+    public Bits getComponentBits () {
+        return componentBits;
+    }
+
+    /**
+     * Get Family Bits
+     * @return Family Bits
+     */
+    public Bits getFamilyBits(){
+        return familyBits;
+    }
 
 
 
