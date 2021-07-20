@@ -2,6 +2,7 @@ package com.alice.mel.graphics;
 
 import com.alice.mel.engine.Scene;
 import com.alice.mel.utils.KeyedEvent;
+import org.joml.Vector2f;
 import org.joml.Vector2i;
 import org.joml.Vector4f;
 import org.lwjgl.BufferUtils;
@@ -10,6 +11,7 @@ import org.lwjgl.glfw.GLFWWindowSizeCallback;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GL11;
 
+import java.nio.DoubleBuffer;
 import java.nio.IntBuffer;
 
 /**
@@ -32,6 +34,9 @@ public class Window {
     private final IntBuffer Y = BufferUtils.createIntBuffer(1);
     private final IntBuffer WIDTH =  BufferUtils.createIntBuffer(1);
     private final IntBuffer HEIGHT = BufferUtils.createIntBuffer(1);
+    private final DoubleBuffer CURSORX = BufferUtils.createDoubleBuffer(1);
+    private final DoubleBuffer CURSORY = BufferUtils.createDoubleBuffer(1);
+
 
     public final KeyedEvent<Scene> init = new KeyedEvent<>();
     public final KeyedEvent<Float> preUpdate = new KeyedEvent<>();
@@ -299,6 +304,16 @@ public class Window {
         GLFW.glfwGetWindowSize(id,WIDTH,HEIGHT);
         size.set(WIDTH.get(),HEIGHT.get());
         return size;
+    }
+
+
+    /**
+     * Get Cursor Position
+     * @return Cursor Position
+     */
+    public Vector2f getCursorPosition(){
+        GLFW.glfwGetCursorPos(id, CURSORX, CURSORY);
+        return new Vector2f((float)CURSORX.get(0), (float) CURSORY.get(0));
     }
 
     /**
