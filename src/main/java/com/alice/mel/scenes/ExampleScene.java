@@ -77,7 +77,8 @@ public class ExampleScene extends SceneAdaptor {
         if(getKey(GLFW.GLFW_KEY_D))
             move.add(1,0);
 
-        if(move.x != 0 || move.y != 0) move.normalize().mul(deltaTime).mul(100f);
+        if(move.length() > 0) move.normalize().mul(deltaTime).mul(100f);
+
         scene.loaderWindow.camera.position.add(move.x, move.y, 0);
     }
 

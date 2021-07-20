@@ -94,7 +94,7 @@ public final class Scene {
     }
 
     /**
-     * Add entity to scebe
+     * Add entity to scene
      * @param entity Entity to be add
      */
     public void addEntity(Entity entity){
@@ -133,7 +133,7 @@ public final class Scene {
 
     /**
      * Remove entity from the Scene and free the entity to scenes pool
-     * @param entity
+     * @param entity Entity to be removed
      */
     public void removeEntity(Entity entity){
         entityRemoved.broadcast(entity);
@@ -359,7 +359,7 @@ public final class Scene {
 
     /**
      * Get Entities that has certain Component
-     * @param componentClass
+     * @param componentClass Component Class of the common components
      * @return Immutable Array of entities that has that components
      */
     public ImmutableArray<Entity> getEntitiesFor(Class<? extends Component> componentClass) {
@@ -377,9 +377,9 @@ public final class Scene {
     }
 
     private ImmutableArray<Entity> registerEntities(Family componentFamily){
-        Array<Entity> entities = families.get(componentFamily);
+        Array<Entity> entite = families.get(componentFamily);
 
-        if(entities == null){
+        if(entite == null){
             families.put(componentFamily, new Array<>());
 
             for(Entity entity : entities)
@@ -388,7 +388,7 @@ public final class Scene {
 
 
 
-        return new ImmutableArray<>(entities);
+        return new ImmutableArray<>(entite);
     }
 
     private void updateEntityFamily(Entity entity){

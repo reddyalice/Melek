@@ -14,6 +14,7 @@ import java.util.concurrent.Executors;
 public class Game implements Runnable{
 
     public static float deltaTime = 1f/60f;
+
     private static final int coreCount = Runtime.getRuntime().availableProcessors();
     public final ExecutorService executor = Executors.newFixedThreadPool(coreCount);
     public final AssetManager assetManager = new AssetManager();
