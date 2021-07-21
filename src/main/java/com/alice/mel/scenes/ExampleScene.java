@@ -37,6 +37,7 @@ public class ExampleScene extends SceneAdaptor {
 
         w = createWindow(CameraType.Orthographic, "Test", 640, 480, false);
         w2 = createWindow(CameraType.Orthographic, "Test1", 640, 480, true);
+        w2.setDecorated(false);
         Window w3 = createWindow(CameraType.Orthographic, "Test2", 640, 480, true);
 
 
