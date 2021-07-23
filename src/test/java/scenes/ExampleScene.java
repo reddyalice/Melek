@@ -11,9 +11,9 @@ import org.joml.Vector2f;
 import org.joml.Vector2i;
 import org.lwjgl.glfw.GLFW;
 
-public class ExampleSceneJava extends SceneAdaptor {
+public class ExampleScene extends SceneAdaptor {
 
-    public ExampleSceneJava(Game game) {
+    public ExampleScene(Game game) {
         super(game);
     }
     Window w;

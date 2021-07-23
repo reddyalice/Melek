@@ -4,6 +4,7 @@ import com.alice.mel.utils.collections.Array;
 import com.alice.mel.utils.collections.SnapshotArray;
 import org.lwjgl.glfw.GLFW;
 
+import javax.script.ScriptEngineManager;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -17,6 +18,7 @@ public class Game implements Runnable{
 
     private static final int coreCount = Runtime.getRuntime().availableProcessors();
     public final ExecutorService executor = Executors.newFixedThreadPool(coreCount);
+    public static final ScriptEngineManager scriptManager = new ScriptEngineManager();
     public final AssetManager assetManager = new AssetManager();
     public Scene loaderScene = null;
     private final SnapshotArray<Scene> activeScenes = new SnapshotArray<>();
