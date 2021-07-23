@@ -1,4 +1,4 @@
-package com.alice.mel.graphics.shaders;
+package shaders;
 
 import com.alice.mel.engine.Scene;
 import com.alice.mel.graphics.Camera;
@@ -18,7 +18,7 @@ public class Basic3DShader extends Shader {
     private int location_textureScale;
 
     public Basic3DShader() {
-        super("src/main/resources/shaders/Basic3DShader.glsl", false);
+        super("src/test/resources/shaders/Basic3DShader.glsl", false);
     }
 
     @Override

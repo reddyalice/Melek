@@ -1,23 +1,19 @@
-package com.alice.mel.scenes;
+package scenes;
 
 import com.alice.mel.components.RenderingComponent;
 import com.alice.mel.engine.*;
 import com.alice.mel.graphics.*;
-import com.alice.mel.graphics.materials.Basic2DMaterial;
-import com.alice.mel.graphics.materials.Basic3DMaterial;
-import com.alice.mel.graphics.shaders.Basic3DShader;
+import materials.Basic3DMaterial;
+import shaders.Basic3DShader;
 import com.alice.mel.systems.RenderingSystem;
 import com.alice.mel.utils.maths.MathUtils;
-import com.github.sarxos.webcam.Webcam;
 import org.joml.Vector2f;
 import org.joml.Vector2i;
 import org.lwjgl.glfw.GLFW;
 
-import java.util.Objects;
+public class ExampleSceneJava extends SceneAdaptor {
 
-public class ExampleScene extends SceneAdaptor {
-
-    public ExampleScene(Game game) {
+    public ExampleSceneJava(Game game) {
         super(game);
     }
     Window w;
@@ -25,11 +21,10 @@ public class ExampleScene extends SceneAdaptor {
     @Override
     public void Init(Window loaderWindow) {
 
-        Texture texture = new Texture("src/main/resources/textures/cactus.png");
-        Texture textureC = new Texture("src/main/resources/textures/cardedge.png");
-        Mesh mesh = OBJLoader.loadOBJ("src/main/resources/models/cactus.obj");
+        Texture texture = new Texture("src/test/resources/textures/cactus.png");
+        Texture textureC = new Texture("src/test/resources/textures/cardedge.png");
+        Mesh mesh = OBJLoader.loadOBJ("src/test/resources/models/cactus.obj");
         Material material = new Basic3DMaterial("Texture1");
-        Material B = new Basic3DMaterial("Texture2");
         game.assetManager.addShader(Basic3DShader.class);
         game.assetManager.addTexture("Texture1", texture);
         game.assetManager.addTexture("Texture2", textureC);

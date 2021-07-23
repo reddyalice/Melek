@@ -1,4 +1,4 @@
-package com.alice.mel.graphics.shaders;
+package shaders;
 
 import com.alice.mel.engine.Scene;
 import com.alice.mel.graphics.Camera;
@@ -19,7 +19,7 @@ public class Basic2DShader extends Shader {
 
 
     public Basic2DShader() {
-        super("src/main/resources/shaders/Basic2DShader.glsl", false);
+        super("src/test/resources/shaders/Basic2DShader.glsl", false);
     }
 
     @Override

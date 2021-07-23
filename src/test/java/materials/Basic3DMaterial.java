@@ -1,12 +1,11 @@
-package com.alice.mel.graphics.materials;
+package materials;
 
+import shaders.Basic3DShader;
 import com.alice.mel.engine.AssetManager;
 import com.alice.mel.engine.Entity;
 import com.alice.mel.engine.Scene;
 import com.alice.mel.graphics.Camera;
 import com.alice.mel.graphics.Material;
-import com.alice.mel.graphics.Shader;
-import com.alice.mel.graphics.shaders.Basic3DShader;
 import com.alice.mel.utils.maths.MathUtils;
 import org.joml.Vector2f;
 import org.joml.Vector4f;

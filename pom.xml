@@ -6,6 +6,7 @@
 
     <groupId>com.alice</groupId>
     <artifactId>Melek</artifactId>
+
     <version>1.0-SNAPSHOT</version>
 
     <properties>
@@ -253,9 +254,17 @@
             <version>RELEASE</version>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <groupId>org.jetbrains.kotlin</groupId>
+            <artifactId>kotlin-stdlib</artifactId>
+            <version>1.5.21</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jetbrains.kotlin</groupId>
+            <artifactId>kotlin-script-runtime</artifactId>
+            <version>RELEASE</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
-
-
-
 
 </project>
