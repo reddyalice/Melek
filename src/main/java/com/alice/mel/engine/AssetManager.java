@@ -64,7 +64,7 @@ public final class AssetManager {
                 }
         ));
 
-        textures.put("null", new Texture(1, 1, new int[]{ (255 << 24) + (255 << 16) + 255 }));
+        textures.put("null", new Texture(1, 1, new int[]{0}));
 
     }
 

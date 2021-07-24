@@ -2,6 +2,7 @@ package com.alice.mel.gui;
 
 import com.alice.mel.engine.AssetManager;
 import com.alice.mel.graphics.Window;
+import com.alice.mel.graphics.materials.SpriteMaterial;
 import com.alice.mel.utils.Event;
 import org.joml.Vector2f;
 import org.joml.Vector4f;
@@ -19,15 +20,15 @@ public class Button extends UIElement {
 
     public final Event<Float> onClick = new Event<>();
 
-    private final AssetManager assetManager;
 
-    public Button(AssetManager assetManager, String textureName, Vector2f position){
+
+    public Button(String textureName, Vector2f position, Vector2f size){
+        this.textureName = textureName;
         this.idleTextureName = textureName;
         this.hoveringTextureName = textureName;
         this.pressedTextureName = textureName;
         this.position.set(position);
-        this.assetManager = assetManager;
-        this.size.set(assetManager.getTexture(textureName).getWidth(), assetManager.getTexture(textureName).getHeight());
+        this.size.set(size);
     }
 
 
@@ -38,6 +39,6 @@ public class Button extends UIElement {
 
     @Override
     protected void Render(Window window, float deltaTime) {
-
+        Vector2f cursorPos = window.getCursorPosition();
     }
 }
