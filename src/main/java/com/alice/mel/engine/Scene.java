@@ -11,6 +11,7 @@ import com.alice.mel.utils.collections.*;
 import org.javatuples.Pair;
 import org.jbox2d.common.Vec2;
 import org.jbox2d.dynamics.World;
+import org.lwjgl.PointerBuffer;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWErrorCallback;
 
@@ -73,6 +74,20 @@ public final class Scene {
                 System.err.println("Failed To initialized!");
                 System.exit(1);
             }
+
+            PointerBuffer pf = GLFW.glfwGetMonitors();
+            for(int i = 0; i < pf.remaining();)
+                new Monitor(pf.get());
+
+            GLFW.glfwSetMonitorCallback((mon, event) -> {
+                switch (event) {
+                    case GLFW.GLFW_CONNECTED -> new Monitor(mon);
+                    case GLFW.GLFW_DISCONNECTED -> Monitor.monitors.remove(mon);
+                }
+            });
+
+
+
             game.loaderScene = this;
         }
 
@@ -331,6 +346,17 @@ public final class Scene {
         addWindow(w);
         return w;
     }
+
+    /**
+     * Change Window Camera Type
+     * @param window Window to change camera of
+     * @param cameraType Type of the new Camera
+     */
+    public void changeWindowCameraType(Window window, CameraType cameraType){
+        cameraPool.free(window.camera);
+        window.camera = cameraPool.obtain(cameraType, window.getSize().x, window.getSize().y);
+    }
+
 
     /**
      * Create or obtain a freed window

@@ -54,7 +54,6 @@ public class Game implements Runnable{
      */
     @Override
     public void run(){
-        System.out.println(OSType.DETECTED);
 
         while(activeScenes.size > 0){
             long time = System.nanoTime(); // Lame delta Timing

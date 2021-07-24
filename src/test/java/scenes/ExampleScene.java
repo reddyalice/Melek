@@ -62,18 +62,18 @@ public class ExampleScene extends SceneAdaptor {
 
     @Override
     public void Update(float deltaTime) {
-        if(getKey(GLFW.GLFW_KEY_G))
+        if(getKeyPressed(GLFW.GLFW_KEY_G))
             if(scene.getEntitiesFor(RenderingComponent.class).size() > 1)
                 scene.removeEntity(scene.getEntitiesFor(RenderingComponent.class).get(0));
 
         move.set(0,0);
-        if(getKey(GLFW.GLFW_KEY_W))
+        if(getKeyPressed(GLFW.GLFW_KEY_W))
             move.add(0,-1);
-        if(getKey(GLFW.GLFW_KEY_S))
+        if(getKeyPressed(GLFW.GLFW_KEY_S))
             move.add(0,1);
-        if(getKey(GLFW.GLFW_KEY_A))
+        if(getKeyPressed(GLFW.GLFW_KEY_A))
             move.add(-1,0);
-        if(getKey(GLFW.GLFW_KEY_D))
+        if(getKeyPressed(GLFW.GLFW_KEY_D))
             move.add(1,0);
 
         Vector2f cursorPos = w2.getCursorPosition();

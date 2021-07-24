@@ -189,8 +189,35 @@ public abstract class SceneAdaptor {
      * @param keyCode Key code
      * @return Is key pressed
      */
-    public final boolean getKey(int keyCode) {
-        return InputHandler.getKey(scene, keyCode);
+    public final boolean getKeyPressed(int keyCode) {
+        return InputHandler.getKeyPressed(scene, keyCode);
+    }
+
+    /**
+     * Get Key release from the scene
+     * @param keyCode Key code
+     * @return Is key released
+     */
+    public final boolean getKeyReleased(int keyCode) {
+        return InputHandler.getKeyReleased(scene, keyCode);
+    }
+
+    /**
+     * Get Mouse Press from the scene
+     * @param button Mouse Button
+     * @return Is button pressed
+     */
+    public final boolean getMouseButtonPressed(int button) {
+        return InputHandler.getMouseButtonPressed(scene, button);
+    }
+
+    /**
+     * Get Mouse release from the scene
+     * @param button Mouse Button
+     * @return Is button released
+     */
+    public final boolean getMouseButtonReleased(int button) {
+        return InputHandler.getMouseButtonReleased(scene, button);
     }
 
 

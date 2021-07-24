@@ -17,6 +17,13 @@
         <lwjgl3-awt.version>0.1.8</lwjgl3-awt.version>
     </properties>
 
+    <repositories>
+        <repository>
+            <id>SpinyOwl</id>
+            <url>https://raw.githubusercontent.com/SpinyOwl/repo/releases</url>
+        </repository>
+    </repositories>
+
     <profiles>
         <profile>
             <id>lwjgl-natives-linux-amd64</id>
@@ -253,6 +260,11 @@
             <artifactId>annotations</artifactId>
             <version>RELEASE</version>
             <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.liquidengine</groupId>
+            <artifactId>legui</artifactId>
+            <version>3.3.1</version>
         </dependency>
     </dependencies>
 

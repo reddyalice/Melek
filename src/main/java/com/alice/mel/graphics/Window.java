@@ -7,6 +7,7 @@ import org.joml.Vector2i;
 import org.joml.Vector4f;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.glfw.GLFW;
+import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.glfw.GLFWWindowSizeCallback;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GL11;
@@ -259,6 +260,56 @@ public class Window {
     }
 
     /**
+     * Set Cursor Position
+     * @param x X coordinate of the new position
+     * @param y Y coordinate of the new position
+     */
+    public void setCursorPosition(float x, float y){
+        GLFW.glfwSetCursorPos(id, x, y);
+    }
+
+    /**
+     * Set Cursor Position
+     * @param cursorPosition Vector of the new position
+     */
+    public void setCursorPosition(Vector2f cursorPosition){
+        setCursorPosition(cursorPosition.x,cursorPosition.y);
+    }
+
+    /**
+     * Set Window FullScreen
+     * @param monitorID ID of the Monitor to be fullcreen
+     * @param width Resolution Width
+     * @param height Resolution Height
+     * @param freshRate Refresh Rate
+     */
+    public void setFullScreen(long monitorID, int width, int height, int freshRate){
+        GLFW.glfwSetWindowMonitor(id, monitorID, 0,0, width, height, freshRate);
+    }
+
+    /**
+     * Set Window FullScreen
+     * @param monitor Monitor to be fullscreen
+     * @param width Resolution Width
+     * @param height Resolution Height
+     * @param freshRate Refresh Rate
+     */
+    public void setFullScreen(Monitor monitor, int width, int height, int freshRate){
+        GLFW.glfwSetWindowMonitor(id, monitor.id, 0,0, width, height, freshRate);
+    }
+
+    /**
+     * Set Windowed
+     * @param width Resolution Width
+     * @param height Resolution Height
+     * @param freshRate Refresh Rate
+     */
+    public void setWindowed(int width, int height, int freshRate){
+        GLFW.glfwSetWindowMonitor(id, 0, 0,0, width, height, freshRate);
+    }
+
+
+    /**
      * Get the Scene Window belongs to
      * @return Scene that window belongs to
      */
@@ -306,15 +357,24 @@ public class Window {
         return size;
     }
 
+    /**
+     * Get Monitor Window is in
+     * @return Current MonitorID
+     */
+    public Monitor getMonitor(){
+       return Monitor.monitors.get(GLFW.glfwGetWindowMonitor(id));
+    }
+
 
     /**
-     * Get Cursor Position
+     * Get Cursor Position relative to the Window
      * @return Cursor Position
      */
     public Vector2f getCursorPosition(){
         GLFW.glfwGetCursorPos(id, CURSORX, CURSORY);
         return new Vector2f((float)CURSORX.get(0), (float) CURSORY.get(0));
     }
+
 
     /**
      * Dispose the window
