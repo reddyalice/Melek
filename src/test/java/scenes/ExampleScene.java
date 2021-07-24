@@ -3,8 +3,8 @@ package scenes;
 import com.alice.mel.components.RenderingComponent;
 import com.alice.mel.engine.*;
 import com.alice.mel.graphics.*;
-import materials.Basic3DMaterial;
-import shaders.Basic3DShader;
+import com.alice.mel.graphics.materials.SpriteMaterial;
+import com.alice.mel.graphics.shaders.SpriteShader;
 import com.alice.mel.systems.RenderingSystem;
 import com.alice.mel.utils.maths.MathUtils;
 import org.joml.Vector2f;
@@ -23,12 +23,11 @@ public class ExampleScene extends SceneAdaptor {
 
         Texture texture = new Texture("src/test/resources/textures/cactus.png");
         Texture textureC = new Texture("src/test/resources/textures/cardedge.png");
-        Mesh mesh = OBJLoader.loadOBJ("src/test/resources/models/cactus.obj");
-        Material material = new Basic3DMaterial("Texture1");
-        game.assetManager.addShader(Basic3DShader.class);
+        Material material = new SpriteMaterial("Texture1");
+        game.assetManager.addShader(SpriteShader.class);
         game.assetManager.addTexture("Texture1", texture);
         game.assetManager.addTexture("Texture2", textureC);
-        game.assetManager.addMesh("Mesh1", mesh);
+       // game.assetManager.addMesh("Mesh1", mesh);
 
         w = createWindow(CameraType.Orthographic, "Test", 640, 480, false);
         w2 = createWindow(CameraType.Orthographic, "Test1", 640, 480, true);
@@ -41,11 +40,11 @@ public class ExampleScene extends SceneAdaptor {
         Entity en = createEntity();
         en.scale.set(100, 100, 100);
         en.position.set(0,0, -100);
-        en.addComponent(new RenderingComponent( "Mesh1", material));
+        en.addComponent(new RenderingComponent( "Quad", material));
         Entity en1 = createEntity();
         en1.scale.set(50, 50, 50);
         en1.position.set(500,0, -99);
-        en1.addComponent(new RenderingComponent( "Mesh1", material));
+        en1.addComponent(new RenderingComponent( "Quad", material));
 
 
         w2.update.add("move", x -> MathUtils.LookRelativeTo(w2, w));
