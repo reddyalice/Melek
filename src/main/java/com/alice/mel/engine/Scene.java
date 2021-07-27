@@ -530,8 +530,8 @@ public final class Scene {
      * Get the Window Array
      * @return Window Array
      */
-    public Array<Window> getWindows(){
-        return windows;
+    public ImmutableArray<Window> getWindows(){
+        return new ImmutableArray<>(windows);
     }
 
     /**

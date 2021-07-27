@@ -3,6 +3,7 @@ package com.alice.mel.engine;
 import com.alice.mel.graphics.Mesh;
 import com.alice.mel.graphics.Shader;
 import com.alice.mel.graphics.Texture;
+import com.alice.mel.graphics.shaders.GUIShader;
 import com.alice.mel.utils.collections.ObjectMap;
 import com.alice.mel.utils.reflections.ClassReflection;
 import com.alice.mel.utils.reflections.ReflectionException;
@@ -64,7 +65,8 @@ public final class AssetManager {
                 }
         ));
 
-        textures.put("null", new Texture(1, 1, new int[]{0}));
+        addTexture("null", new Texture(1, 1, new int[]{0}));
+        addShader(GUIShader.class);
 
     }
 

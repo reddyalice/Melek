@@ -4,7 +4,10 @@ import com.alice.mel.engine.Entity;
 import com.alice.mel.engine.Game;
 import com.alice.mel.engine.SceneAdaptor;
 import com.alice.mel.graphics.CameraType;
+import com.alice.mel.graphics.Texture;
 import com.alice.mel.graphics.Window;
+import com.alice.mel.gui.Button;
+import com.alice.mel.gui.GUIRenderer;
 import org.joml.Vector2f;
 import org.joml.Vector2i;
 
@@ -18,9 +21,18 @@ public class EditorScene extends SceneAdaptor {
 
     Window editorWindow;
 
-
+    private GUIRenderer guiRenderer;
     @Override
     public void Init(Window loaderWindow) {
+
+        guiRenderer = new GUIRenderer(game.assetManager, scene);
+        game.assetManager.addTexture("button", new Texture(1, 1, new int[]{1023}));
+        scene.loadTexture("button");
+        Button b = new Button("button", new Vector2f(0,768f/2f - 10), new Vector2f(1024, 20));
+        b.hoveringTextureName = "null";
+        b.pressedTextureName = "null";
+        guiRenderer.addUIElement(b);
+
         editorWindow = createWindow(CameraType.Orthographic, "Editor Window", 1024, 768, true);
     }
 
@@ -50,6 +62,7 @@ public class EditorScene extends SceneAdaptor {
             if(getMouseButtonReleased(0))
                 dragging = false;
         }
+        guiRenderer.Update(deltaTime);
     }
 
     @Override
@@ -64,12 +77,11 @@ public class EditorScene extends SceneAdaptor {
 
     @Override
     public void Render(Window currentWindow, float deltaTime) {
-
+        guiRenderer.Render(currentWindow, deltaTime);
     }
 
     @Override
     public void PostRender(Window currentWindow, float deltaTime) {
-
     }
 
     @Override

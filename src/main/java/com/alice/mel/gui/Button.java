@@ -1,10 +1,12 @@
 package com.alice.mel.gui;
 
 import com.alice.mel.engine.AssetManager;
+import com.alice.mel.engine.InputHandler;
 import com.alice.mel.graphics.Window;
 import com.alice.mel.graphics.materials.SpriteMaterial;
 import com.alice.mel.utils.Event;
 import org.joml.Vector2f;
+import org.joml.Vector2i;
 import org.joml.Vector4f;
 
 public class Button extends UIElement {
@@ -37,8 +39,23 @@ public class Button extends UIElement {
 
     }
 
+
     @Override
     protected void Render(Window window, float deltaTime) {
         Vector2f cursorPos = window.getCursorPosition();
+        Vector2i windowSize = window.getSize();
+        cursorPos.set(cursorPos.x - windowSize.x / 2f, windowSize.y / 2f - cursorPos.y);
+
+
+
+
+        if(cursorPos.x >= position.x - size.x / 2f && cursorPos.x <= position.x + size.x / 2f
+            &&  cursorPos.y >= position.y - size.y / 2f && cursorPos.y <= position.y + size.y / 2f)
+        {
+            textureName = hoveringTextureName;
+            if(InputHandler.getMouseButtonPressed(scene, 0))
+                textureName = pressedTextureName;
+        }else
+            textureName = idleTextureName;
     }
 }
