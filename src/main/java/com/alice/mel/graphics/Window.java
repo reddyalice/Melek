@@ -375,6 +375,12 @@ public class Window {
         return new Vector2f((float)CURSORX.get(0), (float) CURSORY.get(0));
     }
 
+    /**
+     * close the window
+     */
+    public void close(){
+        scene.removeWindow(this);
+    }
 
     /**
      * Dispose the window

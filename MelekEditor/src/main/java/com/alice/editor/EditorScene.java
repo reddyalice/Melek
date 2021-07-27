@@ -10,6 +10,7 @@ import com.alice.mel.gui.Button;
 import com.alice.mel.gui.GUIRenderer;
 import org.joml.Vector2f;
 import org.joml.Vector2i;
+import org.lwjgl.glfw.GLFW;
 
 public class EditorScene extends SceneAdaptor {
 
@@ -26,14 +27,18 @@ public class EditorScene extends SceneAdaptor {
     public void Init(Window loaderWindow) {
 
         guiRenderer = new GUIRenderer(game.assetManager, scene);
-        game.assetManager.addTexture("button", new Texture(1, 1, new int[]{1023}));
+        game.assetManager.addTexture("button", new Texture(1, 1, new int[]{255 << 24}));
         scene.loadTexture("button");
         Button b = new Button("button", new Vector2f(0,768f/2f - 10), new Vector2f(1024, 20));
-        b.hoveringTextureName = "null";
-        b.pressedTextureName = "null";
+
         guiRenderer.addUIElement(b);
 
         editorWindow = createWindow(CameraType.Orthographic, "Editor Window", 1024, 768, true);
+        editorWindow.setDecorated(false);
+
+        b.onClick.add(x -> {
+            editorWindow.close();
+        });
     }
 
     @Override
