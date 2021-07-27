@@ -53,8 +53,10 @@ public class Button extends UIElement {
             &&  cursorPos.y >= position.y - size.y / 2f && cursorPos.y <= position.y + size.y / 2f)
         {
             textureName = hoveringTextureName;
-            if(InputHandler.getMouseButtonPressed(scene, 0))
+            if(InputHandler.getMouseButtonPressed(scene, 0)) {
                 textureName = pressedTextureName;
+                onClick.broadcast(deltaTime);
+            }
         }else
             textureName = idleTextureName;
     }
