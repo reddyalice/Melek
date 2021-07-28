@@ -3,28 +3,36 @@ package com.alice.mel.gui;
 import com.alice.mel.engine.AssetManager;
 import com.alice.mel.engine.Scene;
 import com.alice.mel.graphics.Mesh;
+import com.alice.mel.graphics.MeshBatch;
 import com.alice.mel.graphics.Shader;
 import com.alice.mel.graphics.Window;
 import com.alice.mel.graphics.materials.SpriteMaterial;
+import com.alice.mel.graphics.shaders.BatchedSpriteShader;
 import com.alice.mel.graphics.shaders.GUIShader;
+import com.alice.mel.utils.collections.Array;
+import org.joml.Matrix4f;
 import org.joml.Vector2f;
+import org.joml.Vector2i;
+import org.joml.Vector3f;
 
 import java.util.Objects;
 
 public class GUIRenderer {
 
     private final Canvas canvas;
-    private final GUIShader shader;
+    private final BatchedSpriteShader shader;
     private final AssetManager assetManager;
+    private final Array<MeshBatch> meshBatches;
     private final Scene scene;
 
     public GUIRenderer(AssetManager assetManager, Scene scene){
         this.scene = scene;
         this.assetManager = assetManager;
-        scene.loadShader(GUIShader.class);
-        scene.loadMesh("Quad");
+        scene.loadShader(BatchedSpriteShader.class);
+        meshBatches = new Array<>();
+
         scene.loadTexture("null");
-        shader = assetManager.getShader(GUIShader.class);
+        shader = assetManager.getShader(BatchedSpriteShader.class);
         canvas = new Canvas(scene, assetManager, shader);
     }
 
@@ -47,19 +55,28 @@ public class GUIRenderer {
 
     private class Canvas extends UIElement{
 
-        private Canvas(Scene scene, AssetManager assetManager, GUIShader shader){
+        private Canvas(Scene scene, AssetManager assetManager, BatchedSpriteShader shader){
             this.scene = scene;
             this.assetManager = assetManager;
             this.shader = shader;
         }
 
-        private final Vector2f size = new Vector2f();
+        private final Matrix4f projectionMatrix = new Matrix4f();
+        private final Matrix4f viewMatrix = new Matrix4f();
+
+        private final Vector3f position = new Vector3f();
+        private final Vector3f direction = new Vector3f(0,0,-1);
+        private final Vector3f up = new Vector3f(0,1,0);
+        private final Vector3f tmp = new Vector3f();
+
+
         @Override
         void render(Window window, float deltaTime) {
+            Vector2i size = window.getSize();
             shader.start(scene);
-            size.set(window.getSize());
-            shader.loadScreenSize(size);
-            Objects.requireNonNull(assetManager.getMesh("Quad")).bind(scene, window);
+            shader.loadProjectionMatrix(projectionMatrix.identity().setOrtho( -size.x / 2f,  (size.x / 2f),  -(size.y / 2f),  size.y / 2f, 0, 1000));
+            shader.loadViewMatrix(viewMatrix.identity().lookAt(position, tmp.set(position).add(direction), up));
+
             super.render(window, deltaTime);
             shader.stop();
         }

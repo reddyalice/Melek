@@ -84,6 +84,16 @@ public final class AssetManager {
     }
 
     /**
+     * Check if Asset Manager has the mesh with a certain name
+     * @param name Name that is wanted to be checked
+     * @return If asset manager has the mesh
+     */
+    public boolean hasMesh(String name){
+        return meshes.containsKey(name);
+    }
+
+
+    /**
      * Get the registered mesh from the Asset Manager
      * @param name Name the Mesh is registered as
      * @return Registered Mesh if the name is valid else null
@@ -117,6 +127,15 @@ public final class AssetManager {
             System.out.println("Texture with \"" + name +  "\" name already exist!" + "\n" + "Overwriting!");
         }
         textures.put(name, texture);
+    }
+
+    /**
+     * Check if Asset Manager has the Texture with a certain name
+     * @param name Name that is wanted to be checked
+     * @return If asset manager has the Texture
+     */
+    public boolean hasTexture(String name){
+        return textures.containsKey(name);
     }
 
     /**
@@ -158,6 +177,16 @@ public final class AssetManager {
         }
 
     }
+
+    /**
+     * Check if Asset Manager has the Shader with a certain class
+     * @param shaderClass Class that is wanted to be checked
+     * @return If asset manager has the Shader
+     */
+    public boolean hasShader(Class<? extends Shader> shaderClass){
+        return shaders.containsKey(shaderClass);
+    }
+
 
     /**
      * Get the registered Shader from the Asset Manager

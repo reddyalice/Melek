@@ -1,10 +1,12 @@
 package com.alice.mel.graphics.materials;
 
 import com.alice.mel.engine.AssetManager;
+import com.alice.mel.engine.Element;
 import com.alice.mel.engine.Entity;
 import com.alice.mel.engine.Scene;
 import com.alice.mel.graphics.Camera;
 import com.alice.mel.graphics.Material;
+import com.alice.mel.graphics.Window;
 import com.alice.mel.graphics.shaders.SpriteShader;
 import com.alice.mel.utils.maths.MathUtils;
 import org.joml.Vector2f;
@@ -26,18 +28,18 @@ public class SpriteMaterial extends Material {
     }
 
     @Override
-    public void loadValues(AssetManager assetManager, Scene scene, Camera camera) {
+    public void loadValues(AssetManager assetManager, Scene scene, Window window) {
         SpriteShader shader2D = (SpriteShader) assetManager.getShader(shaderClass);
         assetManager.getTexture(textureName).bind(scene);
         shader2D.loadOffset(textureOffset, textureScale);
-        shader2D.loadCamera(camera);
+        shader2D.loadCamera(window.camera);
         shader2D.loadColor(color);
     }
 
     @Override
-    public void loadEntity(AssetManager assetManager, Scene scene, Camera camera, Entity entity) {
+    public void loadElement(AssetManager assetManager, Scene scene, Window window, Element element) {
         SpriteShader shader2D = (SpriteShader) assetManager.getShader(shaderClass);
-        shader2D.loadTransformationMatrix(MathUtils.CreateTransformationMatrix(entity.position, entity.rotation, entity.scale));
+        shader2D.loadTransformationMatrix(MathUtils.CreateTransformationMatrix(element.position, element.rotation, element.scale));
     }
 
     @Override

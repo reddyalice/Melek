@@ -1,5 +1,7 @@
 package materials;
 
+import com.alice.mel.engine.Element;
+import com.alice.mel.graphics.Window;
 import shaders.Basic3DShader;
 import com.alice.mel.engine.AssetManager;
 import com.alice.mel.engine.Entity;
@@ -27,18 +29,18 @@ public class Basic3DMaterial extends Material {
     }
 
     @Override
-    public void loadValues(AssetManager assetManager, Scene scene, Camera camera) {
+    public void loadValues(AssetManager assetManager, Scene scene, Window window) {
         Basic3DShader shader3D = (Basic3DShader) assetManager.getShader(shaderClass);
         assetManager.getTexture(textureName).bind(scene);
         shader3D.loadOffset(textureOffset, textureScale);
-        shader3D.loadCamera(camera);
+        shader3D.loadCamera(window.camera);
         shader3D.loadColor(color);
     }
 
     @Override
-    public void loadEntity(AssetManager assetManager, Scene scene, Camera camera, Entity entity) {
+    public void loadElement(AssetManager assetManager, Scene scene,Window window, Element element) {
         Basic3DShader shader3D = (Basic3DShader) assetManager.getShader(shaderClass);
-        shader3D.loadTransformationMatrix(MathUtils.CreateTransformationMatrix(entity.position, entity.rotation, entity.scale));
+        shader3D.loadTransformationMatrix(MathUtils.CreateTransformationMatrix(element.position, element.rotation, element.scale));
     }
 
     @Override

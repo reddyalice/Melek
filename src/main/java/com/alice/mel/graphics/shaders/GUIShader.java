@@ -4,6 +4,7 @@ import com.alice.mel.engine.Scene;
 import com.alice.mel.graphics.Shader;
 import com.alice.mel.gui.UIElement;
 import org.joml.Vector2f;
+import org.joml.Vector3f;
 
 public class GUIShader extends Shader {
 
@@ -78,10 +79,12 @@ public class GUIShader extends Shader {
     }
 
     public void loadElementValues(UIElement element){
-        loadVector(location_elementPosition, element.position);
-        loadVector(location_elementSize, element.size);
-        loadFloat(location_rotation, element.rotation);
-        loadVector(location_color, element.color);
+        loadVector(location_elementPosition, new Vector2f(element.position.x, element.position.y));
+        loadVector(location_elementSize, new Vector2f(element.scale.x, element.scale.y));
+        Vector3f euler = new Vector3f();
+                element.rotation.getEulerAnglesXYZ(euler);
+        loadFloat(location_rotation, euler.x);
+        //loadVector(location_color, element.guiMaterial.color);
     }
 
     public void loadOffset(Vector2f offset, Vector2f scale) {

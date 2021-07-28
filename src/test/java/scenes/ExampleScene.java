@@ -24,9 +24,9 @@ public class ExampleScene extends SceneAdaptor {
         Texture texture = new Texture("src/test/resources/textures/cactus.png");
         Texture textureC = new Texture("src/test/resources/textures/cardedge.png");
         Material material = new SpriteMaterial("Texture1");
-        game.assetManager.addShader(SpriteShader.class);
-        game.assetManager.addTexture("Texture1", texture);
-        game.assetManager.addTexture("Texture2", textureC);
+        assetManager.addShader(SpriteShader.class);
+        assetManager.addTexture("Texture1", texture);
+        assetManager.addTexture("Texture2", textureC);
        // game.assetManager.addMesh("Mesh1", mesh);
 
         w = createWindow(CameraType.Orthographic, "Test", 640, 480, false);
@@ -36,7 +36,7 @@ public class ExampleScene extends SceneAdaptor {
         Window w3 = createWindow(CameraType.Orthographic, "Test2", 640, 480, true);
 
 
-        addSystem(new RenderingSystem(game.assetManager));
+        addSystem(new RenderingSystem(assetManager));
         Entity en = createEntity();
         en.scale.set(100, 100, 100);
         en.position.set(0,0, -100);

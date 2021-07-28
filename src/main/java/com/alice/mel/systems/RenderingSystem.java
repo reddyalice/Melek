@@ -233,9 +233,9 @@ public class RenderingSystem extends ComponentSystem{
                     for(Material material : renderMap.get(shaderClass).get(meshName).keySet()){
                         GL20.glEnable(GL11.GL_TEXTURE);
                         GL20.glActiveTexture(GL20.GL_TEXTURE0);
-                        material.loadValues(assetManager, scene, window.camera);
+                        material.loadValues(assetManager, scene, window);
                         for(Entity entity : renderMap.get(shaderClass).get(meshName).get(material)){
-                            material.loadEntity(assetManager, scene, window.camera, entity);
+                            material.loadElement(assetManager, scene, window, entity);
                             GL11.glDrawElements(GL11.GL_TRIANGLES, Objects.requireNonNull(assetManager.getMesh(meshName)).getVertexCount(), GL11.GL_UNSIGNED_INT, 0);
                         }
                         GL20.glDisable(GL11.GL_TEXTURE);

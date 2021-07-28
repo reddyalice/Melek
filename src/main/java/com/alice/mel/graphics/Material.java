@@ -1,6 +1,7 @@
 package com.alice.mel.graphics;
 
 import com.alice.mel.engine.AssetManager;
+import com.alice.mel.engine.Element;
 import com.alice.mel.engine.Entity;
 import com.alice.mel.engine.Scene;
 import com.alice.mel.utils.collections.Array;
@@ -9,6 +10,8 @@ import com.alice.mel.utils.collections.Array;
  * Parent Class for Classes that carry shader properties
  */
 public abstract class Material {
+
+
     public final Class<? extends  Shader> shaderClass;
     public final Array<Object> data = new Array<>();
     public final Array<String> textureNames = new Array<>();
@@ -20,18 +23,18 @@ public abstract class Material {
      * Loads Values to the Shader
      * @param assetManager Asset Manager Shader registered to
      * @param scene Scene shader loaded to
-     * @param camera Camera shader rendering to
+     * @param window Window shader rendering to
      */
-    public abstract void loadValues(AssetManager assetManager, Scene scene, Camera camera);
+    public abstract void loadValues(AssetManager assetManager, Scene scene, Window window);
 
     /**
      * Load Entity specific Values to the shader
      * @param assetManager
      * @param scene
-     * @param camera
-     * @param entity
+     * @param window
+     * @param element
      */
-    public abstract void loadEntity(AssetManager assetManager, Scene scene, Camera camera, Entity entity);
+    public abstract void loadElement(AssetManager assetManager, Scene scene, Window window, Element element);
 
     @Override
     public abstract boolean equals(Object o);

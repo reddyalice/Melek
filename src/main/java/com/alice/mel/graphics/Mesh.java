@@ -89,7 +89,7 @@ public final class Mesh {
             GL20.glVertexAttribPointer(0, dimension, GL11.GL_FLOAT, false, 0, 0);
             GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, VBOS.get(scene).get(1));
             GL20.glVertexAttribPointer(1, 2, GL11.GL_FLOAT, false, 0, 0);
-            if(dimension == 3){
+            if(dimension >= 3){
                 GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, VBOS.get(scene).get(2));
                 GL20.glVertexAttribPointer(2, 1, GL11.GL_FLOAT, false, 0, 0);
             }
@@ -257,7 +257,10 @@ public final class Mesh {
     }
 
     public int getVAOid(Scene scene, Window window){
-        return ids.get(scene).get(window);
+        if(ids.get(scene).get(window) != null)
+            return ids.get(scene).get(window);
+        else
+            return 0;
     }
 
 

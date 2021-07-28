@@ -14,15 +14,11 @@ import org.joml.Vector3f;
  * Entity that carries components and transformations
  * @author Bahar Demircan
  */
-public class Entity {
+public class Entity extends Element {
 
 
     public final Event<Component> componentAdded = new Event<>();
     public final Event<Component> componentRemoved = new Event<>();
-
-    public final Vector3f position = new Vector3f();
-    public final Quaternionf rotation = new Quaternionf();
-    public final Vector3f scale = new Vector3f(1,1,1);
 
     private final Bag<Component> components = new Bag<>();
     private final Array<Component> componentsArray = new Array<>();

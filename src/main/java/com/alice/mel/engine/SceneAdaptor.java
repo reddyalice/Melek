@@ -1,6 +1,8 @@
 package com.alice.mel.engine;
 
 import com.alice.mel.graphics.CameraType;
+import com.alice.mel.graphics.Shader;
+import com.alice.mel.graphics.Texture;
 import com.alice.mel.graphics.Window;
 import com.alice.mel.systems.ComponentSystem;
 import org.jbox2d.dynamics.World;
@@ -13,6 +15,7 @@ public abstract class SceneAdaptor {
 
     public final Scene scene;
     public final Game game;
+    public final AssetManager assetManager;
     public final World world;
 
     /**
@@ -21,6 +24,7 @@ public abstract class SceneAdaptor {
     public SceneAdaptor(Game game){
         scene = new Scene(game);
         this.game = game;
+        this.assetManager = game.assetManager;
         scene.init.add("fromAdaptor", this::Init);
         scene.preUpdate.add("fromAdaptor", this::PreUpdate);
         scene.update.add("fromAdaptor", this::Update);
@@ -78,6 +82,61 @@ public abstract class SceneAdaptor {
      * @param deltaTime Delta Time
      */
     public abstract void PostRender(Window currentWindow, float deltaTime);
+
+
+    /**
+     * Add Shader to the AssetManager if it's not already added  and load to the scene
+     * @param shaderClass Class of the shader to be loaded
+     */
+    public final void addShader(Class<? extends Shader> shaderClass){
+        if(assetManager.getShader(shaderClass) == null)
+            assetManager.addShader(shaderClass);
+        scene.loadShader(shaderClass);
+    }
+
+    /**
+     * Unload from the scene
+     * @param shaderClass Shader class
+     * @param removeFromAssetManager Remove from the asset manager
+     */
+    public final void removeShader(Class<? extends Shader> shaderClass, boolean removeFromAssetManager){
+        if(removeFromAssetManager)
+            assetManager.removeShader(shaderClass);
+        scene.unloadShader(shaderClass);
+    }
+
+
+    /**
+     * Unload from the scene
+     * @param shaderClass Shader class
+     */
+    public final void removeShader(Class<? extends Shader> shaderClass){
+        removeShader(shaderClass, false);
+    }
+
+    /**
+     * Get the registered shader from Asset Manager
+     * @param shaderClass Shader class
+     * @param <T> Type of the Shader
+     * @return Shader to be returned
+     */
+    public final <T extends Shader> T getShader(Class<T> shaderClass) {
+        return assetManager.getShader(shaderClass);
+    }
+
+    /**
+     * Add texture to the asset manager if it's not already added and load it to the scene
+     * @param name Name of the texture
+     * @param texture Texture to be loaded
+     */
+    public final void addTexture(String name, Texture texture){
+
+        assetManager.addTexture(name, texture);
+    }
+
+
+
+
 
     /**
      * Called when an entity is added to the scene

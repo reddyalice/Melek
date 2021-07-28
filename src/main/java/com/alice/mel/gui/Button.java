@@ -24,13 +24,13 @@ public class Button extends UIElement {
 
 
 
-    public Button(String textureName, Vector2f position, Vector2f size){
-        this.textureName = textureName;
+    public Button(String textureName, Vector2f position, Vector2f scale){
+        this.guiMaterial.textureName = textureName;
         this.idleTextureName = textureName;
         this.hoveringTextureName = textureName;
         this.pressedTextureName = textureName;
-        this.position.set(position);
-        this.size.set(size);
+        this.position.set(position, 0);
+        this.scale.set(scale, 0);
     }
 
 
@@ -49,15 +49,15 @@ public class Button extends UIElement {
 
 
 
-        if(cursorPos.x >= position.x - size.x / 2f && cursorPos.x <= position.x + size.x / 2f
-            &&  cursorPos.y >= position.y - size.y / 2f && cursorPos.y <= position.y + size.y / 2f)
+        if(cursorPos.x >= position.x - scale.x / 2f && cursorPos.x <= position.x + scale.x / 2f
+            &&  cursorPos.y >= position.y - scale.y / 2f && cursorPos.y <= position.y + scale.y / 2f)
         {
-            textureName = hoveringTextureName;
+            guiMaterial.textureName = hoveringTextureName;
             if(InputHandler.getMouseButtonPressed(scene, 0)) {
-                textureName = pressedTextureName;
+                guiMaterial.textureName = pressedTextureName;
                 onClick.broadcast(deltaTime);
             }
         }else
-            textureName = idleTextureName;
+            guiMaterial.textureName = idleTextureName;
     }
 }
