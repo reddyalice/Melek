@@ -207,6 +207,10 @@ public abstract class Shader{
         GL32C.glUniform1f(location, value);
     }
 
+    protected void loadInt(int location, int value){
+        GL32.glUniform1i(location, value);
+    }
+
     protected void loadMatrix(int location, Matrix4f value){
         value.get(matrixBuffer);
         GL32C.glUniformMatrix4fv(location, false, matrixBuffer);
@@ -232,6 +236,10 @@ public abstract class Shader{
     protected void loadFloatArray(int location, float[] value){
 
         GL32C.glUniform1fv(location, value);
+    }
+
+    protected void loadIntArray(int location, int[] value){
+        GL32C.glUniform1iv(location, value);
     }
 
 

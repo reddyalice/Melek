@@ -27,9 +27,9 @@ public class EditorScene extends SceneAdaptor {
     public void Init(Window loaderWindow) {
 
         guiRenderer = new GUIRenderer(game.assetManager, scene);
-        game.assetManager.addTexture("button", new Texture(1, 1, new int[]{255 << 24}));
+        game.assetManager.addTexture("button", new Texture(1, 1, new int[]{255 >> 24}));
         scene.loadTexture("button");
-        Button b = new Button("button", new Vector2f(0,0), new Vector2f(1024, 20));
+        Button b = new Button("button", new Vector2f(0,0), new Vector2f(1024, 1024));
 
         guiRenderer.addUIElement(b);
 

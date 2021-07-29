@@ -2,21 +2,13 @@ package com.alice.mel.gui;
 
 import com.alice.mel.engine.AssetManager;
 import com.alice.mel.engine.Scene;
-import com.alice.mel.graphics.Mesh;
 import com.alice.mel.graphics.MeshBatch;
-import com.alice.mel.graphics.Shader;
 import com.alice.mel.graphics.Window;
-import com.alice.mel.graphics.materials.SpriteMaterial;
 import com.alice.mel.graphics.shaders.BatchedSpriteShader;
-import com.alice.mel.graphics.shaders.GUIShader;
 import com.alice.mel.utils.collections.Array;
 import org.joml.Matrix4f;
-import org.joml.Vector2f;
 import org.joml.Vector2i;
 import org.joml.Vector3f;
-import org.lwjgl.opengl.GL30;
-
-import java.util.Objects;
 
 public class GUIRenderer {
 
@@ -29,12 +21,12 @@ public class GUIRenderer {
     public GUIRenderer(AssetManager assetManager, Scene scene){
         this.scene = scene;
         this.assetManager = assetManager;
-        assetManager.addShader(BatchedSpriteShader.class);
-        scene.loadShader(BatchedSpriteShader.class);
         meshBatches = new Array<>();
 
         scene.loadTexture("null");
         shader = assetManager.getShader(BatchedSpriteShader.class);
+        scene.loadShader(BatchedSpriteShader.class);
+
         canvas = new Canvas(scene, assetManager, shader);
     }
 
@@ -63,7 +55,12 @@ public class GUIRenderer {
             }
 
         if(batchA != null) {
-            batchA.addUIElement(element);
+            if(!batchA.addUIElement(element)){
+                MeshBatch mb = new MeshBatch(assetManager, "Quad", 32, 0);
+                scene.loadMeshBatch(meshBatches.size + "", mb);
+                meshBatches.add(mb);
+                mb.addUIElement(element);
+            }
         }
         else{
                 MeshBatch mb = new MeshBatch(assetManager, "Quad", 32, 0);

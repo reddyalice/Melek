@@ -51,7 +51,6 @@ public class MeshBatch  implements Comparable<MeshBatch>{
     public MeshBatch(AssetManager assetManager, String meshName, int maxElementCount, int zIndex){
 
         textureLimit = GL45.glGetInteger(GL45.GL_MAX_TEXTURE_IMAGE_UNITS);
-        System.out.println(textureLimit);
         this.zIndex = zIndex;
         this.maxElementCount = maxElementCount;
         elements = new HashMap<>(textureLimit, 1);
@@ -202,20 +201,23 @@ public class MeshBatch  implements Comparable<MeshBatch>{
         if(rebufferVertex)
         {
             GL20.glBindBuffer(GL20.GL_ARRAY_BUFFER, VBOS.get(scene).get(0));
-            GL20.glBufferSubData(GL20.GL_ARRAY_BUFFER, 0, storeDataInFloatBuffer(vertices));
+            GL20.glBufferSubData(GL20.GL_ARRAY_BUFFER, 0,vertices);
         }
 
         if(rebufferTexture){
             GL20.glBindBuffer(GL20.GL_ARRAY_BUFFER, VBOS.get(scene).get(1));
-            GL20.glBufferSubData(GL20.GL_ARRAY_BUFFER, 0, storeDataInFloatBuffer(textureCoords));
+            GL20.glBufferSubData(GL20.GL_ARRAY_BUFFER, 0, textureCoords);
             GL20.glBindBuffer(GL20.GL_ARRAY_BUFFER, VBOS.get(scene).get(3));
-            GL20.glBufferSubData(GL20.GL_ARRAY_BUFFER, 0, storeDataInFloatBuffer(texID));
+            GL20.glBufferSubData(GL20.GL_ARRAY_BUFFER, 0, texID);
         }
 
         if(rebufferColor){
             GL20.glBindBuffer(GL20.GL_ARRAY_BUFFER, VBOS.get(scene).get(2));
-            GL20.glBufferSubData(GL20.GL_ARRAY_BUFFER, 0, storeDataInFloatBuffer(colors));
+            GL20.glBufferSubData(GL20.GL_ARRAY_BUFFER, 0, colors);
         }
+
+
+
         GL20.glEnable(GL11.GL_TEXTURE);
         for (String textureName : textureToIntMap.keySet()) {
             GL20.glActiveTexture(GL20.GL_TEXTURE0 + textureToIntMap.get(textureName));
@@ -230,7 +232,7 @@ public class MeshBatch  implements Comparable<MeshBatch>{
         if(dimension >= 3)
             GL30.glEnableVertexAttribArray(4);
 
-        GL30.glDrawElements(GL30.GL_TRIANGLES, this.indices.length, GL30.GL_UNSIGNED_INT, 0);
+        GL30.glDrawElements(GL30.GL_TRIANGLES, mesh.getVertexCount() * numberOfElements, GL30.GL_UNSIGNED_INT, 0);
 
     }
 
@@ -247,7 +249,7 @@ public class MeshBatch  implements Comparable<MeshBatch>{
         int indicesLength = mesh.getIndices().length;
 
         int offsetArrayIndex = indicesLength * index;
-        int offset = mesh.getVertices().length / dimension * index;
+        int offset = (mesh.getVertices().length / dimension) * index;
 
         for(int i = 0; i < indicesLength; i++){
             indices[offsetArrayIndex + i] = offset + mesh.getIndices()[i];
@@ -313,7 +315,7 @@ public class MeshBatch  implements Comparable<MeshBatch>{
         for(int i = 0; i < vertexSize; i++){
             TEX.set(text[i], text[i + 1]).mul(textureScale).add(textureOffset);
             textureCoords[offset] = TEX.x;
-            textureCoords[offset] = TEX.y;
+            textureCoords[offset + 1] = TEX.y;
             offset += 2;
 
             texID[offsetA] = textureToIntMap.get(textureName);
@@ -368,8 +370,7 @@ public class MeshBatch  implements Comparable<MeshBatch>{
         int vboID = GL15.glGenBuffers();
         VBOS.get(scene).add(vboID);
         GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vboID);
-        FloatBuffer buffer = storeDataInFloatBuffer(data);
-        GL15.glBufferData(GL15.GL_ARRAY_BUFFER, buffer, GL15.GL_DYNAMIC_DRAW);
+        GL15.glBufferData(GL15.GL_ARRAY_BUFFER, data.length * Float.BYTES, GL15.GL_DYNAMIC_DRAW);
         GL20.glVertexAttribPointer(attributeNumber, attributeSize, GL11.GL_FLOAT, false, 0, 0);
         GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
     }
@@ -378,24 +379,8 @@ public class MeshBatch  implements Comparable<MeshBatch>{
         int eboID = GL15.glGenBuffers();
         EBOS.put(scene, eboID);
         GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, eboID);
-        IntBuffer buffer = storeDataInIntBuffer(indices);
-        GL15.glBufferData(GL15.GL_ELEMENT_ARRAY_BUFFER, buffer, GL15.GL_STATIC_DRAW);
+        GL15.glBufferData(GL15.GL_ELEMENT_ARRAY_BUFFER, indices, GL15.GL_STATIC_DRAW);
 
-    }
-
-    private IntBuffer storeDataInIntBuffer(int[] data){
-        IntBuffer buffer = BufferUtils.createIntBuffer(data.length);
-        buffer.put(data);
-        buffer.flip();
-        return buffer;
-    }
-
-    private FloatBuffer storeDataInFloatBuffer(float[] data)
-    {
-        FloatBuffer buffer = BufferUtils.createFloatBuffer(data.length);
-        buffer.put(data);
-        buffer.flip();
-        return buffer;
     }
 
     /**

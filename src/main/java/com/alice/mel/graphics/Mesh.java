@@ -115,17 +115,13 @@ public final class Mesh {
             this.indices = indices;
             this.vertexCount = indices.length;
             GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, VBOS.get(scene).get(0));
-            FloatBuffer ver = storeDataInFloatBuffer(vertices);
-            GL15.glBufferData(GL15.GL_ARRAY_BUFFER, ver, GL15.GL_STATIC_DRAW);
+            GL15.glBufferData(GL15.GL_ARRAY_BUFFER, vertices, GL15.GL_STATIC_DRAW);
             GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, VBOS.get(scene).get(1));
-            FloatBuffer tex = storeDataInFloatBuffer(textureCoords);
-            GL15.glBufferData(GL15.GL_ARRAY_BUFFER, tex, GL15.GL_STATIC_DRAW);
+            GL15.glBufferData(GL15.GL_ARRAY_BUFFER, textureCoords, GL15.GL_STATIC_DRAW);
             GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, VBOS.get(scene).get(2));
-            FloatBuffer norm = storeDataInFloatBuffer(normals);
-            GL15.glBufferData(GL15.GL_ARRAY_BUFFER, norm, GL15.GL_STATIC_DRAW);
+            GL15.glBufferData(GL15.GL_ARRAY_BUFFER, normals, GL15.GL_STATIC_DRAW);
             GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, EBOS.get(scene));
-            IntBuffer buffer = storeDataInIntBuffer(indices);
-            GL15.glBufferData(GL15.GL_ELEMENT_ARRAY_BUFFER, buffer, GL15.GL_STATIC_DRAW);
+            GL15.glBufferData(GL15.GL_ELEMENT_ARRAY_BUFFER, indices, GL15.GL_STATIC_DRAW);
         }else
         {
             System.err.println("A Non-3D Mesh cannot be transformed to a 3D one");
@@ -147,14 +143,14 @@ public final class Mesh {
             this.indices = indices;
             this.vertexCount = indices.length;
             GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, VBOS.get(scene).get(0));
-            FloatBuffer ver = storeDataInFloatBuffer(vertices);
-            GL15.glBufferData(GL15.GL_ARRAY_BUFFER, ver, GL15.GL_STATIC_DRAW);
+
+            GL15.glBufferData(GL15.GL_ARRAY_BUFFER, vertices, GL15.GL_STATIC_DRAW);
             GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, VBOS.get(scene).get(1));
-            FloatBuffer tex = storeDataInFloatBuffer(textureCoords);
-            GL15.glBufferData(GL15.GL_ARRAY_BUFFER, tex, GL15.GL_STATIC_DRAW);
+
+            GL15.glBufferData(GL15.GL_ARRAY_BUFFER, textureCoords, GL15.GL_STATIC_DRAW);
             GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, EBOS.get(scene));
-            IntBuffer buffer = storeDataInIntBuffer(indices);
-            GL15.glBufferData(GL15.GL_ELEMENT_ARRAY_BUFFER, buffer, GL15.GL_STATIC_DRAW);
+
+            GL15.glBufferData(GL15.GL_ELEMENT_ARRAY_BUFFER, indices, GL15.GL_STATIC_DRAW);
         }else
         {
             System.err.println("A Non-2D Mesh cannot be transformed to a 2D one");
@@ -190,8 +186,7 @@ public final class Mesh {
         int vboID = GL15.glGenBuffers();
         VBOS.get(scene).add(vboID);
         GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vboID);
-        FloatBuffer buffer = storeDataInFloatBuffer(data);
-        GL15.glBufferData(GL15.GL_ARRAY_BUFFER, buffer, GL15.GL_STATIC_DRAW);
+        GL15.glBufferData(GL15.GL_ARRAY_BUFFER, data, GL15.GL_STATIC_DRAW);
         GL20.glVertexAttribPointer(attributeNumber, attributeSize, GL11.GL_FLOAT, false, 0, 0);
         GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
     }
@@ -200,24 +195,8 @@ public final class Mesh {
         int eboID = GL15.glGenBuffers();
         EBOS.put(scene, eboID);
         GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, eboID);
-        IntBuffer buffer = storeDataInIntBuffer(indices);
-        GL15.glBufferData(GL15.GL_ELEMENT_ARRAY_BUFFER, buffer, GL15.GL_STATIC_DRAW);
+        GL15.glBufferData(GL15.GL_ELEMENT_ARRAY_BUFFER, indices, GL15.GL_STATIC_DRAW);
 
-    }
-
-    private IntBuffer storeDataInIntBuffer(int[] data){
-        IntBuffer buffer = BufferUtils.createIntBuffer(data.length);
-        buffer.put(data);
-        buffer.flip();
-        return buffer;
-    }
-
-    private FloatBuffer storeDataInFloatBuffer(float[] data)
-    {
-        FloatBuffer buffer = BufferUtils.createFloatBuffer(data.length);
-        buffer.put(data);
-        buffer.flip();
-        return buffer;
     }
 
     /**

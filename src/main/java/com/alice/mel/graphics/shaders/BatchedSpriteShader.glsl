@@ -15,10 +15,12 @@ uniform mat4 projectionMatrix;
 
 void main(){
 
-    gl_Position = projectionMatrix * viewMatrix * vec4(position, 0.0, 1.0);
     pass_color = color;
     pass_texCoords = textureCoords;
     pass_texId = texID;
+
+    gl_Position = projectionMatrix * viewMatrix * vec4(position, 0.0, 1.0);
+
 }
 
 #shader fragment
