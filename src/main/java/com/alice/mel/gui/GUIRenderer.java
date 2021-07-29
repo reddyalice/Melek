@@ -14,6 +14,7 @@ import org.joml.Matrix4f;
 import org.joml.Vector2f;
 import org.joml.Vector2i;
 import org.joml.Vector3f;
+import org.lwjgl.opengl.GL30;
 
 import java.util.Objects;
 
@@ -28,6 +29,7 @@ public class GUIRenderer {
     public GUIRenderer(AssetManager assetManager, Scene scene){
         this.scene = scene;
         this.assetManager = assetManager;
+        assetManager.addShader(BatchedSpriteShader.class);
         scene.loadShader(BatchedSpriteShader.class);
         meshBatches = new Array<>();
 
@@ -46,6 +48,29 @@ public class GUIRenderer {
 
     public void addUIElement(UIElement element){
         canvas.addChild(element);
+
+        MeshBatch batchA = null;
+        for(MeshBatch batch : meshBatches)
+            if(batch.hasRoom()) {
+                if (batch.hasTexture(element.guiMaterial.textureName)) {
+                    batchA = batch;
+                    break;
+                }else
+                {
+                    if(batch.hasTextureRoom())
+                        batchA = batch;
+                }
+            }
+
+        if(batchA != null) {
+            batchA.addUIElement(element);
+        }
+        else{
+                MeshBatch mb = new MeshBatch(assetManager, "Quad", 32, 0);
+                scene.loadMeshBatch(meshBatches.size + "", mb);
+                meshBatches.add(mb);
+                mb.addUIElement(element);
+        }
     }
 
     public void removeUIElement(UIElement element){
@@ -58,7 +83,6 @@ public class GUIRenderer {
         private Canvas(Scene scene, AssetManager assetManager, BatchedSpriteShader shader){
             this.scene = scene;
             this.assetManager = assetManager;
-            this.shader = shader;
         }
 
         private final Matrix4f projectionMatrix = new Matrix4f();
@@ -76,7 +100,8 @@ public class GUIRenderer {
             shader.start(scene);
             shader.loadProjectionMatrix(projectionMatrix.identity().setOrtho( -size.x / 2f,  (size.x / 2f),  -(size.y / 2f),  size.y / 2f, 0, 1000));
             shader.loadViewMatrix(viewMatrix.identity().lookAt(position, tmp.set(position).add(direction), up));
-
+            for(MeshBatch batch : meshBatches)
+                batch.bind(scene, window);
             super.render(window, deltaTime);
             shader.stop();
         }

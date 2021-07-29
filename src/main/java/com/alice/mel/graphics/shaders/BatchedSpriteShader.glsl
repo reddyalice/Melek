@@ -15,7 +15,7 @@ uniform mat4 projectionMatrix;
 
 void main(){
 
-    gl_Position = uProjection * uView * vec4(position, 0.0, 1.0);
+    gl_Position = projectionMatrix * viewMatrix * vec4(position, 0.0, 1.0);
     pass_color = color;
     pass_texCoords = textureCoords;
     pass_texId = texID;
@@ -33,6 +33,6 @@ out vec4 out_Color;
 uniform sampler2D textureSampler[gl_MaxTextureImageUnits];
 
 void main(){
-    int id = int(fTexId);
+    int id = int(pass_texId);
     out_Color = pass_color * texture(textureSampler[id], pass_texCoords);
 }

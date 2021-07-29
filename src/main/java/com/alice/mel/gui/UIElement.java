@@ -14,8 +14,6 @@ public abstract class UIElement extends Element {
 
 
     protected AssetManager assetManager;
-    protected BatchedSpriteShader shader;
-    protected final Array<MeshBatch> meshBatches = new Array<>();
     public final BatchMaterial guiMaterial = new BatchMaterial(BatchedSpriteShader.class);
     protected Scene scene;
 
@@ -29,9 +27,6 @@ public abstract class UIElement extends Element {
             children.add(child);
         child.assetManager = assetManager;
         child.scene = scene;
-        child.shader = shader;
-
-
         child.parent = this;
     }
 
@@ -39,7 +34,6 @@ public abstract class UIElement extends Element {
         children.removeValue(child, false);
         child.assetManager = null;
         child.scene = scene;
-        child.shader = null;
         child.parent = null;
     }
 
@@ -66,8 +60,6 @@ public abstract class UIElement extends Element {
     }
 
     void render(Window window, float deltaTime){
-
-
         Render(window, deltaTime);
         for(UIElement child : children){
             child.render(window, deltaTime);

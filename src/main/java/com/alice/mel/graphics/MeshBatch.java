@@ -51,6 +51,7 @@ public class MeshBatch  implements Comparable<MeshBatch>{
     public MeshBatch(AssetManager assetManager, String meshName, int maxElementCount, int zIndex){
 
         textureLimit = GL45.glGetInteger(GL45.GL_MAX_TEXTURE_IMAGE_UNITS);
+        System.out.println(textureLimit);
         this.zIndex = zIndex;
         this.maxElementCount = maxElementCount;
         elements = new HashMap<>(textureLimit, 1);
@@ -98,12 +99,12 @@ public class MeshBatch  implements Comparable<MeshBatch>{
             GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, VBOS.get(scene).get(1));
             GL20.glVertexAttribPointer(1, 2, GL11.GL_FLOAT, false, 0, 0);
             GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, VBOS.get(scene).get(2));
-            GL20.glVertexAttribPointer(1, 4, GL11.GL_FLOAT, false, 0, 0);
+            GL20.glVertexAttribPointer(2, 4, GL11.GL_FLOAT, false, 0, 0);
             GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, VBOS.get(scene).get(3));
-            GL20.glVertexAttribPointer(1, 3, GL11.GL_FLOAT, false, 0, 0);
+            GL20.glVertexAttribPointer(3, 1, GL11.GL_FLOAT, false, 0, 0);
             if(dimension == 3){
                 GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, VBOS.get(scene).get(4));
-                GL20.glVertexAttribPointer(2, 1, GL11.GL_FLOAT, false, 0, 0);
+                GL20.glVertexAttribPointer(4, dimension, GL11.GL_FLOAT, false, 0, 0);
             }
             GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, EBOS.get(scene));
             ids.get(scene).put(window, id);
@@ -130,6 +131,8 @@ public class MeshBatch  implements Comparable<MeshBatch>{
                 if(dimension >= 3)
                     loadNormalProperties(textureName, numberOfElements);
                 numberOfElements++;
+                if(numberOfElements == maxElementCount)
+                    hasRoom = false;
                 return true;
 
             }else{
@@ -145,6 +148,8 @@ public class MeshBatch  implements Comparable<MeshBatch>{
                     if(dimension >= 3)
                         loadNormalProperties(textureName, numberOfElements);
                     numberOfElements++;
+                    if(numberOfElements == maxElementCount)
+                        hasRoom = false;
                     return true;
                 }
 
@@ -211,7 +216,7 @@ public class MeshBatch  implements Comparable<MeshBatch>{
             GL20.glBindBuffer(GL20.GL_ARRAY_BUFFER, VBOS.get(scene).get(2));
             GL20.glBufferSubData(GL20.GL_ARRAY_BUFFER, 0, storeDataInFloatBuffer(colors));
         }
-
+        GL20.glEnable(GL11.GL_TEXTURE);
         for (String textureName : textureToIntMap.keySet()) {
             GL20.glActiveTexture(GL20.GL_TEXTURE0 + textureToIntMap.get(textureName));
             assetManager.getTexture(textureName).bind(scene);
@@ -225,9 +230,17 @@ public class MeshBatch  implements Comparable<MeshBatch>{
         if(dimension >= 3)
             GL30.glEnableVertexAttribArray(4);
 
-        GL30.glDrawElements(GL30.GL_TRIANGLES, this.numberOfElements * mesh.getVertexCount(), GL30.GL_UNSIGNED_INT, 0);
+        GL30.glDrawElements(GL30.GL_TRIANGLES, this.indices.length, GL30.GL_UNSIGNED_INT, 0);
 
     }
+
+
+    public void unbind(){
+
+    }
+
+
+
 
     private void loadElementIndices(int index){
 
@@ -237,7 +250,7 @@ public class MeshBatch  implements Comparable<MeshBatch>{
         int offset = mesh.getVertices().length / dimension * index;
 
         for(int i = 0; i < indicesLength; i++){
-            indices[index + i] = offset + mesh.getIndices()[i];
+            indices[offsetArrayIndex + i] = offset + mesh.getIndices()[i];
         }
     }
 
