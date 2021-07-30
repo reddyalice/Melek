@@ -32,7 +32,6 @@ public class BatchedSpriteShader extends Shader {
     protected void getAllUniformLocations(Scene scene) {
         location_viewMatrix = getUniformLocation(scene, "viewMatrix");
         location_projectionMatrix = getUniformLocation(scene, "projectionMatrix");
-        location_textureSampler = getUniformLocation(scene, "textureSampler");
     }
 
     public void loadViewMatrix(Matrix4f viewMatrix){
