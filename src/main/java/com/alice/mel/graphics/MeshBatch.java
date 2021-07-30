@@ -214,8 +214,6 @@ public class MeshBatch  implements Comparable<MeshBatch>{
             GL20.glBufferSubData(GL20.GL_ARRAY_BUFFER, 0, colors);
         }
 
-
-
         GL20.glEnable(GL11.GL_TEXTURE);
         for (String textureName : textureToIntMap.keySet()) {
             GL20.glActiveTexture(GL20.GL_TEXTURE0 + textureToIntMap.get(textureName));
@@ -362,7 +360,7 @@ public class MeshBatch  implements Comparable<MeshBatch>{
         int vboID = GL15.glGenBuffers();
         VBOS.get(scene).add(vboID);
         GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vboID);
-        GL15.glBufferData(GL15.GL_ARRAY_BUFFER, data.length * Float.BYTES, GL15.GL_DYNAMIC_DRAW);
+        GL15.glBufferData(GL15.GL_ARRAY_BUFFER, (long) data.length * Float.BYTES, GL15.GL_DYNAMIC_DRAW);
         GL20.glVertexAttribPointer(attributeNumber, attributeSize, GL11.GL_FLOAT, false, 0, 0);
         GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
     }

@@ -27,9 +27,6 @@ public class BatchedSpriteShader extends Shader {
     @Override
     public void compile(Scene scene) {
         super.compile(scene);
-        start(scene);
-        loadTextureSampler();
-        stop();
     }
 
     @Override
@@ -45,13 +42,6 @@ public class BatchedSpriteShader extends Shader {
 
     public void loadProjectionMatrix(Matrix4f projectionMatrix){
         loadMatrix(location_projectionMatrix, projectionMatrix);
-    }
-
-    private void loadTextureSampler(){
-        int[] texSamp = new int[GL45.glGetInteger(GL45.GL_MAX_TEXTURE_IMAGE_UNITS)];
-        for(int i = 0; i < texSamp.length; i++)
-            texSamp[i] = i;
-        loadIntArray(location_textureSampler, texSamp);
     }
 
 }
