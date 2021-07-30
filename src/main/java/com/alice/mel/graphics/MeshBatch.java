@@ -6,12 +6,10 @@ import com.alice.mel.engine.Entity;
 import com.alice.mel.engine.Scene;
 import com.alice.mel.gui.UIElement;
 import com.alice.mel.utils.collections.Array;
+import com.alice.mel.utils.maths.MathUtils;
 import org.javatuples.Pair;
 import org.jetbrains.annotations.NotNull;
-import org.joml.Quaternionf;
-import org.joml.Vector2f;
-import org.joml.Vector3f;
-import org.joml.Vector4f;
+import org.joml.*;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.*;
 
@@ -256,7 +254,7 @@ public class MeshBatch  implements Comparable<MeshBatch>{
         }
     }
 
-    private final Vector3f POS = new Vector3f();
+    private final Vector4f POS = new Vector4f();
 
     private void loadVertexProperties(String textureName, int index){
         HashMap<Integer, Pair<Element, BatchMaterial>> elementA = elements.get(textureName);
@@ -274,25 +272,19 @@ public class MeshBatch  implements Comparable<MeshBatch>{
         Quaternionf rotation = element.getValue0().rotation;
         Vector3f scale = element.getValue0().scale;
 
-
+        Matrix4f transformationMatrix = MathUtils.CreateTransformationMatrix(position, rotation, scale);
         for(int i = 0; i < vertexSize; i++){
-
             if(dimension >= 3)
-                POS.set(position.x + vert[i] * scale.x / 2f, position.y + vert[i + 1] * scale.y / 2f, position.z + vert[i + 2] * scale.z / 2f);
+                POS.set(vert[offset], vert[offset + 1], vert[offset + 2], 1.0f);
             else
-                POS.set(position.x + vert[i] * scale.x / 2f, position.y + vert[i + 1] * scale.y / 2f, 0);
-
-            POS.rotate(rotation);
-
-
+                POS.set(vert[offset], vert[offset + 1], 0, 1.0f);
+            POS.mul(transformationMatrix);
             vertices[offset] = POS.x;
             vertices[offset + 1] = POS.y;
             if(dimension >= 3)
                 vertices[offset + 2] = POS.z;
 
             offset += dimension;
-
-
         }
 
 
@@ -313,7 +305,7 @@ public class MeshBatch  implements Comparable<MeshBatch>{
         int offset = index * text.length;
         int offsetA = index * vertexSize;
         for(int i = 0; i < vertexSize; i++){
-            TEX.set(text[i], text[i + 1]).mul(textureScale).add(textureOffset);
+            TEX.set(text[offset], text[offset + 1]).mul(textureScale).add(textureOffset);
             textureCoords[offset] = TEX.x;
             textureCoords[offset + 1] = TEX.y;
             offset += 2;
