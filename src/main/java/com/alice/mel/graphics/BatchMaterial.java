@@ -7,7 +7,7 @@ import com.alice.mel.engine.Scene;
 import org.joml.Vector2f;
 import org.joml.Vector4f;
 
-public class BatchMaterial extends Material{
+public abstract class BatchMaterial extends Material{
 
     public String textureName;
     public final Vector2f textureOffset = new Vector2f(0,0);
@@ -23,21 +23,6 @@ public class BatchMaterial extends Material{
         super(shaderClass);
     }
 
-    @Override
-    public void loadValues(AssetManager assetManager, Scene scene, Window window) { }
-
-    @Override
-    public void loadElement(AssetManager assetManager, Scene scene, Window window, Element element) { }
-
-    @Override
-    public boolean equals(Object o) {
-        return false;
-    }
-
-    @Override
-    public int hashCode() {
-        return 0;
-    }
 
 
 }

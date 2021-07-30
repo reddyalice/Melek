@@ -6,6 +6,7 @@ import com.alice.mel.engine.Scene;
 import com.alice.mel.graphics.BatchMaterial;
 import com.alice.mel.graphics.MeshBatch;
 import com.alice.mel.graphics.Window;
+import com.alice.mel.graphics.materials.GUIMaterial;
 import com.alice.mel.graphics.shaders.BatchedSpriteShader;
 import com.alice.mel.utils.collections.Array;
 import com.alice.mel.utils.collections.ImmutableArray;
@@ -14,7 +15,7 @@ public abstract class UIElement extends Element {
 
 
     protected AssetManager assetManager;
-    public final BatchMaterial guiMaterial = new BatchMaterial(BatchedSpriteShader.class);
+    public final BatchMaterial guiMaterial = new GUIMaterial();
     protected Scene scene;
 
     private UIElement parent;

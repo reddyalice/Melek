@@ -20,46 +20,52 @@ public final class Mesh {
 
     private final HashMap<Scene, HashMap<Window, Integer>> ids = new HashMap<>();
     private int vertexCount;
-    private final int dimension;
-    private float[] vertices;
-    private float[] textureCoords;
-    private float[] normals;
+
+
+    private final Array<VertexData> vertices = new Array<>();
+    private final HashMap<Scene, Integer> indexIDs = new HashMap<>();
     private int[] indices;
 
-    private final HashMap<Scene, Array<Integer>> VBOS = new HashMap<>();
-    private final HashMap<Scene, Integer> EBOS = new HashMap<>();
+
 
     /**
      * Constructor for a 3D Mesh
-     * @param vertices Vertex Array of the Mesh
+     * @param positions Position Array of the Mesh
      * @param textureCoords Texture Coordinates of the Mesh
      * @param normals Normals of the Mesh
      * @param indices Index Array of the Mesh
      */
-    public Mesh(float[] vertices, float[] textureCoords, float[] normals, int[] indices) {
-        this.dimension = 3;
-        this.vertices = vertices;
-        this.textureCoords = textureCoords;
-        this.normals = normals;
+    public Mesh(float[] positions, float[] textureCoords, float[] normals, int[] indices) {
+
+        vertices.add(new VertexData(0, 3,1, positions));
+        vertices.add(new VertexData(1, 2,1, textureCoords));
+        vertices.add(new VertexData(2,3,1,normals));
         this.indices = indices;
         this.vertexCount = indices.length;
-
     }
 
     /**
      * Constructor for a 2D Mesh
-     * @param vertices Vertex Array of Mesh
+     * @param positions Position Array of Mesh
      * @param textureCoords Texture Coordinates of the Mesh
      * @param indices Index Array of the Mesh
      */
-    public Mesh(float[] vertices, float[] textureCoords, int[] indices) {
-        this.dimension = 2;
-        this.vertices = vertices;
-        this.textureCoords = textureCoords;
-        this.normals = new float[0];
+    public Mesh(float[] positions, float[] textureCoords, int[] indices) {
+        vertices.add(new VertexData(0, 2,1, positions));
+        vertices.add(new VertexData(1, 2,1, textureCoords));
         this.indices = indices;
         this.vertexCount = indices.length;
+    }
 
+    /**
+     * A Generic mesh with any type of dimensions and vertices
+     * @param vertices VertexData Array
+     * @param indices Index Array
+     */
+    public Mesh(Array<VertexData> vertices, int[] indices){
+        vertices.addAll(vertices);
+        this.indices = indices;
+        this.vertexCount = indices.length;
     }
 
     /**
@@ -68,96 +74,28 @@ public final class Mesh {
      * @param window Window that VAOs are going to be generated for
      */
     public void genMesh(Scene scene, Window window){
-        if(!VBOS.containsKey(scene))
-            VBOS.put(scene, new Array<>());
-        if(!ids.containsKey(scene))
+        if(!ids.containsKey(scene)) {
             ids.put(scene, new HashMap<>());
-
-        if(VBOS.get(scene).size == 0) {
             int id = GL30.glGenVertexArrays();
             GL30.glBindVertexArray(id);
-            storeDataInAttributeList(scene,0, dimension, vertices);
-            storeDataInAttributeList(scene,1, 2, textureCoords);
-            if (dimension == 3)
-                storeDataInAttributeList(scene,2, dimension, normals);
+            for(VertexData vertex : vertices){
+                vertex.genVertex(scene, GL15.GL_STATIC_DRAW);
+            }
             bindIndices(scene, indices);
             ids.get(scene).put(window, id);
         }else{
             int id = GL30.glGenVertexArrays();
             GL30.glBindVertexArray(id);
-            GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, VBOS.get(scene).get(0));
-            GL20.glVertexAttribPointer(0, dimension, GL11.GL_FLOAT, false, 0, 0);
-            GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, VBOS.get(scene).get(1));
-            GL20.glVertexAttribPointer(1, 2, GL11.GL_FLOAT, false, 0, 0);
-            if(dimension >= 3){
-                GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, VBOS.get(scene).get(2));
-                GL20.glVertexAttribPointer(2, 1, GL11.GL_FLOAT, false, 0, 0);
+            for(VertexData vertex : vertices){
+                vertex.registerVertex(scene);
             }
-            GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, EBOS.get(scene));
+            GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, indexIDs.get(scene));
             ids.get(scene).put(window, id);
         }
         GL30.glBindVertexArray(0);
     }
 
-    /**
-     * Regenerate the 3D mesh
-     * @param scene Scene the Mesh loaded to
-     * @param vertices New Vertex Array of the Mesh
-     * @param textureCoords New Texture Coordinates of the Mesh
-     * @param normals New Normals of the Mesh
-     * @param indices New Index Array of the Mesh
-     */
-    public void regenMesh(Scene scene, float[] vertices, float[] textureCoords, float[] normals, int[] indices){
-        if(dimension == 3) {
-            this.vertices = vertices;
-            this.textureCoords = textureCoords;
-            this.normals = normals;
-            this.indices = indices;
-            this.vertexCount = indices.length;
-            GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, VBOS.get(scene).get(0));
-            GL15.glBufferData(GL15.GL_ARRAY_BUFFER, vertices, GL15.GL_STATIC_DRAW);
-            GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, VBOS.get(scene).get(1));
-            GL15.glBufferData(GL15.GL_ARRAY_BUFFER, textureCoords, GL15.GL_STATIC_DRAW);
-            GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, VBOS.get(scene).get(2));
-            GL15.glBufferData(GL15.GL_ARRAY_BUFFER, normals, GL15.GL_STATIC_DRAW);
-            GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, EBOS.get(scene));
-            GL15.glBufferData(GL15.GL_ELEMENT_ARRAY_BUFFER, indices, GL15.GL_STATIC_DRAW);
-        }else
-        {
-            System.err.println("A Non-3D Mesh cannot be transformed to a 3D one");
-            System.err.println("You can only regen meshes using same dimensions");
-        }
-    }
-
-    /**
-     * Regenerate a 2D Mesh
-     * @param scene Scene the Mesh loaded to
-     * @param vertices New Vertex Array of the Mesh
-     * @param textureCoords New Texture Coordinates of the Mesh
-     * @param indices New Index Array of the Mesh
-     */
-    public void regenMesh(Scene scene, float[] vertices, float[] textureCoords, int[] indices){
-        if(dimension == 2) {
-            this.vertices = vertices;
-            this.textureCoords = textureCoords;
-            this.indices = indices;
-            this.vertexCount = indices.length;
-            GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, VBOS.get(scene).get(0));
-
-            GL15.glBufferData(GL15.GL_ARRAY_BUFFER, vertices, GL15.GL_STATIC_DRAW);
-            GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, VBOS.get(scene).get(1));
-
-            GL15.glBufferData(GL15.GL_ARRAY_BUFFER, textureCoords, GL15.GL_STATIC_DRAW);
-            GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, EBOS.get(scene));
-
-            GL15.glBufferData(GL15.GL_ELEMENT_ARRAY_BUFFER, indices, GL15.GL_STATIC_DRAW);
-        }else
-        {
-            System.err.println("A Non-2D Mesh cannot be transformed to a 2D one");
-            System.err.println("You can only regen meshes using same dimensions");
-
-        }
-    }
+    //TODO will add regenMesh Functions
 
 
     /**
@@ -167,33 +105,22 @@ public final class Mesh {
      */
     public void bind(Scene scene, Window window){
         GL30.glBindVertexArray(ids.get(scene).get(window));
-        GL20.glEnableVertexAttribArray(0);
-        GL20.glEnableVertexAttribArray(1);
-        if(dimension == 3) GL20.glEnableVertexAttribArray(2);
+        for(VertexData vertex : vertices)
+            vertex.enable();
     }
 
     /**
      * Unbind the mesh
      */
     public void unbind(){
-        if(dimension == 3) GL20.glDisableVertexAttribArray(2);
-        GL20.glDisableVertexAttribArray(1);
-        GL20.glDisableVertexAttribArray(0);
+        for(VertexData vertex : vertices)
+            vertex.disable();
         GL30.glBindVertexArray(0);
-    }
-
-    private void storeDataInAttributeList(Scene scene, int attributeNumber, int attributeSize, float[] data){
-        int vboID = GL15.glGenBuffers();
-        VBOS.get(scene).add(vboID);
-        GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vboID);
-        GL15.glBufferData(GL15.GL_ARRAY_BUFFER, data, GL15.GL_STATIC_DRAW);
-        GL20.glVertexAttribPointer(attributeNumber, attributeSize, GL11.GL_FLOAT, false, 0, 0);
-        GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
     }
 
     private void bindIndices(Scene scene, int[] indices){
         int eboID = GL15.glGenBuffers();
-        EBOS.put(scene, eboID);
+        indexIDs.put(scene, eboID);
         GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, eboID);
         GL15.glBufferData(GL15.GL_ELEMENT_ARRAY_BUFFER, indices, GL15.GL_STATIC_DRAW);
 
@@ -215,21 +142,6 @@ public final class Mesh {
         return vertexCount;
     }
 
-    public float[] getNormals() {
-        return normals;
-    }
-
-    public int getDimension() {
-        return dimension;
-    }
-
-    public float[] getTextureCoords() {
-        return textureCoords;
-    }
-
-    public float[] getVertices() {
-        return vertices;
-    }
 
     public int[] getIndices() {
         return indices;
@@ -248,10 +160,10 @@ public final class Mesh {
      * @param scene
      */
     public void dispose(Scene scene) {
-        for (int vbo : VBOS.get(scene))
-            GL15.glDeleteBuffers(vbo);
-        GL15.glDeleteBuffers(EBOS.get(scene));
-        VBOS.clear();
-        EBOS.clear();
+        for(VertexData vertex : vertices)
+            vertex.delete(scene);
+        GL15.glDeleteBuffers(indexIDs.get(scene));
+        vertices.clear();
+        indexIDs.clear();
     }
 }
