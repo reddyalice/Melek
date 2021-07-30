@@ -270,13 +270,11 @@ public class MeshBatch  implements Comparable<MeshBatch>{
         Quaternionf rotation = element.getValue0().rotation;
         Vector3f scale = element.getValue0().scale;
 
-        Matrix4f transformationMatrix = MathUtils.CreateTransformationMatrix(position, rotation, scale);
         for(int i = 0; i < vertexSize; i++){
             if(dimension >= 3)
-                POS.set(vert[offset], vert[offset + 1], vert[offset + 2], 1.0f);
+                POS.set(position.x+ vert[offset] * scale.x / 2f , position.y + vert[offset + 1] * scale.y  / 2f, position.x + vert[offset + 2] * scale.z  / 2f, 1.0f);
             else
-                POS.set(vert[offset], vert[offset + 1], 0, 1.0f);
-            POS.mul(transformationMatrix);
+                POS.set(position.x+ vert[offset] * scale.x / 2f , position.y + vert[offset + 1] * scale.y  / 2f, 0, 1.0f);
             vertices[offset] = POS.x;
             vertices[offset + 1] = POS.y;
             if(dimension >= 3)
