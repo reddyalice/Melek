@@ -9,7 +9,6 @@ public class BatchedSpriteShader extends Shader {
 
     private int location_viewMatrix;
     private int location_projectionMatrix;
-    private int location_textureSampler;
 
     public BatchedSpriteShader() {
         super("src/main/java/com/alice/mel/graphics/shaders/BatchedSpriteShader.glsl", false);
