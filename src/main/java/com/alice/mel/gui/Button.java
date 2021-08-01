@@ -52,12 +52,16 @@ public class Button extends UIElement {
         if(cursorPos.x >= position.x - scale.x / 2f && cursorPos.x <= position.x + scale.x / 2f
             &&  cursorPos.y >= position.y - scale.y / 2f && cursorPos.y <= position.y + scale.y / 2f)
         {
+            guiMaterial.color.set(hoveringColor);
             guiMaterial.textureName = hoveringTextureName;
             if(InputHandler.getMouseButtonPressed(scene, 0)) {
+                guiMaterial.color.set(pressedColor);
                 guiMaterial.textureName = pressedTextureName;
                 onClick.broadcast(deltaTime);
             }
-        }else
+        }else {
+            guiMaterial.color.set(idleColor);
             guiMaterial.textureName = idleTextureName;
+        }
     }
 }
