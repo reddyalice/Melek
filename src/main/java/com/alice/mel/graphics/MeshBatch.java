@@ -263,15 +263,15 @@ public class MeshBatch  implements Comparable<MeshBatch>{
 
         VertexData textureData = mesh.getVertecies().get("textureCoords").vertexData;
         Vector2f textureOffset = material.textureOffset;
-        Vector2f textureScale = material.textureScale;
+        Vector2f textureDivision = material.textureDivision;
 
 
         int vertexSize = textureData.size;
         int offset = index * vertexSize;
         float[] TEX = new float[textureData.dimension];
         for(int i = 0; i < vertexSize; i++){
-            TEX[0] = textureData.data[textureData.dimension * i] * textureScale.x + textureOffset.x;
-            TEX[1] = textureData.data[textureData.dimension * i + 1] * textureScale.y + textureOffset.y;
+            TEX[0] = textureData.data[textureData.dimension * i] / textureDivision.x + (textureOffset.x);
+            TEX[1] = textureData.data[textureData.dimension * i + 1] / textureDivision.y + (textureOffset.y);
             vertices.get("textureCoords").setVertex(offset + i, TEX);
         }
 

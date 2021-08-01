@@ -15,26 +15,6 @@ public class GUIMaterial extends BatchMaterial {
     }
 
     @Override
-    public void loadValues(AssetManager assetManager, Scene scene, Window window) {
-
-    }
-
-    @Override
-    public void loadElement(AssetManager assetManager, Scene scene, Window window, Element element) {
-
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        return false;
-    }
-
-    @Override
-    public int hashCode() {
-        return 0;
-    }
-
-    @Override
     protected boolean checkDirty() {
         return false;
     }

@@ -1,9 +1,6 @@
 package com.alice.mel.engine;
 
-import com.alice.mel.graphics.CameraType;
-import com.alice.mel.graphics.Shader;
-import com.alice.mel.graphics.Texture;
-import com.alice.mel.graphics.Window;
+import com.alice.mel.graphics.*;
 import com.alice.mel.systems.ComponentSystem;
 import org.jbox2d.dynamics.World;
 
@@ -95,19 +92,19 @@ public abstract class SceneAdaptor {
     }
 
     /**
-     * Unload from the scene
+     * Unload shader from the scene
      * @param shaderClass Shader class
      * @param removeFromAssetManager Remove from the asset manager
      */
     public final void removeShader(Class<? extends Shader> shaderClass, boolean removeFromAssetManager){
+        scene.unloadShader(shaderClass);
         if(removeFromAssetManager)
             assetManager.removeShader(shaderClass);
-        scene.unloadShader(shaderClass);
     }
 
 
     /**
-     * Unload from the scene
+     * Unload shader from the scene
      * @param shaderClass Shader class
      */
     public final void removeShader(Class<? extends Shader> shaderClass){
@@ -130,13 +127,77 @@ public abstract class SceneAdaptor {
      * @param texture Texture to be loaded
      */
     public final void addTexture(String name, Texture texture){
-
-        assetManager.addTexture(name, texture);
+        if(!assetManager.hasTexture(name))
+            assetManager.addTexture(name, texture);
+        scene.loadTexture(name);
     }
 
+    /**
+     * Get the registered texture from Asset Manager
+     * @param name Name the texture registered as
+     * @return Texture to be returned
+     */
+    public final Texture getTexture(String name){
+        return assetManager.getTexture(name);
+    }
 
+    /**
+     * Unload texture from the scene
+     * @param name Name the texture registered as
+     * @param removeFromAssetManager Remove from the asset manager
+     */
+    public final void removeTexture(String name, boolean removeFromAssetManager){
+        scene.unloadTexture(name);
+        if(removeFromAssetManager)
+            assetManager.removeTexture(name);
+    }
 
+    /**
+     * Unload texture from the scene
+     * @param name Name the texture registered as
+     */
+    public final void removeTexture(String name){
+        removeTexture(name, false);
+    }
 
+    /**
+     * Add mesh to the asset manager if it's not already added and load it to the scene
+     * @param name Name of the mesh
+     * @param mesh Mesh to be loaded
+     */
+    public final void addMesh(String name, Mesh mesh){
+        if(!assetManager.hasMesh(name)){
+            assetManager.addMesh(name, mesh);
+        }
+        scene.loadMesh(name);
+    }
+    /**
+     * Get the registered mesh from Asset Manager
+     * @param name Name the mesh registered as
+     * @return Mesh to be returned
+     */
+    public final Mesh getMesh(String name){
+        return assetManager.getMesh(name);
+    }
+
+    /**
+     * Unload mesh from the scene
+     * @param name Name the mesh as
+     * @param removeFromAssetManager Remove from the asset manager
+     */
+    public final void removeMesh(String name, boolean removeFromAssetManager){
+        scene.unloadMesh(name);
+        if(removeFromAssetManager)
+            assetManager.removeMesh(name);
+    }
+
+    /**
+     * Unload mesh from the scene
+     * @param name Name the mesh as
+     */
+    public final void removeMesh(String name){
+        removeMesh(name, false);
+    }
 
     /**
      * Called when an entity is added to the scene

@@ -24,7 +24,6 @@ public class SpriteMaterial extends Material {
     public SpriteMaterial(String textureName) {
         super(SpriteShader.class);
         this.textureName = textureName;
-        this.textureNames.add(textureName);
     }
 
     @Override

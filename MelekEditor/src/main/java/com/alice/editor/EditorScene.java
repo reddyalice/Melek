@@ -8,6 +8,7 @@ import com.alice.mel.graphics.Texture;
 import com.alice.mel.graphics.Window;
 import com.alice.mel.gui.Button;
 import com.alice.mel.gui.GUIRenderer;
+import com.alice.mel.gui.ImageUI;
 import org.joml.Vector2f;
 import org.joml.Vector2i;
 import org.lwjgl.glfw.GLFW;
@@ -27,14 +28,20 @@ public class EditorScene extends SceneAdaptor {
     public void Init(Window loaderWindow) {
 
         guiRenderer = new GUIRenderer(game.assetManager, scene);
-        game.assetManager.addTexture("button", new Texture(1, 1, new int[]{(255 << 24) + (255 << 16) + (255 << 8) + 255}));
-        scene.loadTexture("button");
-        Button b = new Button("button", new Vector2f(0,768f / 2f - 10f ), new Vector2f(1024, 20));
-        b.hoveringColor.set(0,0,0,1);
+        game.assetManager.addTexture("guiImage", new Texture("assets/textures/guiSheet.png"));
+        scene.loadTexture("guiImage");
+        ImageUI holder = new ImageUI("guiImage", new Vector2f(0,768f / 2f - 10f ), new Vector2f(1024, 20));
+        holder.guiMaterial.textureDivision.set(10, 10);
+        Button b = new Button("guiImage", new Vector2f(16f - 1024f/2f,768f / 2f - 16f ), new Vector2f(32, 32));
+        b.guiMaterial.textureDivision.set(10,10);
+        b.guiMaterial.textureOffset.set(0.1f,0);
+        b.hoveringColor.set(1,0,0,1);
+
+
         guiRenderer.addUIElement(b);
-
+        guiRenderer.addUIElement(holder);
         editorWindow = createWindow(CameraType.Orthographic, "Editor Window", 1024, 768, true);
-
+        editorWindow.setDecorated(false);
         b.onClick.add(x -> {
             editorWindow.close();
         });

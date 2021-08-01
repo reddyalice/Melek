@@ -11,10 +11,8 @@ import com.alice.mel.utils.collections.Array;
  */
 public abstract class Material {
 
-
+    public String textureName;
     public final Class<? extends  Shader> shaderClass;
-    public final Array<Object> data = new Array<>();
-    public final Array<String> textureNames = new Array<>();
     public Material(Class<? extends  Shader> shaderClass){
         this.shaderClass = shaderClass;
     }

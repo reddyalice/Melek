@@ -56,14 +56,14 @@ public class GUIRenderer {
 
         if(batchA != null) {
             if(!batchA.addUIElement(element)){
-                MeshBatch mb = new MeshBatch(assetManager, "Quad", 32, 0);
+                MeshBatch mb = new MeshBatch(assetManager, "Quad", 100, 0);
                 scene.loadMeshBatch(meshBatches.size + "", mb);
                 meshBatches.add(mb);
                 mb.addUIElement(element);
             }
         }
         else{
-                MeshBatch mb = new MeshBatch(assetManager, "Quad", 32, 0);
+                MeshBatch mb = new MeshBatch(assetManager, "Quad", 100, 0);
                 scene.loadMeshBatch(meshBatches.size + "", mb);
                 meshBatches.add(mb);
                 mb.addUIElement(element);

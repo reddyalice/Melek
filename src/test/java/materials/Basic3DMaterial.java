@@ -17,7 +17,6 @@ import java.util.Objects;
 
 public class Basic3DMaterial extends Material {
 
-    public String textureName;
     public final Vector2f textureOffset = new Vector2f(0f,0f);
     public final Vector2f textureScale = new Vector2f(1f,1f);
     public final Vector4f color = new Vector4f(1,1,1,1);
@@ -25,7 +24,6 @@ public class Basic3DMaterial extends Material {
     public Basic3DMaterial(String textureName) {
         super(Basic3DShader.class);
         this.textureName = textureName;
-        this.textureNames.add(textureName);
     }
 
     @Override

@@ -24,9 +24,10 @@ public class ExampleScene extends SceneAdaptor {
         Texture texture = new Texture("src/test/resources/textures/cactus.png");
         Texture textureC = new Texture("src/test/resources/textures/cardedge.png");
         Material material = new SpriteMaterial("Texture1");
-        assetManager.addShader(SpriteShader.class);
-        assetManager.addTexture("Texture1", texture);
-        assetManager.addTexture("Texture2", textureC);
+        addShader(SpriteShader.class);
+        addTexture("Texture1", texture);
+        addTexture("Texture2", textureC);
+        scene.loadMesh("Quad");
        // game.assetManager.addMesh("Mesh1", mesh);
 
         w = createWindow(CameraType.Orthographic, "Test", 640, 480, false);

@@ -8,6 +8,7 @@ public class ImageUI extends UIElement {
     public ImageUI(String textureName, Vector2f position, Vector2f scale){
         this.guiMaterial.textureName = textureName;
         this.position.set(position, 0);
+
         this.scale.set(scale, 0);
     }
 
