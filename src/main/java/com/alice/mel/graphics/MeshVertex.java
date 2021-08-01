@@ -6,18 +6,18 @@ import org.joml.Vector3f;
  * Vertex Data Holder
  * @author Bahar Demircan
  */
-public class Vertex {
+public class MeshVertex {
 
     private static final int NO_INDEX = -1;
 
     private final Vector3f position;
     private int textureIndex = NO_INDEX;
     private int normalIndex = NO_INDEX;
-    private Vertex duplicateVertex = null;
+    private MeshVertex duplicateVertex = null;
     private final int index;
     private final float length;
 
-    public Vertex(int index, Vector3f position){
+    public MeshVertex(int index, Vector3f position){
         this.index = index;
         this.position = position;
         this.length = position.length();
@@ -59,11 +59,11 @@ public class Vertex {
         return normalIndex;
     }
 
-    public Vertex getDuplicateVertex() {
+    public MeshVertex getDuplicateVertex() {
         return duplicateVertex;
     }
 
-    public void setDuplicateVertex(Vertex duplicateVertex) {
+    public void setDuplicateVertex(MeshVertex duplicateVertex) {
         this.duplicateVertex = duplicateVertex;
     }
 

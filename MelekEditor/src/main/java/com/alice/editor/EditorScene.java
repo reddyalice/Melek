@@ -27,12 +27,12 @@ public class EditorScene extends SceneAdaptor {
     public void Init(Window loaderWindow) {
 
         guiRenderer = new GUIRenderer(game.assetManager, scene);
-        game.assetManager.addTexture("button", new Texture(1, 1, new int[]{255 << 24}));
+        game.assetManager.addTexture("button", new Texture(1, 1, new int[]{255}));
         scene.loadTexture("button");
         Button b = new Button("button", new Vector2f(0,768f / 2f - 10f ), new Vector2f(1024, 20));
-        Button b2 = new Button("button", new Vector2f(0,768f / 2f - 10f - 30 ), new Vector2f(1024, 20));
+       // Button b2 = new Button("button", new Vector2f(0,768f / 2f - 10f - 30 ), new Vector2f(1024, 20));
         guiRenderer.addUIElement(b);
-        guiRenderer.addUIElement(b2);
+        //guiRenderer.addUIElement(b2);
         editorWindow = createWindow(CameraType.Orthographic, "Editor Window", 1024, 768, true);
 
         b.onClick.add(x -> {

@@ -5,37 +5,24 @@ import com.alice.mel.engine.Element;
 import com.alice.mel.engine.Entity;
 import com.alice.mel.engine.Scene;
 import com.alice.mel.gui.UIElement;
-import com.alice.mel.utils.collections.Array;
-import com.alice.mel.utils.maths.MathUtils;
 import org.javatuples.Pair;
-import org.jetbrains.annotations.NotNull;
 import org.joml.*;
-import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.*;
 
-import java.nio.FloatBuffer;
-import java.nio.IntBuffer;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.SortedMap;
-import java.util.TreeMap;
 
 public class MeshBatch  implements Comparable<MeshBatch>{
 
-    private final float[] vertices;
-    private final float[] textureCoords;
-    private final float[] colors;
-    private final float[] texID;
-    private final float[] normals;
+
     private final int[] indices;
 
+    private final HashMap<String, VertexBufferObject> vertices = new HashMap<>();
     private final HashMap<Scene, HashMap<Window, Integer>> ids = new HashMap<>();
-    private final HashMap<Scene, Array<Integer>> VBOS = new HashMap<>();
-    private final HashMap<Scene, Integer> EBOS = new HashMap<>();
+    private final HashMap<Scene, Integer> indexIDs = new HashMap<>();
+
 
     private final Mesh mesh;
     private final AssetManager assetManager;
-    private final int dimension;
     private final int maxElementCount;
     private final HashMap<String, HashMap<Integer, Pair<Element,BatchMaterial>>> elements;
     private final HashMap<String, Integer> textureToIntMap;
@@ -45,7 +32,7 @@ public class MeshBatch  implements Comparable<MeshBatch>{
     private final int textureLimit;
     private boolean hasRoom;
 
-
+    private int attributeIndex = 0;
     public MeshBatch(AssetManager assetManager, String meshName, int maxElementCount, int zIndex){
 
         textureLimit = GL45.glGetInteger(GL45.GL_MAX_TEXTURE_IMAGE_UNITS);
@@ -56,57 +43,47 @@ public class MeshBatch  implements Comparable<MeshBatch>{
         this.assetManager = assetManager;
         Mesh mesh = assetManager.getMesh(meshName);
         this.mesh = mesh;
-        this.dimension = mesh.getDimension();
-        vertices = new float[mesh.getVertices().length * maxElementCount];
-        textureCoords = new float[mesh.getTextureCoords().length * maxElementCount];
-        normals = new float[mesh.getNormals().length * maxElementCount];
-        colors = new float[ 4 * maxElementCount];
-        texID = new float[maxElementCount];
-        indices = new int[mesh.getIndices().length * maxElementCount];
 
+
+        assert mesh != null;
+        HashMap<String, VertexBufferObject> meshVertecies = mesh.getVertecies();
+
+        for(String vertexName : meshVertecies.keySet()) {
+            VertexBufferObject vertex = meshVertecies.get(vertexName);
+            vertices.put(vertexName, new VertexBufferObject(attributeIndex++, vertex.vertexData.dimension, vertex.vertexData.size * maxElementCount));
+        }
+        vertices.put("colors", new VertexBufferObject(attributeIndex++, 4, vertices.get("positions").vertexData.size * maxElementCount));
+        vertices.put("texID", new VertexBufferObject(attributeIndex++, 1, vertices.get("positions").vertexData.size * maxElementCount));
+        indices = new int[mesh.getIndices().length * maxElementCount];
 
     }
 
 
     public void genBatch(Scene scene, Window window){
-        if(!VBOS.containsKey(scene))
-            VBOS.put(scene, new Array<>());
-        if(!ids.containsKey(scene))
-            ids.put(scene, new HashMap<>());
 
-        if(VBOS.get(scene).size == 0) {
+        if(!ids.containsKey(scene)) {
+            ids.put(scene, new HashMap<>());
             int id = GL30.glGenVertexArrays();
             GL30.glBindVertexArray(id);
-            storeDataInAttributeList(scene,0, dimension, vertices);
-            storeDataInAttributeList(scene,1, 2, textureCoords);
-            storeDataInAttributeList(scene,2, 4, colors);
-            storeDataInAttributeList(scene,3, 1, texID);
-            if (dimension >= 3)
-                storeDataInAttributeList(scene,4, dimension, normals);
+            for(String vertexName : vertices.keySet())
+                vertices.get(vertexName).genVertex(scene, GL15.GL_DYNAMIC_DRAW);
+
             for(int i = 0; i < maxElementCount; i++)
                 loadElementIndices(i);
             bindIndices(scene, indices);
             ids.get(scene).put(window, id);
-        }else
-        {
+        }else{
             int id = GL30.glGenVertexArrays();
             GL30.glBindVertexArray(id);
-            GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, VBOS.get(scene).get(0));
-            GL20.glVertexAttribPointer(0, dimension, GL11.GL_FLOAT, false, 0, 0);
-            GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, VBOS.get(scene).get(1));
-            GL20.glVertexAttribPointer(1, 2, GL11.GL_FLOAT, false, 0, 0);
-            GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, VBOS.get(scene).get(2));
-            GL20.glVertexAttribPointer(2, 4, GL11.GL_FLOAT, false, 0, 0);
-            GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, VBOS.get(scene).get(3));
-            GL20.glVertexAttribPointer(3, 1, GL11.GL_FLOAT, false, 0, 0);
-            if(dimension == 3){
-                GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, VBOS.get(scene).get(4));
-                GL20.glVertexAttribPointer(4, dimension, GL11.GL_FLOAT, false, 0, 0);
-            }
-            GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, EBOS.get(scene));
+            for(String vertexName : vertices.keySet())
+                vertices.get(vertexName).registerVertex(scene);
+
+            GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, indexIDs.get(scene));
             ids.get(scene).put(window, id);
         }
         GL30.glBindVertexArray(0);
+
+
     }
 
 
@@ -122,11 +99,16 @@ public class MeshBatch  implements Comparable<MeshBatch>{
             if(elements.containsKey(textureName)){
                 HashMap<Integer, Pair<Element,BatchMaterial>> elemental = elements.get(textureName);
                 elemental.put(numberOfElements, Pair.with(element, material));
-                loadVertexProperties(textureName, numberOfElements);
-                loadTextureProperties(textureName, numberOfElements);
-                loadColorProperties(textureName, numberOfElements);
-                if(dimension >= 3)
-                    loadNormalProperties(textureName, numberOfElements);
+                for(String property : material.properties.keySet()){
+                    if(!vertices.containsKey(property)){
+                        VertexData data = material.properties.get(property);
+                        vertices.put(property, new VertexBufferObject(attributeIndex++, data.dimension, vertices.get("positions").vertexData.size * maxElementCount));
+                    }
+                }
+                loadElementProperties(numberOfElements, element);
+                loadMaterialProperties(numberOfElements, material);
+                vertices.get("texID").setVertex(numberOfElements, new float[] { textureToIntMap.get(textureName) });
+
                 numberOfElements++;
                 if(numberOfElements == maxElementCount)
                     hasRoom = false;
@@ -138,12 +120,16 @@ public class MeshBatch  implements Comparable<MeshBatch>{
                     elemental.put(numberOfElements, Pair.with(element, material));
                     elements.put(textureName, elemental);
                     textureToIntMap.put(textureName, numberOfTextures++);
+                    for(String property : material.properties.keySet()){
+                        if(!vertices.containsKey(property)){
+                            VertexData data = material.properties.get(property);
+                            vertices.put(property, new VertexBufferObject(attributeIndex++, data.dimension, vertices.get("positions").vertexData.size * maxElementCount));
+                        }
+                    }
+                    loadElementProperties(numberOfElements, element);
+                    loadMaterialProperties(numberOfElements, material);
+                    vertices.get("texID").setVertex(numberOfElements, new float[] { textureToIntMap.get(textureName) });
 
-                    loadVertexProperties(textureName, numberOfElements);
-                    loadTextureProperties(textureName, numberOfElements);
-                    loadColorProperties(textureName, numberOfElements);
-                    if(dimension >= 3)
-                        loadNormalProperties(textureName, numberOfElements);
                     numberOfElements++;
                     if(numberOfElements == maxElementCount)
                         hasRoom = false;
@@ -164,54 +150,51 @@ public class MeshBatch  implements Comparable<MeshBatch>{
      * @param window Window that is currently rendering
      */
     public void bind(Scene scene, Window window){
-        boolean rebufferVertex = false;
-        boolean rebufferColor = false;
-        boolean rebufferTexture = false;
+        boolean rebufferElement = false;
+        boolean rebufferMaterial = false;
         for(String textureName : elements.keySet()){
             for(int index : elements.get(textureName).keySet()){
                 Pair<Element, BatchMaterial> element = elements.get(textureName).get(index);
-                if(!element.getValue0().lastPosition.equals(element.getValue0().position) ||
-                        !element.getValue0().lastRotation.equals(element.getValue0().rotation)||
-                        !element.getValue0().lastScale.equals(element.getValue0().scale)){
-                    loadVertexProperties(textureName, index);
-                    element.getValue0().lastPosition.set(element.getValue0().position);
-                    element.getValue0().lastRotation.set(element.getValue0().rotation);
-                    element.getValue0().lastScale.set(element.getValue0().scale);
-                    rebufferVertex = true;
+
+                if(element.getValue0().isDirty()){
+                    loadElementProperties(index, element.getValue0());
+                    element.getValue0().doClean();
+                    rebufferElement = true;
                 }
 
-                if(!element.getValue1().lastColor.equals(element.getValue1().color)){
-                    loadColorProperties(textureName, index);
-                    element.getValue1().lastColor.set(element.getValue1().color);
-                    rebufferColor = true;
-                }
 
-                if(!element.getValue1().lastTextureOffset.equals(element.getValue1().textureOffset) ||
-                        !element.getValue1().lastTextureScale.equals(element.getValue1().textureScale)){
-                    loadTextureProperties(textureName, index);
-                    element.getValue1().lastTextureOffset.set(element.getValue1().textureOffset);
-                    element.getValue1().lastTextureScale.set(element.getValue1().textureScale);
-                    rebufferTexture = true;
+                if(element.getValue1().isDirty()){
+                    loadMaterialProperties(index, element.getValue1());
+                    element.getValue1().doClean();
+                    rebufferMaterial = true;
                 }
 
             }
         }
-        if(rebufferVertex)
+        if(rebufferElement)
         {
-            GL20.glBindBuffer(GL20.GL_ARRAY_BUFFER, VBOS.get(scene).get(0));
-            GL20.glBufferSubData(GL20.GL_ARRAY_BUFFER, 0,vertices);
+            vertices.get("positions").regenVertex(scene);
+            rebufferElement = false;
         }
 
-        if(rebufferTexture){
-            GL20.glBindBuffer(GL20.GL_ARRAY_BUFFER, VBOS.get(scene).get(1));
-            GL20.glBufferSubData(GL20.GL_ARRAY_BUFFER, 0, textureCoords);
-            GL20.glBindBuffer(GL20.GL_ARRAY_BUFFER, VBOS.get(scene).get(3));
-            GL20.glBufferSubData(GL20.GL_ARRAY_BUFFER, 0, texID);
-        }
-
-        if(rebufferColor){
-            GL20.glBindBuffer(GL20.GL_ARRAY_BUFFER, VBOS.get(scene).get(2));
-            GL20.glBufferSubData(GL20.GL_ARRAY_BUFFER, 0, colors);
+        if(rebufferMaterial){
+            vertices.get("textureCoords").regenVertex(scene);
+            vertices.get("colors").regenVertex(scene);
+            for(String textureName : elements.keySet()) {
+                for (int index : elements.get(textureName).keySet()) {
+                    Pair<Element, BatchMaterial> element = elements.get(textureName).get(index);
+                    for (String property : element.getValue1().properties.keySet()) {
+                        if(!vertices.get(property).getIDs().containsKey(scene)) {
+                            scene.loaderWindow.makeContextCurrent();
+                            vertices.get(property).genVertex(scene, GL15.GL_DYNAMIC_DRAW);
+                            if(scene.currentContext != null)
+                                scene.currentContext.makeContextCurrent();
+                        }else
+                            vertices.get(property).regenVertex(scene);
+                    }
+                }
+            }
+            rebufferMaterial = false;
         }
 
         GL20.glEnable(GL11.GL_TEXTURE);
@@ -221,151 +204,99 @@ public class MeshBatch  implements Comparable<MeshBatch>{
         }
 
         GL30.glBindVertexArray(ids.get(scene).get(window));
-        GL30.glEnableVertexAttribArray(0);
-        GL30.glEnableVertexAttribArray(1);
-        GL30.glEnableVertexAttribArray(2);
-        GL30.glEnableVertexAttribArray(3);
-        if(dimension >= 3)
-            GL30.glEnableVertexAttribArray(4);
+        for(String vertexName : vertices.keySet())
+            vertices.get(vertexName).enable();
 
         GL30.glDrawElements(GL30.GL_TRIANGLES, mesh.getVertexCount() * numberOfElements, GL30.GL_UNSIGNED_INT, 0);
 
+
+        for(String vertexName : vertices.keySet())
+           vertices.get(vertexName).disable();
+        GL30.glBindVertexArray(0);
+
+
     }
-
-
-    public void unbind(){
-
-    }
-
 
 
 
     private void loadElementIndices(int index){
-
         int indicesLength = mesh.getIndices().length;
-
         int offsetArrayIndex = indicesLength * index;
-        int offset = (mesh.getVertices().length / dimension) * index;
+        int offset = (mesh.getVertecies().get("positions").vertexData.size) * index;
 
         for(int i = 0; i < indicesLength; i++){
             indices[offsetArrayIndex + i] = offset + mesh.getIndices()[i];
         }
     }
 
-    private final Vector4f POS = new Vector4f();
 
-    private void loadVertexProperties(String textureName, int index){
-        HashMap<Integer, Pair<Element, BatchMaterial>> elementA = elements.get(textureName);
-        Pair<Element, BatchMaterial> element = elementA.get(index);
+    private void loadElementProperties(int index, Element element){
+        VertexData positionData = mesh.getVertecies().get("positions").vertexData;
 
-        float[] vert = mesh.getVertices();
-        float[] text = mesh.getTextureCoords();
-        float[] norms = mesh.getNormals();
+        int vertexSize = positionData.size;
+        int offset = index * vertexSize;
 
+        Vector3f position = element.position;
+        Quaternionf rotation = element.rotation;
+        Vector3f scale = element.scale;
+        float[] POS = new float[positionData.dimension];
+        for(int i = 0;i < vertexSize; i++){
 
-        int vertexSize = vert.length / dimension;
-        int offset = index * vert.length;
-
-        Vector3f position = element.getValue0().position;
-        Quaternionf rotation = element.getValue0().rotation;
-        Vector3f scale = element.getValue0().scale;
-
-        for(int i = 0; i < vertexSize; i++){
-            if(dimension >= 3)
-                POS.set(position.x+ vert[offset] * scale.x / 2f , position.y + vert[offset + 1] * scale.y  / 2f, position.x + vert[offset + 2] * scale.z  / 2f, 1.0f);
-            else
-                POS.set(position.x+ vert[offset] * scale.x / 2f , position.y + vert[offset + 1] * scale.y  / 2f, 0, 1.0f);
-            vertices[offset] = POS.x;
-            vertices[offset + 1] = POS.y;
-            if(dimension >= 3)
-                vertices[offset + 2] = POS.z;
-
-            offset += dimension;
-        }
-
-
-
-
-    }
-
-    private final Vector2f TEX = new Vector2f();
-    private void loadTextureProperties(String textureName, int index){
-        HashMap<Integer, Pair<Element, BatchMaterial>> elementA = elements.get(textureName);
-        Pair<Element, BatchMaterial> element = elementA.get(index);
-
-
-        float[] text = mesh.getTextureCoords();
-        Vector2f textureOffset = element.getValue1().textureOffset;
-        Vector2f textureScale = element.getValue1().textureScale;
-        int vertexSize = text.length / 2;
-        int offset = index * text.length;
-        int offsetA = index * vertexSize;
-        for(int i = 0; i < vertexSize; i++){
-            TEX.set(text[offset], text[offset + 1]).mul(textureScale).add(textureOffset);
-            textureCoords[offset] = TEX.x;
-            textureCoords[offset + 1] = TEX.y;
-            offset += 2;
-
-            texID[offsetA] = textureToIntMap.get(textureName);
-            offsetA++;
-
-        }
-
-    }
-
-    private void loadColorProperties(String textureName, int index){
-        HashMap<Integer, Pair<Element, BatchMaterial>> elementA = elements.get(textureName);
-        Pair<Element, BatchMaterial> element = elementA.get(index);
-
-        float[] text = mesh.getTextureCoords();
-        Vector4f color = element.getValue1().color;
-
-        int vertexSize = text.length / 2;
-        int offset = index * vertexSize * 4;
-
-        for(int i = 0; i < vertexSize; i++){
-
-            colors[offset] = color.x;
-            colors[offset + 1] = color.y;
-            colors[offset + 2] = color.z;
-            colors[offset + 3] = color.w;
-            offset += 4;
-
+            switch (POS.length) {
+                case 1 -> POS[0] = position.x + positionData.data[positionData.dimension * i] * scale.x / 2f;
+                case 2 -> {
+                    POS[0] = position.x + positionData.data[positionData.dimension * i] * scale.x / 2f;
+                    POS[1] = position.y + positionData.data[positionData.dimension * i + 1] * scale.y / 2f;
+                }
+                default -> {
+                    POS[0] = position.x + positionData.data[positionData.dimension * i] * scale.x / 2f;
+                    POS[1] = position.y + positionData.data[positionData.dimension * i + 1] * scale.y / 2f;
+                    POS[2] = position.z + positionData.data[positionData.dimension * i + 2] * scale.z / 2f;
+                }
+            }
+            vertices.get("positions").setVertex(offset + i, POS);
         }
     }
 
-    private void loadNormalProperties(String textureName, int index){
-        HashMap<Integer, Pair<Element, BatchMaterial>> elementA = elements.get(textureName);
-        Pair<Element, BatchMaterial> element = elementA.get(index);
-        float[] norms = mesh.getNormals();
+    private void loadMaterialProperties(int index, BatchMaterial material){
 
-        int vertexSize = norms.length / dimension;
-        int offset = index * norms.length;
 
+        VertexData textureData = mesh.getVertecies().get("textureCoords").vertexData;
+        Vector2f textureOffset = material.textureOffset;
+        Vector2f textureScale = material.textureScale;
+
+
+        int vertexSize = textureData.size;
+        int offset = index * vertexSize;
+        float[] TEX = new float[textureData.dimension];
         for(int i = 0; i < vertexSize; i++){
-            normals[offset] = norms[i];
-            normals[offset + 1] = norms[i];
-            normals[offset + 2] = norms[i];
-            offset += dimension;
+            TEX[0] = textureData.data[textureData.dimension * i] * textureScale.x + textureOffset.x;
+            TEX[1] = textureData.data[textureData.dimension * i + 1] * textureScale.y + textureOffset.y;
+            vertices.get("textureCoords").setVertex(offset + i, TEX);
         }
 
-    }
+        Vector4f color = material.color;
+        float[] COL = new float[] {color.x, color.y, color.z, color.w};
+        for(int i = 0; i < vertexSize; i++)
+            vertices.get("colors").setVertex(index + i, COL);
+
+        for(String property : material.properties.keySet()){
+            VertexData propertyData = material.properties.get(property);
+            vertexSize = propertyData.size;
+            offset = index * vertexSize;
+            float[] VER = new float[propertyData.dimension];
+            for(int i = 0; i < vertexSize; i++){
+                System.arraycopy(propertyData.data, propertyData.dimension * i, VER, 0, propertyData.dimension);
+                vertices.get(property).setVertex(offset + i, VER);
+            }
+        }
 
 
-
-
-    private void storeDataInAttributeList(Scene scene, int attributeNumber, int attributeSize, float[] data){
-        int vboID = GL15.glGenBuffers();
-        VBOS.get(scene).add(vboID);
-        GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vboID);
-        GL15.glBufferData(GL15.GL_ARRAY_BUFFER, (long) data.length * Float.BYTES, GL15.GL_DYNAMIC_DRAW);
-        GL20.glVertexAttribPointer(attributeNumber, attributeSize, GL11.GL_FLOAT, false, 0, 0);
-        GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
     }
 
     private void bindIndices(Scene scene, int[] indices){
         int eboID = GL15.glGenBuffers();
-        EBOS.put(scene, eboID);
+        indexIDs.put(scene, eboID);
         GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, eboID);
         GL15.glBufferData(GL15.GL_ELEMENT_ARRAY_BUFFER, indices, GL15.GL_STATIC_DRAW);
 
@@ -401,11 +332,11 @@ public class MeshBatch  implements Comparable<MeshBatch>{
      * @param scene
      */
     public void dispose(Scene scene) {
-        for (int vbo : VBOS.get(scene))
-            GL15.glDeleteBuffers(vbo);
-        GL15.glDeleteBuffers(EBOS.get(scene));
-        VBOS.clear();
-        EBOS.clear();
+        for(String vertexName : vertices.keySet())
+            vertices.get(vertexName).delete(scene);
+        GL15.glDeleteBuffers(indexIDs.get(scene));
+        vertices.clear();
+        indexIDs.clear();
     }
 
 

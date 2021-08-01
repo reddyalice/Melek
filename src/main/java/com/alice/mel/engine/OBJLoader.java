@@ -1,7 +1,7 @@
 package com.alice.mel.engine;
 
 import com.alice.mel.graphics.Mesh;
-import com.alice.mel.graphics.Vertex;
+import com.alice.mel.graphics.MeshVertex;
 import com.alice.mel.utils.collections.Array;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
@@ -31,7 +31,7 @@ public class OBJLoader {
         assert isr != null;
         BufferedReader reader = new BufferedReader(isr);
         String line;
-        Array<Vertex> vertices = new Array<>();
+        Array<MeshVertex> vertices = new Array<>();
         Array<Vector2f> textures = new Array<>();
         Array<Vector3f> normals = new Array<>();
         Array<Integer> indices = new Array<>();
@@ -43,7 +43,7 @@ public class OBJLoader {
                     Vector3f vertex = new Vector3f(Float.parseFloat(currentLine[1]),
                              Float.parseFloat(currentLine[2]),
                              Float.parseFloat(currentLine[3]));
-                    Vertex newVertex = new Vertex(vertices.size, vertex);
+                    MeshVertex newVertex = new MeshVertex(vertices.size, vertex);
                     vertices.add(newVertex);
 
                 } else if (line.startsWith("vt ")) {
@@ -85,9 +85,9 @@ public class OBJLoader {
         return new Mesh(verticesArray, texturesArray, normalsArray, indicesArray);
     }
 
-    private static void processVertex(String[] vertex, Array<Vertex> vertices, Array<Integer> indices) {
+    private static void processVertex(String[] vertex, Array<MeshVertex> vertices, Array<Integer> indices) {
         int index = Integer.parseInt(vertex[0]) - 1;
-        Vertex currentVertex = vertices.get(index);
+        MeshVertex currentVertex = vertices.get(index);
         int textureIndex = Integer.parseInt(vertex[1]) - 1;
         int normalIndex = Integer.parseInt(vertex[2]) - 1;
         if (!currentVertex.isSet()) {
@@ -108,12 +108,12 @@ public class OBJLoader {
         return indicesArray;
     }
 
-    private static float convertDataToArrays(Array<Vertex> vertices, Array<Vector2f> textures,
+    private static float convertDataToArrays(Array<MeshVertex> vertices, Array<Vector2f> textures,
                                              Array<Vector3f> normals, float[] verticesArray, float[] texturesArray,
                                              float[] normalsArray) {
         float furthestPoint = 0;
         for (int i = 0; i < vertices.size; i++) {
-            Vertex currentVertex = vertices.get(i);
+            MeshVertex currentVertex = vertices.get(i);
             if (currentVertex.getLength() > furthestPoint) {
                 furthestPoint = currentVertex.getLength();
             }
@@ -132,17 +132,17 @@ public class OBJLoader {
         return furthestPoint;
     }
 
-    private static void dealWithAlreadyProcessedVertex(Vertex previousVertex, int newTextureIndex,
-                                                       int newNormalIndex, Array<Integer> indices, Array<Vertex> vertices) {
+    private static void dealWithAlreadyProcessedVertex(MeshVertex previousVertex, int newTextureIndex,
+                                                       int newNormalIndex, Array<Integer> indices, Array<MeshVertex> vertices) {
         if (previousVertex.hasSameTextureAndNormal(newTextureIndex, newNormalIndex)) {
             indices.add(previousVertex.getIndex());
         } else {
-            Vertex anotherVertex = previousVertex.getDuplicateVertex();
+            MeshVertex anotherVertex = previousVertex.getDuplicateVertex();
             if (anotherVertex != null) {
                 dealWithAlreadyProcessedVertex(anotherVertex, newTextureIndex, newNormalIndex,
                         indices, vertices);
             } else {
-                Vertex duplicateVertex = new Vertex(vertices.size, previousVertex.getPosition());
+                MeshVertex duplicateVertex = new MeshVertex(vertices.size, previousVertex.getPosition());
                 duplicateVertex.setTextureIndex(newTextureIndex);
                 duplicateVertex.setNormalIndex(newNormalIndex);
                 previousVertex.setDuplicateVertex(duplicateVertex);
@@ -153,8 +153,8 @@ public class OBJLoader {
         }
     }
 
-    private static void removeUnusedVertices(Array<Vertex> vertices){
-        for(Vertex vertex:vertices){
+    private static void removeUnusedVertices(Array<MeshVertex> vertices){
+        for(MeshVertex vertex:vertices){
             if(!vertex.isSet()){
                 vertex.setTextureIndex(0);
                 vertex.setNormalIndex(0);

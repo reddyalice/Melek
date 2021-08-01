@@ -2,14 +2,9 @@ package com.alice.mel.graphics;
 
 import com.alice.mel.engine.Scene;
 import com.alice.mel.utils.collections.Array;
-import org.lwjgl.BufferUtils;
-import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL15;
-import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL30;
 
-import java.nio.FloatBuffer;
-import java.nio.IntBuffer;
 import java.util.HashMap;
 
 /**
@@ -19,14 +14,10 @@ import java.util.HashMap;
 public final class Mesh {
 
     private final HashMap<Scene, HashMap<Window, Integer>> ids = new HashMap<>();
-    private int vertexCount;
-
-
-    private final Array<VertexData> vertices = new Array<>();
+    private final HashMap<String, VertexBufferObject> vertices = new HashMap<>();
     private final HashMap<Scene, Integer> indexIDs = new HashMap<>();
     private int[] indices;
-
-
+    private int vertexCount;
 
     /**
      * Constructor for a 3D Mesh
@@ -37,9 +28,9 @@ public final class Mesh {
      */
     public Mesh(float[] positions, float[] textureCoords, float[] normals, int[] indices) {
 
-        vertices.add(new VertexData(0, 3,1, positions));
-        vertices.add(new VertexData(1, 2,1, textureCoords));
-        vertices.add(new VertexData(2,3,1,normals));
+        vertices.put("positions", new VertexBufferObject(0, 3,positions.length / 3, positions));
+        vertices.put("textureCoords", new VertexBufferObject(1, 2,textureCoords.length / 2, textureCoords));
+        vertices.put("normals",new VertexBufferObject(2,3,normals.length / 3,normals));
         this.indices = indices;
         this.vertexCount = indices.length;
     }
@@ -51,8 +42,8 @@ public final class Mesh {
      * @param indices Index Array of the Mesh
      */
     public Mesh(float[] positions, float[] textureCoords, int[] indices) {
-        vertices.add(new VertexData(0, 2,1, positions));
-        vertices.add(new VertexData(1, 2,1, textureCoords));
+        vertices.put("positions", new VertexBufferObject(0, 2,positions.length / 2, positions));
+        vertices.put("textureCoords", new VertexBufferObject(1, 2,textureCoords.length / 2, textureCoords));
         this.indices = indices;
         this.vertexCount = indices.length;
     }
@@ -62,7 +53,7 @@ public final class Mesh {
      * @param vertices VertexData Array
      * @param indices Index Array
      */
-    public Mesh(Array<VertexData> vertices, int[] indices){
+    public Mesh(Array<VertexBufferObject> vertices, int[] indices){
         vertices.addAll(vertices);
         this.indices = indices;
         this.vertexCount = indices.length;
@@ -78,17 +69,17 @@ public final class Mesh {
             ids.put(scene, new HashMap<>());
             int id = GL30.glGenVertexArrays();
             GL30.glBindVertexArray(id);
-            for(VertexData vertex : vertices){
-                vertex.genVertex(scene, GL15.GL_STATIC_DRAW);
-            }
+            for(String vertexName : vertices.keySet())
+                vertices.get(vertexName).genVertex(scene, GL15.GL_STATIC_DRAW);
+
             bindIndices(scene, indices);
             ids.get(scene).put(window, id);
         }else{
             int id = GL30.glGenVertexArrays();
             GL30.glBindVertexArray(id);
-            for(VertexData vertex : vertices){
-                vertex.registerVertex(scene);
-            }
+            for(String vertexName : vertices.keySet())
+                vertices.get(vertexName).registerVertex(scene);
+
             GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, indexIDs.get(scene));
             ids.get(scene).put(window, id);
         }
@@ -105,16 +96,16 @@ public final class Mesh {
      */
     public void bind(Scene scene, Window window){
         GL30.glBindVertexArray(ids.get(scene).get(window));
-        for(VertexData vertex : vertices)
-            vertex.enable();
+        for(String vertexName : vertices.keySet())
+            vertices.get(vertexName).enable();
     }
 
     /**
      * Unbind the mesh
      */
     public void unbind(){
-        for(VertexData vertex : vertices)
-            vertex.disable();
+        for(String vertexName : vertices.keySet())
+            vertices.get(vertexName).disable();
         GL30.glBindVertexArray(0);
     }
 
@@ -137,6 +128,9 @@ public final class Mesh {
 
     }
 
+    public HashMap<String, VertexBufferObject> getVertecies(){
+        return vertices;
+    }
 
     public int getVertexCount() {
         return vertexCount;
@@ -160,8 +154,8 @@ public final class Mesh {
      * @param scene
      */
     public void dispose(Scene scene) {
-        for(VertexData vertex : vertices)
-            vertex.delete(scene);
+        for(String vertexName : vertices.keySet())
+            vertices.get(vertexName).delete(scene);
         GL15.glDeleteBuffers(indexIDs.get(scene));
         vertices.clear();
         indexIDs.clear();

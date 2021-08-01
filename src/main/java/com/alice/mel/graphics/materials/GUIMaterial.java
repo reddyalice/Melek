@@ -33,4 +33,14 @@ public class GUIMaterial extends BatchMaterial {
     public int hashCode() {
         return 0;
     }
+
+    @Override
+    protected boolean checkDirty() {
+        return false;
+    }
+
+    @Override
+    protected void clean() {
+
+    }
 }
