@@ -28,13 +28,14 @@ public class EditorScene extends SceneAdaptor {
     public void Init(Window loaderWindow) {
 
         guiRenderer = new GUIRenderer(game.assetManager, scene);
-        game.assetManager.addTexture("guiImage", new Texture("assets/textures/guiSheet.png"));
-        scene.loadTexture("guiImage");
+        Texture guiImage = new Texture("assets/textures/guiSheet.png");
+        addTexture("guiImage", guiImage);
+
         ImageUI holder = new ImageUI("guiImage", new Vector2f(0,768f / 2f - 10f ), new Vector2f(1024, 20));
         holder.guiMaterial.textureDivision.set(10, 10);
-        Button b = new Button("guiImage", new Vector2f(16f - 1024f/2f,768f / 2f - 16f ), new Vector2f(32, 32));
+        Button b = new Button("guiImage", new Vector2f(1024f/2f - 16f,768f / 2f - 16f ), new Vector2f(32, 32));
         b.guiMaterial.textureDivision.set(10,10);
-        b.guiMaterial.textureOffset.set(0.1f,0);
+        b.guiMaterial.textureOffset.set(1,0);
         b.hoveringColor.set(1,0,0,1);
 
 

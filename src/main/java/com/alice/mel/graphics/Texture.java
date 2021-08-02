@@ -3,6 +3,7 @@ package com.alice.mel.graphics;
 import com.alice.mel.engine.Scene;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL20;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -20,6 +21,11 @@ public final class Texture {
     private final HashMap<Scene, Integer> ids = new HashMap<>();
     private int width, height;
     private  ByteBuffer pixels;
+
+    public TextureFilter minFilter = TextureFilter.Nearest;
+    public TextureFilter magFilter = TextureFilter.Nearest;
+    public TextureWrap uWrap = TextureWrap.ClampToEdge;
+    public TextureWrap vWrap = TextureWrap.ClampToEdge;
 
     /**
      * @param file Texture filepath
@@ -138,7 +144,9 @@ public final class Texture {
         }
 
         pixels.flip();
-        bind(scene);
+
+        setTextureFilter(scene, minFilter, magFilter);
+        setTextureWrap(scene, uWrap, vWrap);
         GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA, width, height, 0, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, pixels);
         unbind();
     }
@@ -167,7 +175,8 @@ public final class Texture {
         }
 
         pixels.flip();
-        bind(scene);
+        setTextureFilter(scene, minFilter, magFilter);
+        setTextureWrap(scene, uWrap, vWrap);
         GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA, width, height, 0, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, pixels);
         unbind();
     }
@@ -196,7 +205,9 @@ public final class Texture {
         }
 
         pixels.flip();
-        bind(scene);
+
+        setTextureFilter(scene, minFilter, magFilter);
+        setTextureWrap(scene, uWrap, vWrap);
         GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA, width, height, 0, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, pixels);
         unbind();
     }
@@ -209,14 +220,39 @@ public final class Texture {
 
         int id = GL11.glGenTextures();
         GL11.glBindTexture(GL11.GL_TEXTURE_2D, id);
-
-        GL11.glTexParameterf(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_NEAREST);
-        GL11.glTexParameterf(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_NEAREST);
-
+        ids.put(scene, id);
+        setTextureFilter(scene, minFilter, magFilter);
+        setTextureWrap(scene, uWrap, vWrap);
         GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA, width, height, 0, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, pixels);
 
         GL11.glBindTexture(GL11.GL_TEXTURE_2D, 0);
-        ids.put(scene, id);
+
+    }
+
+    /**
+     * @param scene Scene is gonna be loaded to
+     * @param minFilter Min Filter Mode
+     * @param magFilter Mag Filter Mode
+     */
+    public void setTextureFilter(Scene scene, TextureFilter minFilter, TextureFilter magFilter){
+        this.minFilter = minFilter;
+        this.magFilter = magFilter;
+        bind(scene);
+        GL11.glTexParameterf(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, minFilter.value);
+        GL11.glTexParameterf(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, magFilter.value);
+    }
+
+    /**
+     * @param scene Sceme to be bind
+     * @param uWrap U Wrap
+     * @param vWrap V Wrap
+     */
+    public void setTextureWrap(Scene scene, TextureWrap uWrap, TextureWrap vWrap){
+        this.uWrap = uWrap;
+        this.vWrap = vWrap;
+        bind(scene);
+        GL11.glTexParameterf(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, uWrap.value);
+        GL11.glTexParameterf(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, vWrap.value);
     }
 
     /**
@@ -275,5 +311,38 @@ public final class Texture {
         GL11.glDeleteTextures(ids.get(scene));
         ids.remove(scene);
     }
+
+    public enum TextureFilter {
+        Nearest(GL20.GL_NEAREST),
+        Linear(GL20.GL_LINEAR),
+        MipMap(GL20.GL_LINEAR_MIPMAP_LINEAR),
+        MipMapNearestNearest(GL20.GL_NEAREST_MIPMAP_NEAREST),
+        MipMapLinearNearest(GL20.GL_LINEAR_MIPMAP_NEAREST),
+        MipMapNearestLinear(GL20.GL_NEAREST_MIPMAP_LINEAR),
+        MipMapLinearLinear(GL20.GL_LINEAR_MIPMAP_LINEAR);
+        final int value;
+        TextureFilter (int value) {
+            this.value = value;
+        }
+        public boolean isMipMap () {
+            return value != GL20.GL_NEAREST && value != GL20.GL_LINEAR;
+        }
+        public int getValue () {
+            return value;
+        }
+    }
+
+    public enum TextureWrap {
+        MirroredRepeat(GL20.GL_MIRRORED_REPEAT), ClampToEdge(GL20.GL_CLAMP_TO_EDGE), Repeat(GL20.GL_REPEAT);
+        final int value;
+        TextureWrap (int value) {
+            this.value = value;
+        }
+
+        public int getValue () {
+            return value;
+        }
+    }
+
 }
 

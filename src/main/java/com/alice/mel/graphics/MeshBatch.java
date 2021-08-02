@@ -270,8 +270,8 @@ public class MeshBatch  implements Comparable<MeshBatch>{
         int offset = index * vertexSize;
         float[] TEX = new float[textureData.dimension];
         for(int i = 0; i < vertexSize; i++){
-            TEX[0] = textureData.data[textureData.dimension * i] / textureDivision.x + (textureOffset.x);
-            TEX[1] = textureData.data[textureData.dimension * i + 1] / textureDivision.y + (textureOffset.y);
+            TEX[0] = textureData.data[textureData.dimension * i] / textureDivision.x + (textureOffset.x / textureDivision.x);
+            TEX[1] = textureData.data[textureData.dimension * i + 1] / textureDivision.y + (textureOffset.y / textureDivision.y);
             vertices.get("textureCoords").setVertex(offset + i, TEX);
         }
 
