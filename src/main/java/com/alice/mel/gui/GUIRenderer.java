@@ -6,6 +6,7 @@ import com.alice.mel.graphics.MeshBatch;
 import com.alice.mel.graphics.Window;
 import com.alice.mel.graphics.shaders.BatchedSpriteShader;
 import com.alice.mel.utils.collections.Array;
+import com.alice.mel.utils.collections.SnapshotArray;
 import org.joml.Matrix4f;
 import org.joml.Vector2i;
 import org.joml.Vector3f;
@@ -15,13 +16,13 @@ public class GUIRenderer {
     private final Canvas canvas;
     private final BatchedSpriteShader shader;
     private final AssetManager assetManager;
-    private final Array<MeshBatch> meshBatches;
+    private final SnapshotArray<MeshBatch> meshBatches;
     private final Scene scene;
 
     public GUIRenderer(AssetManager assetManager, Scene scene){
         this.scene = scene;
         this.assetManager = assetManager;
-        meshBatches = new Array<>();
+        meshBatches = new SnapshotArray<>();
 
         scene.loadTexture("null");
         shader = assetManager.getShader(BatchedSpriteShader.class);
@@ -72,6 +73,16 @@ public class GUIRenderer {
 
     public void removeUIElement(UIElement element){
         canvas.removeChild(element);
+        for(MeshBatch batch : meshBatches)
+        {
+            int i = batch.getNumberOfElements();
+            batch.removeUIElement(element);
+            int j = batch.getNumberOfElements();
+            if(j <= 0)
+                meshBatches.removeValue(batch, false);
+            if(i - j != 0)
+                break;
+        }
     }
 
 

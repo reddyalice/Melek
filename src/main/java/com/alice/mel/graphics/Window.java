@@ -143,6 +143,7 @@ public class Window {
         postUpdate.add("camera", x -> this.camera.update());
         preRender.add("makeCurrentAndClear", x -> {
             makeContextCurrent();
+            GL11.glEnable(GL11.GL_DEPTH_TEST);
             GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
             GL11.glClearColor(this.backgroundColor.x, this.backgroundColor.y, this.backgroundColor.z, this.backgroundColor.w);
         });

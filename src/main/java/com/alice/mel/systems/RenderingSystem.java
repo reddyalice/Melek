@@ -32,11 +32,53 @@ public class RenderingSystem extends ComponentSystem{
         ImmutableArray<Entity> entities = scene.getEntitiesFor(RenderingComponent.class);
 
         if(entities != null)
-        for(Entity entity : entities){
+        for(Entity entity : entities) {
 
             RenderingComponent rend = entity.getComponent(RenderingComponent.class);
 
-            for(Material material : rend.materials) {
+            Material material = rend.material;
+            HashMap<String, HashMap<Material, Array<Entity>>> batch0 = renderMap.get(material.shaderClass);
+            if (batch0 != null) {
+                HashMap<Material, Array<Entity>> batch1 = batch0.get(rend.meshName);
+                if (batch1 != null) {
+                    Array<Entity> batch2 = batch1.get(material);
+                    if (batch2 != null) {
+                        batch2.add(entity);
+                        batch1.put(material, batch2);
+                        batch0.put(rend.meshName, batch1);
+                        renderMap.put(material.shaderClass, batch0);
+                    } else {
+                        batch2 = new Array<>();
+                        batch2.add(entity);
+                        batch1.put(material, batch2);
+                        batch0.put(rend.meshName, batch1);
+                        renderMap.put(material.shaderClass, batch0);
+                    }
+                } else {
+                    batch1 = new HashMap<>();
+                    Array<Entity> batch2 = new Array<>();
+                    batch2.add(entity);
+                    batch1.put(material, batch2);
+                    batch0.put(rend.meshName, batch1);
+                    renderMap.put(material.shaderClass, batch0);
+                }
+            } else {
+                batch0 = new HashMap<>();
+                HashMap<Material, Array<Entity>> batch1 = new HashMap<>();
+                Array<Entity> batch2 = new Array<>();
+                batch2.add(entity);
+                batch1.put(material, batch2);
+                batch0.put(rend.meshName, batch1);
+                renderMap.put(material.shaderClass, batch0);
+            }
+        }
+        scene.entityAdded.add("RenderingSystem", entity -> {
+            if(entity.hasComponent(RenderingComponent.class)) {
+                RenderingComponent rend = entity.getComponent(RenderingComponent.class);
+
+                Material material = rend.material;
+
+
                 HashMap<String, HashMap<Material, Array<Entity>>> batch0 = renderMap.get(material.shaderClass);
                 if (batch0 != null) {
                     HashMap<Material, Array<Entity>> batch1 = batch0.get(rend.meshName);
@@ -72,122 +114,75 @@ public class RenderingSystem extends ComponentSystem{
                     renderMap.put(material.shaderClass, batch0);
                 }
             }
-        }
-        scene.entityAdded.add("RenderingSystem", entity -> {
-            if(entity.hasComponent(RenderingComponent.class)) {
-                RenderingComponent rend = entity.getComponent(RenderingComponent.class);
 
-                for(Material material : rend.materials) {
-
-
-                    HashMap<String, HashMap<Material, Array<Entity>>> batch0 = renderMap.get(material.shaderClass);
-                    if (batch0 != null) {
-                        HashMap<Material, Array<Entity>> batch1 = batch0.get(rend.meshName);
-                        if (batch1 != null) {
-                            Array<Entity> batch2 = batch1.get(material);
-                            if (batch2 != null) {
-                                batch2.add(entity);
-                                batch1.put(material, batch2);
-                                batch0.put(rend.meshName, batch1);
-                                renderMap.put(material.shaderClass, batch0);
-                            } else {
-                                batch2 = new Array<>();
-                                batch2.add(entity);
-                                batch1.put(material, batch2);
-                                batch0.put(rend.meshName, batch1);
-                                renderMap.put(material.shaderClass, batch0);
-                            }
-                        } else {
-                            batch1 = new HashMap<>();
-                            Array<Entity> batch2 = new Array<>();
-                            batch2.add(entity);
-                            batch1.put(material, batch2);
-                            batch0.put(rend.meshName, batch1);
-                            renderMap.put(material.shaderClass, batch0);
-                        }
-                    } else {
-                        batch0 = new HashMap<>();
-                        HashMap<Material, Array<Entity>> batch1 = new HashMap<>();
-                        Array<Entity> batch2 = new Array<>();
-                        batch2.add(entity);
-                        batch1.put(material, batch2);
-                        batch0.put(rend.meshName, batch1);
-                        renderMap.put(material.shaderClass, batch0);
-                    }
-                }
-            }
         });
 
         scene.entityModified.add("RenderingSystem", entity -> {
             if(entity.hasComponent(RenderingComponent.class)) {
                 RenderingComponent rend = entity.getComponent(RenderingComponent.class);
 
-                for(Material material : rend.materials) {
+                Material material = rend.material;
 
 
-                    HashMap<String, HashMap<Material, Array<Entity>>> batch0 = renderMap.get(material.shaderClass);
-                    if (batch0 != null) {
-                        HashMap<Material, Array<Entity>> batch1 = batch0.get(rend.meshName);
-                        if (batch1 != null) {
-                            Array<Entity> batch2 = batch1.get(material);
-                            if (batch2 != null) {
-                                batch2.add(entity);
-                                batch1.put(material, batch2);
-                                batch0.put(rend.meshName, batch1);
-                                renderMap.put(material.shaderClass, batch0);
-                            } else {
-                                batch2 = new Array<>();
-                                batch2.add(entity);
-                                batch1.put(material, batch2);
-                                batch0.put(rend.meshName, batch1);
-                                renderMap.put(material.shaderClass, batch0);
-                            }
+                HashMap<String, HashMap<Material, Array<Entity>>> batch0 = renderMap.get(material.shaderClass);
+                if (batch0 != null) {
+                    HashMap<Material, Array<Entity>> batch1 = batch0.get(rend.meshName);
+                    if (batch1 != null) {
+                        Array<Entity> batch2 = batch1.get(material);
+                        if (batch2 != null) {
+                            batch2.add(entity);
+                            batch1.put(material, batch2);
+                            batch0.put(rend.meshName, batch1);
+                            renderMap.put(material.shaderClass, batch0);
                         } else {
-                            batch1 = new HashMap<>();
-                            Array<Entity> batch2 = new Array<>();
+                            batch2 = new Array<>();
                             batch2.add(entity);
                             batch1.put(material, batch2);
                             batch0.put(rend.meshName, batch1);
                             renderMap.put(material.shaderClass, batch0);
                         }
                     } else {
-                        batch0 = new HashMap<>();
-                        HashMap<Material, Array<Entity>> batch1 = new HashMap<>();
+                        batch1 = new HashMap<>();
                         Array<Entity> batch2 = new Array<>();
                         batch2.add(entity);
                         batch1.put(material, batch2);
                         batch0.put(rend.meshName, batch1);
                         renderMap.put(material.shaderClass, batch0);
                     }
+                } else {
+                    batch0 = new HashMap<>();
+                    HashMap<Material, Array<Entity>> batch1 = new HashMap<>();
+                    Array<Entity> batch2 = new Array<>();
+                    batch2.add(entity);
+                    batch1.put(material, batch2);
+                    batch0.put(rend.meshName, batch1);
+                    renderMap.put(material.shaderClass, batch0);
                 }
             }
         });
 
         scene.entityRemoved.add("RenderingSystem", entity -> {
-            if(entity.hasComponent(RenderingComponent.class)){
+            if(entity.hasComponent(RenderingComponent.class)) {
                 RenderingComponent rend = entity.getComponent(RenderingComponent.class);
-                for(Material material : rend.materials) {
+                Material material = rend.material;
 
 
-                    HashMap<String, HashMap<Material, Array<Entity>>> batch0 = renderMap.get(material.shaderClass);
-                    if (batch0 != null) {
-                        HashMap<Material, Array<Entity>> batch1 = batch0.get(rend.meshName);
-                        if (batch1 != null) {
-                            Array<Entity> batch2 = batch1.get(material);
-                            if (batch2 != null) {
-                                batch2.removeValue(entity, false);
-                                if (batch2.isEmpty()) {
-                                    batch1.remove(material);
-                                    batch0.remove(rend.meshName);
-                                    renderMap.remove(material.shaderClass);
-                                }
-
+                HashMap<String, HashMap<Material, Array<Entity>>> batch0 = renderMap.get(material.shaderClass);
+                if (batch0 != null) {
+                    HashMap<Material, Array<Entity>> batch1 = batch0.get(rend.meshName);
+                    if (batch1 != null) {
+                        Array<Entity> batch2 = batch1.get(material);
+                        if (batch2 != null) {
+                            batch2.removeValue(entity, false);
+                            if (batch2.isEmpty()) {
+                                batch1.remove(material);
+                                batch0.remove(rend.meshName);
+                                renderMap.remove(material.shaderClass);
                             }
+
                         }
                     }
                 }
-
-
             }
         });
 
