@@ -1,12 +1,16 @@
 package com.alice.mel.systems;
 
+import com.alice.mel.components.BatchRenderingComponent;
+import com.alice.mel.engine.Entity;
 import com.alice.mel.engine.Scene;
 import com.alice.mel.graphics.Window;
+import com.alice.mel.utils.collections.ImmutableArray;
 
 public class BatchedRenderingSystem extends ComponentSystem{
 
     @Override
     public void addedToScene(Scene scene) {
+        ImmutableArray<Entity> entities = scene.getEntitiesFor(BatchRenderingComponent.class);
 
     }
 

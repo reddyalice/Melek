@@ -44,7 +44,7 @@ public class EditorScene extends SceneAdaptor {
         editorWindow = createWindow(CameraType.Orthographic, "Editor Window", 1024, 768, true);
         editorWindow.setDecorated(false);
         b.onClick.add(x -> {
-            guiRenderer.removeUIElement(holder);
+            guiRenderer.removeUIElement(b);
         });
     }
 
