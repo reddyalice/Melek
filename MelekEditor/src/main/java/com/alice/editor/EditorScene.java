@@ -1,5 +1,6 @@
 package com.alice.editor;
 
+import com.alice.mel.components.Component;
 import com.alice.mel.engine.Entity;
 import com.alice.mel.engine.Game;
 import com.alice.mel.engine.SceneAdaptor;
@@ -102,7 +103,7 @@ public class EditorScene extends SceneAdaptor {
     }
 
     @Override
-    public void entityModified(Entity entity) {
+    public void entityModified(Entity entity, Component component) {
 
     }
 

@@ -1,5 +1,6 @@
 package com.alice.mel.engine;
 
+import com.alice.mel.components.Component;
 import com.alice.mel.graphics.*;
 import com.alice.mel.systems.ComponentSystem;
 import org.jbox2d.dynamics.World;
@@ -30,7 +31,7 @@ public abstract class SceneAdaptor {
         scene.render.add("fromAdaptor", x -> Render(x.getValue0(), x.getValue1()));
         scene.postRender.add("fromAdaptor", x -> PostRender(x.getValue0(), x.getValue1()));
         scene.entityAdded.add("fromAdaptor", this::entityAdded);
-        scene.entityModified.add("fromAdaptor", this::entityModified);
+        scene.entityModified.add("fromAdaptor", x -> entityModified(x.getValue0(), x.getValue1()));
         scene.entityRemoved.add("fromAdaptor", this::entityRemoved);
         world = scene.world;
     }
@@ -209,7 +210,7 @@ public abstract class SceneAdaptor {
      * Called when an entity in the scene modified
      * @param entity Entity that has been modified
      */
-    public abstract void entityModified(Entity entity);
+    public abstract void entityModified(Entity entity, Component component);
 
     /**
      * Called when an entity removed

@@ -1,5 +1,6 @@
 package scenes;
 
+import com.alice.mel.components.Component;
 import com.alice.mel.components.RenderingComponent;
 import com.alice.mel.engine.*;
 import com.alice.mel.graphics.*;
@@ -114,7 +115,7 @@ public class ExampleScene extends SceneAdaptor {
     }
 
     @Override
-    public void entityModified(Entity entity) {
+    public void entityModified(Entity entity, Component component) {
 
     }
 

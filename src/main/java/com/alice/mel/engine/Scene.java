@@ -43,7 +43,7 @@ public final class Scene {
     public final KeyedEvent<Pair<Window, Float>> postRender = new KeyedEvent<>();
 
     public final KeyedEvent<Entity> entityAdded = new KeyedEvent<>();
-    public final KeyedEvent<Entity> entityModified = new KeyedEvent<>();
+    public final KeyedEvent<Pair<Entity, Component>> entityModified = new KeyedEvent<>();
 
     public final KeyedEvent<Entity> entityRemoved = new KeyedEvent<>();
 
@@ -129,7 +129,7 @@ public final class Scene {
                 ens = new Array<>();
             ens.add(entity);
             componentEntityMap.put(ComponentType.getFor(component.getClass()), ens);
-            entityModified.broadcast(entity);
+            entityModified.broadcast(Pair.with(entity, component));
         });
         entity.componentRemoved.add(component -> {
             Array<Entity> ens = componentEntityMap.get(ComponentType.getFor(component.getClass()));
@@ -141,7 +141,7 @@ public final class Scene {
                 else
                     componentEntityMap.put(ComponentType.getFor(component.getClass()), ens);
             }
-            entityModified.broadcast(entity);
+            entityModified.broadcast(Pair.with(entity, component));
         });
         updateEntityFamily(entity);
         entityAdded.broadcast(entity);

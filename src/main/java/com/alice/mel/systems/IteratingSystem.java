@@ -32,7 +32,8 @@ public abstract class IteratingSystem extends ComponentSystem{
                     entites.add(en);
             });
 
-            scene.entityModified.add(getClass().getName(), en -> {
+            scene.entityModified.add(getClass().getName(), entityComponentPair -> {
+                Entity en = entityComponentPair.getValue0();
                 if(entites.contains(en, false))
                     if(!requiredFamily.matches(en))
                         entites.removeValue(en, false);
