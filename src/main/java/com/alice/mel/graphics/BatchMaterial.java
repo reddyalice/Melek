@@ -1,17 +1,14 @@
 package com.alice.mel.graphics;
 
-import com.alice.mel.engine.AssetManager;
-import com.alice.mel.engine.Element;
-import com.alice.mel.engine.Entity;
-import com.alice.mel.engine.Scene;
 import org.joml.Vector2f;
 import org.joml.Vector4f;
 
+import java.io.Serializable;
 import java.util.HashMap;
 
-public abstract class BatchMaterial{
+public abstract class BatchMaterial implements Serializable {
 
-    public String textureName;
+    public String textureName = "null";
 
     public final HashMap<String, VertexData> properties = new HashMap<>();
 
@@ -23,8 +20,8 @@ public abstract class BatchMaterial{
     public final Vector2f lastTextureDivision = new Vector2f();
     public final Vector4f lastColor = new Vector4f();
 
-    public final Class<? extends  Shader> shaderClass;
-    public BatchMaterial(Class<? extends Shader> shaderClass) {
+    public final Class<? extends  BatchShader> shaderClass;
+    public BatchMaterial(Class<? extends BatchShader> shaderClass) {
         this.shaderClass = shaderClass;
     }
 

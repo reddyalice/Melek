@@ -7,6 +7,8 @@ import com.alice.mel.engine.Entity;
 import com.alice.mel.engine.Scene;
 import com.alice.mel.gui.UIElement;
 import com.alice.mel.utils.collections.Array;
+import com.alice.mel.utils.maths.MathUtils;
+import com.bulletphysics.linearmath.MatrixUtil;
 import org.javatuples.Pair;
 import org.joml.*;
 import org.lwjgl.opengl.*;
@@ -329,17 +331,16 @@ public class MeshBatch  implements Comparable<MeshBatch>{
         Vector3f scale = element.scale;
         float[] POS = new float[positionData.dimension];
         for(int i = 0;i < vertexSize; i++){
-
             switch (POS.length) {
-                case 1 -> POS[0] = position.x + positionData.data[positionData.dimension * i] * scale.x / 2f;
+                case 1 -> POS[0] = position.x + positionData.data[positionData.dimension * i] * scale.x;
                 case 2 -> {
-                    POS[0] = position.x + positionData.data[positionData.dimension * i] * scale.x / 2f;
-                    POS[1] = position.y + positionData.data[positionData.dimension * i + 1] * scale.y / 2f;
+                    POS[0] = position.x + positionData.data[positionData.dimension * i] * scale.x;
+                    POS[1] = position.y + positionData.data[positionData.dimension * i + 1] * scale.y;
                 }
                 default -> {
-                    POS[0] = position.x + positionData.data[positionData.dimension * i] * scale.x / 2f;
-                    POS[1] = position.y + positionData.data[positionData.dimension * i + 1] * scale.y / 2f;
-                    POS[2] = position.z + positionData.data[positionData.dimension * i + 2] * scale.z / 2f;
+                    POS[0] = position.x + positionData.data[positionData.dimension * i] * scale.x;
+                    POS[1] = position.y + positionData.data[positionData.dimension * i + 1] * scale.y;
+                    POS[2] = position.z + positionData.data[positionData.dimension * i + 2] * scale.z;
                 }
             }
             vertices.get("positions").setVertex(offset + i, POS);
@@ -474,6 +475,10 @@ public class MeshBatch  implements Comparable<MeshBatch>{
 
     public boolean hasTexture(String textureName) {
         return this.elements.containsKey(textureName);
+    }
+
+    public Mesh getMesh(){
+        return mesh;
     }
 
     public int zIndex() {

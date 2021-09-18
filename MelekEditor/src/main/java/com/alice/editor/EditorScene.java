@@ -3,6 +3,7 @@ package com.alice.editor;
 import com.alice.mel.components.Component;
 import com.alice.mel.engine.Entity;
 import com.alice.mel.engine.Game;
+import com.alice.mel.engine.Scene;
 import com.alice.mel.engine.SceneAdaptor;
 import com.alice.mel.graphics.CameraType;
 import com.alice.mel.graphics.Texture;
@@ -18,7 +19,6 @@ public class EditorScene extends SceneAdaptor {
 
 
     public EditorScene() {
-        super(RunEditor.game);
         addToGame();
     }
 
@@ -26,9 +26,9 @@ public class EditorScene extends SceneAdaptor {
 
     private GUIRenderer guiRenderer;
     @Override
-    public void Init(Window loaderWindow) {
+    public void Init(Window loaderWindow, Scene scene) {
 
-        guiRenderer = new GUIRenderer(game.assetManager, scene);
+        guiRenderer = new GUIRenderer(Game.assetManager, scene);
         Texture guiImage = new Texture("assets/textures/guiSheet.png");
         addTexture("guiImage", guiImage);
 

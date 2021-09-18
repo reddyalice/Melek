@@ -10,10 +10,7 @@ import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL32;
 import org.lwjgl.opengl.GL32C;
 
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.nio.FloatBuffer;
 import java.util.HashMap;
 
@@ -21,7 +18,7 @@ import java.util.HashMap;
  * Class for loading the Shader
  * @author Bahar Demircan
  */
-public abstract class Shader{
+public abstract class Shader implements Serializable {
 
     public enum ShaderType{
         NONE,
@@ -32,7 +29,7 @@ public abstract class Shader{
 
     public HashMap<Scene, Integer> ids = new HashMap<>();
     public final HashMap<Integer, String> sources = new HashMap<>();
-    private final FloatBuffer matrixBuffer = BufferUtils.createFloatBuffer(16);
+    private final float[] matrixBuffer = new float[16];
 
     /**
      * @param shaderOrShaderFilePath Shader Source or File Path to the shader file

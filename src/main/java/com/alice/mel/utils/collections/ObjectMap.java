@@ -1,10 +1,11 @@
 package com.alice.mel.utils.collections;
 
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-public class ObjectMap<K,V> implements Iterable<ObjectMap.Entry<K, V>>  {
+public class ObjectMap<K,V> implements Iterable<ObjectMap.Entry<K, V>> , Serializable {
 
     static final Object dummy = new Object();
 

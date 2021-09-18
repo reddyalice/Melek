@@ -1,14 +1,16 @@
 package com.alice.mel.utils;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
-public class KeyedEvent<T>{
+public class KeyedEvent<T> implements Serializable{
 
-    private final HashMap<String,Consumer<T>> consumers = new HashMap<>();
+    public final HashMap<String, SerializableConsumer<T>>  consumers = new HashMap<>();
 
-    public void add(String key, Consumer<T> consumer) {
-        consumers.put(key,  consumer);
+    public void add(String key, SerializableConsumer<T> consumer) {
+        consumers.put(key, consumer);
     }
 
     public void broadcast(T in) {

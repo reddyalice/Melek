@@ -1,6 +1,8 @@
 package com.alice.mel.graphics;
 
-public final class VertexData {
+import java.io.Serializable;
+
+public final class VertexData implements Serializable {
     public final int size;
     public final int length;
     public final int dimension;

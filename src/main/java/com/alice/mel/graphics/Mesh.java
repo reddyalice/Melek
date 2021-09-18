@@ -5,13 +5,14 @@ import com.alice.mel.utils.collections.Array;
 import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GL30;
 
+import java.io.Serializable;
 import java.util.HashMap;
 
 /**
  * Mesh data holder class
  * @author Bahar Demircan
  */
-public final class Mesh {
+public final class Mesh implements Serializable {
 
     private final HashMap<Scene, HashMap<Window, Integer>> ids = new HashMap<>();
     private final HashMap<String, VertexBufferObject> vertices = new HashMap<>();

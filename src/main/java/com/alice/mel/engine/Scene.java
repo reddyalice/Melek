@@ -3,6 +3,7 @@ package com.alice.mel.engine;
 
 import com.alice.mel.components.Component;
 import com.alice.mel.components.ComponentType;
+import com.alice.mel.data.SceneData;
 import com.alice.mel.graphics.*;
 import com.alice.mel.systems.ComponentSystem;
 import com.alice.mel.systems.Family;
@@ -14,7 +15,9 @@ import org.jbox2d.dynamics.World;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWErrorCallback;
+import org.lwjgl.system.CallbackI;
 
+import java.io.IOException;
 import java.util.HashMap;
 
 /**
@@ -23,7 +26,8 @@ import java.util.HashMap;
  */
 public final class Scene {
 
-
+    private static int lastID = 0;
+    public int id;
     private final SnapshotArray<Window> windows = new SnapshotArray<>();
     public final Window loaderWindow;
     public Window currentContext;
@@ -32,15 +36,15 @@ public final class Scene {
     public final CameraPool cameraPool = new CameraPool();
     public final EntityPool entityPool = new EntityPool();
 
-    public final KeyedEvent<Window> init = new KeyedEvent<>();
+    public KeyedEvent<Pair<Window, Scene>> init = new KeyedEvent<>();
     private final KeyedEvent<Window> multiInit = new KeyedEvent<>();
-    public final KeyedEvent<Float> preUpdate = new KeyedEvent<>();
-    public final KeyedEvent<Float> update = new KeyedEvent<>();
-    public final KeyedEvent<Float> postUpdate = new KeyedEvent<>();
+    public KeyedEvent<Float> preUpdate = new KeyedEvent<>();
+    public KeyedEvent<Float> update = new KeyedEvent<>();
+    public KeyedEvent<Float> postUpdate = new KeyedEvent<>();
 
-    public final KeyedEvent<Pair<Window, Float>> preRender = new KeyedEvent<>();
-    public final KeyedEvent<Pair<Window, Float>> render = new KeyedEvent<>();
-    public final KeyedEvent<Pair<Window, Float>> postRender = new KeyedEvent<>();
+    public KeyedEvent<Pair<Window, Float>> preRender = new KeyedEvent<>();
+    public KeyedEvent<Pair<Window, Float>> render = new KeyedEvent<>();
+    public KeyedEvent<Pair<Window, Float>> postRender = new KeyedEvent<>();
 
     public final KeyedEvent<Entity> entityAdded = new KeyedEvent<>();
     public final KeyedEvent<Pair<Entity, Component>> entityModified = new KeyedEvent<>();
@@ -60,15 +64,12 @@ public final class Scene {
     private final SnapshotArray<ComponentSystem> componentSystems = new SnapshotArray<>();
 
     public final World world = new World(new Vec2(0, 9.8f));
-    private final Game game;
 
     /**
      * Creates a scene with a loader window
-     * @param game Game the scene loaded to
      */
-    public Scene(Game game){
-        this.game = game;
-        if(game.loaderScene == null) {
+    public Scene(){
+        if(Game.loaderScene == null) {
             GLFWErrorCallback.createPrint(System.err).set();
             boolean isInitialized = GLFW.glfwInit();
             if (!isInitialized) {
@@ -89,7 +90,9 @@ public final class Scene {
 
 
 
-            game.loaderScene = this;
+            Game.loaderScene = this;
+            id = lastID++;
+
         }
 
         GLFW.glfwWindowHint(GLFW.GLFW_VISIBLE, GLFW.GLFW_FALSE);
@@ -193,7 +196,7 @@ public final class Scene {
      * @param name Registered name of the texture that will be loaded
      */
     public void loadTexture(String name){
-        Texture texture = game.assetManager.getTexture(name);
+        Texture texture = Game.assetManager.getTexture(name);
         assert texture != null;
         if(!textures.contains(name, false)) {
             textures.add(name);
@@ -210,7 +213,7 @@ public final class Scene {
      * @param name Registered name of the texture that will be loaded
      */
     public void loadMesh(String name){
-        Mesh mesh = game.assetManager.getMesh(name);
+        Mesh mesh = Game.assetManager.getMesh(name);
         assert mesh != null;
         if(!meshes.contains(name, false)) {
             meshes.add(name);
@@ -264,7 +267,7 @@ public final class Scene {
      * @param shaderClass Class of the Shader that will be load
      */
     public void loadShader(Class<? extends Shader> shaderClass){
-        Shader shader = game.assetManager.getShader(shaderClass);
+        Shader shader = Game.assetManager.getShader(shaderClass);
         assert shader != null;
         if(!shaders.contains(shaderClass, false)) {
             shaders.add(shaderClass);
@@ -308,7 +311,7 @@ public final class Scene {
      * @param name Name the texture registered as
      */
     public void unloadTexture(String name){
-        Texture texture = game.assetManager.getTexture(name);
+        Texture texture = Game.assetManager.getTexture(name);
         assert texture != null;
         if(textures.contains(name, false)) {
             loaderWindow.makeContextCurrent();
@@ -325,7 +328,7 @@ public final class Scene {
      * @param name Name the Mesh registered as
      */
     public void unloadMesh(String name){
-        Mesh mesh = game.assetManager.getMesh(name);
+        Mesh mesh = Game.assetManager.getMesh(name);
         assert mesh != null;
         if(meshes.contains(name, false)) {
             meshes.removeValue(name, false);
@@ -379,7 +382,7 @@ public final class Scene {
      * @param shaderClass Class of the shader
      */
     public void unloadShader(Class<? extends Shader> shaderClass){
-        Shader shader = game.assetManager.getShader(shaderClass);
+        Shader shader = Game.assetManager.getShader(shaderClass);
         assert shader != null;
         if(shaders.contains(shaderClass, false)) {
             shaders.removeValue(shaderClass, false);
@@ -473,9 +476,11 @@ public final class Scene {
                 updateEntityFamily(entity);
         }
 
-
-
-        return new ImmutableArray<>(families.get(componentFamily));
+        entite = families.get(componentFamily);
+        if(entite != null)
+            return new ImmutableArray<>(families.get(componentFamily));
+        else
+            return null;
     }
 
     private void updateEntityFamily(Entity entity){
@@ -506,7 +511,7 @@ public final class Scene {
 
         if(!initialized){
             loaderWindow.makeContextCurrent();
-            init.broadcast(loaderWindow);
+            init.broadcast(Pair.with(loaderWindow, this));
             initialized = true;
             if(currentContext != null)
                 currentContext.makeContextCurrent();
@@ -635,6 +640,25 @@ public final class Scene {
         windowPool.dispose();
         cameraPool.dispose();
     }
+
+    public void Save() throws IOException {
+        SceneData sceneData = new SceneData(init, preUpdate, update, postUpdate, preRender, render, postRender);
+        Game.Serialize(sceneData,  id + ".scene");
+    }
+
+    public void Load(String fileName) throws IOException, ClassNotFoundException {
+        SceneData sceneData = (SceneData)Game.Deserialize(fileName);
+        this.init = sceneData.init;
+        this.preUpdate = sceneData.preUpdate;
+        this.update = sceneData.update;
+        this.postUpdate = sceneData.postUpdate;
+        this.preRender  = sceneData.preRender;
+        this.render = sceneData.render;
+        this.postRender = sceneData.postRender;
+
+
+    }
+
 
 
 }

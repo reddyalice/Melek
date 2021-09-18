@@ -5,9 +5,10 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GL20;
 
+import java.io.Serializable;
 import java.util.HashMap;
 
-public final class VertexBufferObject {
+public final class VertexBufferObject implements Serializable {
 
     private final HashMap<Scene, Integer> ids = new HashMap<>();
     private int drawType;

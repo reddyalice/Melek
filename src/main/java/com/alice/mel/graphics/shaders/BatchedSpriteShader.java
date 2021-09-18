@@ -1,11 +1,14 @@
 package com.alice.mel.graphics.shaders;
 
+import com.alice.mel.engine.AssetManager;
 import com.alice.mel.engine.Scene;
+import com.alice.mel.graphics.BatchShader;
 import com.alice.mel.graphics.Shader;
+import com.alice.mel.graphics.Window;
 import org.joml.Matrix4f;
 import org.lwjgl.opengl.GL45;
 
-public class BatchedSpriteShader extends Shader {
+public class BatchedSpriteShader extends BatchShader {
 
     private int location_viewMatrix;
     private int location_projectionMatrix;
@@ -41,4 +44,9 @@ public class BatchedSpriteShader extends Shader {
         loadMatrix(location_projectionMatrix, projectionMatrix);
     }
 
+    @Override
+    public void loadValues(AssetManager assetManager, Scene scene, Window window) {
+        loadViewMatrix(window.camera.viewMatrix);
+        loadProjectionMatrix(window.camera.projectionMatrix);
+    }
 }

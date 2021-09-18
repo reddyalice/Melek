@@ -17,8 +17,9 @@ public class RenderingComponent extends Component{
      * @param meshName Mesh name registered at the Asset Manager
      * @param material Material that carries the data that will load to the shader and shader
      */
-    public RenderingComponent(String meshName, Material material){
+    public RenderingComponent(String meshName, String textureName, Material material){
         this.material = material;
+        this.material.textureName = textureName;
         this.meshName = meshName;
     }
 }

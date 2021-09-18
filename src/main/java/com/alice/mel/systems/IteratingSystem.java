@@ -25,7 +25,10 @@ public abstract class IteratingSystem extends ComponentSystem{
     public void addedToScene(Scene scene) {
 
         if (requiredFamily != null) {
-            entites.addAll(scene.getEntitiesFor(requiredFamily).toArray());
+            ImmutableArray<Entity> gotEntities = scene.getEntitiesFor(requiredFamily);
+            if(gotEntities != null) {
+                entites.addAll(gotEntities.toArray());
+            }
 
             scene.entityAdded.add(getClass().getName(), en -> {
                 if(requiredFamily.matches(en))

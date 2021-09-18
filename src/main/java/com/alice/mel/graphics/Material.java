@@ -6,12 +6,14 @@ import com.alice.mel.engine.Entity;
 import com.alice.mel.engine.Scene;
 import com.alice.mel.utils.collections.Array;
 
+import java.io.Serializable;
+
 /**
  * Parent Class for Classes that carry shader properties
  */
-public abstract class Material {
+public abstract class Material implements Serializable {
 
-    public String textureName;
+    public String textureName = "null";
     public final Class<? extends  Shader> shaderClass;
     public Material(Class<? extends  Shader> shaderClass){
         this.shaderClass = shaderClass;

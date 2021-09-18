@@ -1,7 +1,6 @@
 package com.alice.mel.components;
 
 import com.alice.mel.graphics.BatchMaterial;
-import com.alice.mel.graphics.Material;
 
 public class BatchRenderingComponent extends Component{
     public String meshName;
@@ -11,8 +10,9 @@ public class BatchRenderingComponent extends Component{
      * @param meshName Mesh name registered at the Asset Manager
      * @param material Material that carries the data that will load to the shader and shader
      */
-    public BatchRenderingComponent(String meshName, BatchMaterial material){
+    public BatchRenderingComponent(String meshName, String textureName, BatchMaterial material){
         this.material = material;
+        this.material.textureName = textureName;
         this.meshName = meshName;
     }
 }

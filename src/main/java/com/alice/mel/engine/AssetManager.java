@@ -8,13 +8,14 @@ import com.alice.mel.utils.collections.ObjectMap;
 import com.alice.mel.utils.reflections.ClassReflection;
 import com.alice.mel.utils.reflections.ReflectionException;
 
+import java.io.Serializable;
 import java.util.HashMap;
 
 /**
  * An Asset Manager for Asset Handling between all scenes and windows
  * @author Bahar Demircan
  */
-public final class AssetManager {
+public final class AssetManager implements Serializable {
 
     private final HashMap<String, Texture> textures = new HashMap<>();
     private final ObjectMap<Class<? extends Shader>, Shader> shaders = new ObjectMap<>();

@@ -5,25 +5,26 @@ import com.alice.mel.graphics.*;
 import com.alice.mel.systems.ComponentSystem;
 import org.jbox2d.dynamics.World;
 
+import java.io.IOException;
+import java.io.Serializable;
+
 /**
  * Adaptor Class for the scene to work with it easier
  * @author Bahar Demircan
  */
-public abstract class SceneAdaptor {
+public abstract class SceneAdaptor implements Serializable{
 
-    public final Scene scene;
-    public final Game game;
-    public final AssetManager assetManager;
-    public final World world;
+    public transient Scene scene = new Scene();
+    public transient World world = scene.world;
 
-    /**
-     * @param game Game the Scene will load to
-     */
-    public SceneAdaptor(Game game){
-        scene = new Scene(game);
-        this.game = game;
-        this.assetManager = game.assetManager;
-        scene.init.add("fromAdaptor", this::Init);
+    public SceneAdaptor(){
+        scene.init.add("fromAdaptor", x ->{
+            if(this.scene == null) {
+                this.scene = x.getValue1();
+                world = scene.world;
+            }
+            Init(x.getValue0(), x.getValue1());
+        });
         scene.preUpdate.add("fromAdaptor", this::PreUpdate);
         scene.update.add("fromAdaptor", this::Update);
         scene.postUpdate.add("fromAdaptor", this::PostUpdate);
@@ -33,14 +34,13 @@ public abstract class SceneAdaptor {
         scene.entityAdded.add("fromAdaptor", this::entityAdded);
         scene.entityModified.add("fromAdaptor", x -> entityModified(x.getValue0(), x.getValue1()));
         scene.entityRemoved.add("fromAdaptor", this::entityRemoved);
-        world = scene.world;
     }
 
     /**
      * Initialization stage of the scene
      * @param loaderWindow Loader Window for loading assets
      */
-    public abstract void Init(Window loaderWindow);
+    public abstract void Init(Window loaderWindow, Scene scene);
 
     /**
      * Stage before the main Update
@@ -87,8 +87,8 @@ public abstract class SceneAdaptor {
      * @param shaderClass Class of the shader to be loaded
      */
     public final void addShader(Class<? extends Shader> shaderClass){
-        if(assetManager.getShader(shaderClass) == null)
-            assetManager.addShader(shaderClass);
+        if(Game.assetManager.getShader(shaderClass) == null)
+            Game.assetManager.addShader(shaderClass);
         scene.loadShader(shaderClass);
     }
 
@@ -100,7 +100,7 @@ public abstract class SceneAdaptor {
     public final void removeShader(Class<? extends Shader> shaderClass, boolean removeFromAssetManager){
         scene.unloadShader(shaderClass);
         if(removeFromAssetManager)
-            assetManager.removeShader(shaderClass);
+            Game.assetManager.removeShader(shaderClass);
     }
 
 
@@ -119,7 +119,7 @@ public abstract class SceneAdaptor {
      * @return Shader to be returned
      */
     public final <T extends Shader> T getShader(Class<T> shaderClass) {
-        return assetManager.getShader(shaderClass);
+        return Game.assetManager.getShader(shaderClass);
     }
 
     /**
@@ -128,8 +128,8 @@ public abstract class SceneAdaptor {
      * @param texture Texture to be loaded
      */
     public final void addTexture(String name, Texture texture){
-        if(!assetManager.hasTexture(name))
-            assetManager.addTexture(name, texture);
+        if(!Game.assetManager.hasTexture(name))
+            Game.assetManager.addTexture(name, texture);
         scene.loadTexture(name);
     }
 
@@ -139,7 +139,7 @@ public abstract class SceneAdaptor {
      * @return Texture to be returned
      */
     public final Texture getTexture(String name){
-        return assetManager.getTexture(name);
+        return Game.assetManager.getTexture(name);
     }
 
     /**
@@ -150,7 +150,7 @@ public abstract class SceneAdaptor {
     public final void removeTexture(String name, boolean removeFromAssetManager){
         scene.unloadTexture(name);
         if(removeFromAssetManager)
-            assetManager.removeTexture(name);
+            Game.assetManager.removeTexture(name);
     }
 
     /**
@@ -167,8 +167,8 @@ public abstract class SceneAdaptor {
      * @param mesh Mesh to be loaded
      */
     public final void addMesh(String name, Mesh mesh){
-        if(!assetManager.hasMesh(name)){
-            assetManager.addMesh(name, mesh);
+        if(!Game.assetManager.hasMesh(name)){
+            Game.assetManager.addMesh(name, mesh);
         }
         scene.loadMesh(name);
     }
@@ -178,7 +178,7 @@ public abstract class SceneAdaptor {
      * @return Mesh to be returned
      */
     public final Mesh getMesh(String name){
-        return assetManager.getMesh(name);
+        return Game.assetManager.getMesh(name);
     }
 
     /**
@@ -189,7 +189,7 @@ public abstract class SceneAdaptor {
     public final void removeMesh(String name, boolean removeFromAssetManager){
         scene.unloadMesh(name);
         if(removeFromAssetManager)
-            assetManager.removeMesh(name);
+            Game.assetManager.removeMesh(name);
     }
 
     /**
@@ -287,7 +287,7 @@ public abstract class SceneAdaptor {
      * Add the scene to the active scenes in the game
      */
     public final void addToGame(){
-        game.addActiveScene(scene);
+        Game.addActiveScene(scene);
     }
 
     /**
@@ -295,7 +295,7 @@ public abstract class SceneAdaptor {
      * @param destroyScene Destroy the scene after removing
      */
     public final void removeFromGame(boolean destroyScene){
-        game.removeActiveScene(scene, destroyScene);
+        Game.removeActiveScene(scene, destroyScene);
     }
 
     /**
@@ -340,6 +340,15 @@ public abstract class SceneAdaptor {
     public final boolean getMouseButtonReleased(int button) {
         return InputHandler.getMouseButtonReleased(scene, button);
     }
+
+    public void Save() throws IOException {
+        scene.Save();
+    }
+
+    public void Load(String fileName) throws IOException, ClassNotFoundException {
+        scene.Load(fileName);
+    }
+
 
 
 }

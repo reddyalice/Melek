@@ -1,4 +1,6 @@
 package com.alice.mel.components;
 
-public abstract class Component {
+import java.io.Serializable;
+
+public abstract class Component implements Serializable {
 }

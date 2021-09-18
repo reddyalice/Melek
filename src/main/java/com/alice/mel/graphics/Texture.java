@@ -9,18 +9,21 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.io.Serializable;
 import java.nio.ByteBuffer;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 
 /**
  * Texture data class
  * @author Bahar Demircan
  */
-public final class Texture {
+public final class Texture implements Serializable {
 
     private final HashMap<Scene, Integer> ids = new HashMap<>();
     private int width, height;
-    private  ByteBuffer pixels;
+    private  byte[] pixels;
 
     public TextureFilter minFilter = TextureFilter.Nearest;
     public TextureFilter magFilter = TextureFilter.Nearest;
@@ -42,7 +45,7 @@ public final class Texture {
         assert img != null;
         width = img.getWidth();
         height = img.getHeight();
-        pixels = BufferUtils.createByteBuffer(width*height*4);
+        pixels = new byte[width*height*4];
 
 
         int [] rawPixels = img.getRGB(0, 0, width, height, null, 0, width);
@@ -50,14 +53,13 @@ public final class Texture {
         for(int i = 0; i < height; i++){
             for(int j = 0; j < width; j++){
                 int pixel = rawPixels[i*width + j];
-                pixels.put((byte)((pixel >> 16) & 0xFF)); //RED
-                pixels.put((byte)((pixel >> 8) & 0xFF)); //GREEN
-                pixels.put((byte)(pixel & 0xFF)); //BLUE
-                pixels.put((byte)((pixel >> 24) & 0xFF)); //ALPHA
+                pixels[(i*width + j) * 4] = ((byte)((pixel >> 16) & 0xFF)); //RED
+                pixels[(i*width + j) * 4 + 1] = ( (byte)((pixel >> 8) & 0xFF)); //GREEN
+                pixels[(i*width + j) * 4 + 2] = ((byte)(pixel & 0xFF)); //BLUE
+                pixels[(i*width + j) * 4 + 3] = ((byte)((pixel >> 24) & 0xFF)); //ALPHA
             }
         }
-
-        pixels.flip();
+        Collections.reverse(Arrays.asList(pixels));
     }
 
     /**
@@ -67,7 +69,7 @@ public final class Texture {
 
         width = bufferedImage.getWidth();
         height = bufferedImage.getHeight();
-        pixels = BufferUtils.createByteBuffer(width*height*4);
+        pixels = new byte[width*height*4];
 
 
         int [] rawPixels = bufferedImage.getRGB(0, 0, width, height, null, 0, width);
@@ -75,14 +77,12 @@ public final class Texture {
         for(int i = 0; i < height; i++){
             for(int j = 0; j < width; j++){
                 int pixel = rawPixels[i*width + j];
-                pixels.put((byte)((pixel >> 16) & 0xFF)); //RED
-                pixels.put((byte)((pixel >> 8) & 0xFF)); //GREEN
-                pixels.put((byte)(pixel & 0xFF)); //BLUE
-                pixels.put((byte)((pixel >> 24) & 0xFF)); //ALPHA
+                pixels[(i*width + j) * 4] = ((byte)((pixel >> 16) & 0xFF)); //RED
+                pixels[(i*width + j) * 4 + 1] = ( (byte)((pixel >> 8) & 0xFF)); //GREEN
+                pixels[(i*width + j) * 4 + 2] = ((byte)(pixel & 0xFF)); //BLUE
+                pixels[(i*width + j) * 4 + 3] = ((byte)((pixel >> 24) & 0xFF)); //ALPHA
             }
         }
-
-        pixels.flip();
     }
 
 
@@ -96,19 +96,18 @@ public final class Texture {
         this.width = width;
         this.height = height;
 
-        pixels = BufferUtils.createByteBuffer(width*height*4);
+        pixels = new byte[width*height*4];
 
         for(int i = 0; i < height; i++){
             for(int j = 0; j < width; j++){
                 int pixel = rawPixels[i*width + j];
-                pixels.put((byte)((pixel >> 16) & 0xFF)); //RED
-                pixels.put((byte)((pixel >> 8) & 0xFF)); //GREEN
-                pixels.put((byte)(pixel & 0xFF)); //BLUE
-                pixels.put((byte)((pixel >> 24) & 0xFF)); //ALPHA
+                pixels[(i*width + j) * 4] = ((byte)((pixel >> 16) & 0xFF)); //RED
+                pixels[(i*width + j) * 4 + 1] = ( (byte)((pixel >> 8) & 0xFF)); //GREEN
+                pixels[(i*width + j) * 4 + 2] = ((byte)(pixel & 0xFF)); //BLUE
+                pixels[(i*width + j) * 4 + 3] = ((byte)((pixel >> 24) & 0xFF)); //ALPHA
             }
         }
 
-        pixels.flip();
     }
 
 
@@ -128,7 +127,7 @@ public final class Texture {
         assert img != null;
         width = img.getWidth();
         height = img.getHeight();
-        pixels = BufferUtils.createByteBuffer(width*height*4);
+        pixels = new byte[width*height*4];
 
 
         int [] rawPixels = img.getRGB(0, 0, width, height, null, 0, width);
@@ -136,18 +135,17 @@ public final class Texture {
         for(int i = 0; i < height; i++){
             for(int j = 0; j < width; j++){
                 int pixel = rawPixels[i*width + j];
-                pixels.put((byte)((pixel >> 16) & 0xFF)); //RED
-                pixels.put((byte)((pixel >> 8) & 0xFF)); //GREEN
-                pixels.put((byte)(pixel & 0xFF)); //BLUE
-                pixels.put((byte)((pixel >> 24) & 0xFF)); //ALPHA
+                pixels[(i*width + j) * 4] = ((byte)((pixel >> 16) & 0xFF)); //RED
+                pixels[(i*width + j) * 4 + 1] = ( (byte)((pixel >> 8) & 0xFF)); //GREEN
+                pixels[(i*width + j) * 4 + 2] = ((byte)(pixel & 0xFF)); //BLUE
+                pixels[(i*width + j) * 4 + 3] = ((byte)((pixel >> 24) & 0xFF)); //ALPHA
             }
         }
 
-        pixels.flip();
 
         setTextureFilter(scene, minFilter, magFilter);
         setTextureWrap(scene, uWrap, vWrap);
-        GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA, width, height, 0, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, pixels);
+        GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA, width, height, 0, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, BufferUtils.createByteBuffer(pixels.length).put(pixels).flip());
         unbind();
     }
 
@@ -162,22 +160,20 @@ public final class Texture {
         this.width = width;
         this.height = height;
 
-        pixels = BufferUtils.createByteBuffer(width*height*4);
+        pixels = new byte[width*height*4];
 
         for(int i = 0; i < height; i++){
             for(int j = 0; j < width; j++){
                 int pixel = rawPixels[i*width + j];
-                pixels.put((byte)((pixel >> 16) & 0xFF)); //RED
-                pixels.put((byte)((pixel >> 8) & 0xFF)); //GREEN
-                pixels.put((byte)(pixel & 0xFF)); //BLUE
-                pixels.put((byte)((pixel >> 24) & 0xFF)); //ALPHA
+                pixels[(i*width + j) * 4] = ((byte)((pixel >> 16) & 0xFF)); //RED
+                pixels[(i*width + j) * 4 + 1] = ( (byte)((pixel >> 8) & 0xFF)); //GREEN
+                pixels[(i*width + j) * 4 + 2] = ((byte)(pixel & 0xFF)); //BLUE
+                pixels[(i*width + j) * 4 + 3] = ((byte)((pixel >> 24) & 0xFF)); //ALPHA
             }
         }
-
-        pixels.flip();
         setTextureFilter(scene, minFilter, magFilter);
         setTextureWrap(scene, uWrap, vWrap);
-        GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA, width, height, 0, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, pixels);
+        GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA, width, height, 0, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, BufferUtils.createByteBuffer(pixels.length).put(pixels).flip());
         unbind();
     }
 
@@ -189,7 +185,7 @@ public final class Texture {
     public void regenTexture(Scene scene, BufferedImage bufferedImage){
         width = bufferedImage.getWidth();
         height = bufferedImage.getHeight();
-        pixels = BufferUtils.createByteBuffer(width*height*4);
+        pixels = new byte[width*height*4];
 
 
         int [] rawPixels = bufferedImage.getRGB(0, 0, width, height, null, 0, width);
@@ -197,18 +193,16 @@ public final class Texture {
         for(int i = 0; i < height; i++){
             for(int j = 0; j < width; j++){
                 int pixel = rawPixels[i*width + j];
-                pixels.put((byte)((pixel >> 16) & 0xFF)); //RED
-                pixels.put((byte)((pixel >> 8) & 0xFF)); //GREEN
-                pixels.put((byte)(pixel & 0xFF)); //BLUE
-                pixels.put((byte)((pixel >> 24) & 0xFF)); //ALPHA
+                pixels[(i*width + j) * 4] = ((byte)((pixel >> 16) & 0xFF)); //RED
+                pixels[(i*width + j) * 4 + 1] = ( (byte)((pixel >> 8) & 0xFF)); //GREEN
+                pixels[(i*width + j) * 4 + 2] = ((byte)(pixel & 0xFF)); //BLUE
+                pixels[(i*width + j) * 4 + 3] = ((byte)((pixel >> 24) & 0xFF)); //ALPHA
             }
         }
 
-        pixels.flip();
-
         setTextureFilter(scene, minFilter, magFilter);
         setTextureWrap(scene, uWrap, vWrap);
-        GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA, width, height, 0, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, pixels);
+        GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA, width, height, 0, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, BufferUtils.createByteBuffer(pixels.length).put(pixels).flip());
         unbind();
     }
 
@@ -223,7 +217,7 @@ public final class Texture {
         ids.put(scene, id);
         setTextureFilter(scene, minFilter, magFilter);
         setTextureWrap(scene, uWrap, vWrap);
-        GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA, width, height, 0, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, pixels);
+        GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA, width, height, 0, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, BufferUtils.createByteBuffer(pixels.length).put(pixels).flip());
 
         GL11.glBindTexture(GL11.GL_TEXTURE_2D, 0);
 
@@ -290,7 +284,7 @@ public final class Texture {
      * Get Pixel Buffer
      * @return Pixel Buffer
      */
-    public ByteBuffer getPixels() {
+    public byte[] getPixels() {
         return pixels;
     }
 
