@@ -121,9 +121,11 @@ public class BatchedRenderingSystem extends ComponentSystem{
         
         scene.entityModified.add("BatchedRenderingSystem", entityComponentPair -> {
             Entity entity = entityComponentPair.getValue0();
+
             if(entityComponentPair.getValue1() instanceof BatchRenderingComponent){
+                BatchRenderingComponent component = (BatchRenderingComponent) entityComponentPair.getValue1();
                 if(entity.hasComponent(BatchRenderingComponent.class)){
-                    BatchRenderingComponent component = entity.getComponent(BatchRenderingComponent.class);
+
                     if (batches.get(component.material.shaderClass) == null)
                         batches.put(component.material.shaderClass, new Array<>());
 
@@ -162,15 +164,39 @@ public class BatchedRenderingSystem extends ComponentSystem{
                     }
                 }else
                 {
-                    
+                    Array<MeshBatch> meshBatches = batches.get(component.material.shaderClass);
+                    for(MeshBatch batch : meshBatches){
+                        int i = batch.getNumberOfElements();
+                        batch.removeEntity(entity);
+                        int j = batch.getNumberOfElements();
+                        if(j <= 0)
+                            meshBatches.removeValue(batch, false);
+                        if(i - j != 0)
+                            break;
+                    }
+                    if (meshBatches.isEmpty())
+                        batches.remove(component.material.shaderClass);
                 }
             }
-
-
-
         });
 
-
+        scene.entityRemoved.add("BatchedRenderingSystem", entity -> {
+            if(entity.hasComponent(BatchRenderingComponent.class)){
+                BatchRenderingComponent component = entity.getComponent(BatchRenderingComponent.class);
+                Array<MeshBatch> meshBatches = batches.get(component.material.shaderClass);
+                for(MeshBatch batch : meshBatches){
+                    int i = batch.getNumberOfElements();
+                    batch.removeEntity(entity);
+                    int j = batch.getNumberOfElements();
+                    if(j <= 0)
+                        meshBatches.removeValue(batch, false);
+                    if(i - j != 0)
+                        break;
+                }
+                if (meshBatches.isEmpty())
+                    batches.remove(component.material.shaderClass);
+            }
+        });
 
 
     }

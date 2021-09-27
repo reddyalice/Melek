@@ -12,17 +12,13 @@ import java.io.Serializable;
  * Adaptor Class for the scene to work with it easier
  * @author Bahar Demircan
  */
-public abstract class SceneAdaptor implements Serializable{
+public abstract class SceneAdaptor{
 
-    public transient Scene scene = new Scene();
-    public transient World world = scene.world;
+    public final Scene scene = new Scene();
+    public final World world = scene.world;
 
     public SceneAdaptor(){
         scene.init.add("fromAdaptor", x ->{
-            if(this.scene == null) {
-                this.scene = x.getValue1();
-                world = scene.world;
-            }
             Init(x.getValue0(), x.getValue1());
         });
         scene.preUpdate.add("fromAdaptor", this::PreUpdate);
@@ -341,13 +337,6 @@ public abstract class SceneAdaptor implements Serializable{
         return InputHandler.getMouseButtonReleased(scene, button);
     }
 
-    public void Save() throws IOException {
-        scene.Save();
-    }
-
-    public void Load(String fileName) throws IOException, ClassNotFoundException {
-        scene.Load(fileName);
-    }
 
 
 

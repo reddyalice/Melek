@@ -3,7 +3,7 @@ package com.alice.mel.engine;
 
 import com.alice.mel.components.Component;
 import com.alice.mel.components.ComponentType;
-import com.alice.mel.data.SceneData;
+import com.alice.mel.data.SceneFunction;
 import com.alice.mel.graphics.*;
 import com.alice.mel.systems.ComponentSystem;
 import com.alice.mel.systems.Family;
@@ -15,7 +15,6 @@ import org.jbox2d.dynamics.World;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWErrorCallback;
-import org.lwjgl.system.CallbackI;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -36,19 +35,18 @@ public final class Scene {
     public final CameraPool cameraPool = new CameraPool();
     public final EntityPool entityPool = new EntityPool();
 
-    public KeyedEvent<Pair<Window, Scene>> init = new KeyedEvent<>();
+    public final KeyedEvent<Pair<Window, Scene>> init = new KeyedEvent<>();
     private final KeyedEvent<Window> multiInit = new KeyedEvent<>();
-    public KeyedEvent<Float> preUpdate = new KeyedEvent<>();
-    public KeyedEvent<Float> update = new KeyedEvent<>();
-    public KeyedEvent<Float> postUpdate = new KeyedEvent<>();
+    public final KeyedEvent<Float> preUpdate = new KeyedEvent<>();
+    public final KeyedEvent<Float> update = new KeyedEvent<>();
+    public final KeyedEvent<Float> postUpdate = new KeyedEvent<>();
 
-    public KeyedEvent<Pair<Window, Float>> preRender = new KeyedEvent<>();
-    public KeyedEvent<Pair<Window, Float>> render = new KeyedEvent<>();
-    public KeyedEvent<Pair<Window, Float>> postRender = new KeyedEvent<>();
+    public final KeyedEvent<Pair<Window, Float>> preRender = new KeyedEvent<>();
+    public final KeyedEvent<Pair<Window, Float>> render = new KeyedEvent<>();
+    public final KeyedEvent<Pair<Window, Float>> postRender = new KeyedEvent<>();
 
     public final KeyedEvent<Entity> entityAdded = new KeyedEvent<>();
     public final KeyedEvent<Pair<Entity, Component>> entityModified = new KeyedEvent<>();
-
     public final KeyedEvent<Entity> entityRemoved = new KeyedEvent<>();
 
 
@@ -639,24 +637,6 @@ public final class Scene {
 
         windowPool.dispose();
         cameraPool.dispose();
-    }
-
-    public void Save() throws IOException {
-        SceneData sceneData = new SceneData(init, preUpdate, update, postUpdate, preRender, render, postRender);
-        Game.Serialize(sceneData,  id + ".scene");
-    }
-
-    public void Load(String fileName) throws IOException, ClassNotFoundException {
-        SceneData sceneData = (SceneData)Game.Deserialize(fileName);
-        this.init = sceneData.init;
-        this.preUpdate = sceneData.preUpdate;
-        this.update = sceneData.update;
-        this.postUpdate = sceneData.postUpdate;
-        this.preRender  = sceneData.preRender;
-        this.render = sceneData.render;
-        this.postRender = sceneData.postRender;
-
-
     }
 
 

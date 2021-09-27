@@ -65,8 +65,8 @@ public class ExampleScene extends SceneAdaptor {
     @Override
     public void Update(float deltaTime) {
         if(getKeyPressed(GLFW.GLFW_KEY_G))
-            if(scene.getEntitiesFor(BatchRenderingComponent.class).size() > 1)
-                scene.removeEntity(scene.getEntitiesFor(BatchRenderingComponent.class).get(0));
+                if(scene.getEntitiesFor(BatchRenderingComponent.class).size() > 1)
+                    scene.removeEntity(scene.getEntitiesFor(BatchRenderingComponent.class).get(MathUtils.random.nextInt(scene.getEntitiesFor(BatchRenderingComponent.class).size())));
 
         move.set(0,0);
         if(getKeyPressed(GLFW.GLFW_KEY_W))
