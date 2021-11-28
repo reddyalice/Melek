@@ -1,7 +1,6 @@
 package com.alice.mel.data;
 
 import com.alice.mel.components.Component;
-import com.alice.mel.engine.Entity;
 import com.alice.mel.engine.Scene;
 import com.alice.mel.graphics.Window;
 import com.alice.mel.utils.KeyedEvent;

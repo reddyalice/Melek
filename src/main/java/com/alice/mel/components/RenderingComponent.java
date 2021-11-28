@@ -12,6 +12,10 @@ public class RenderingComponent extends Component{
 
     public String meshName;
     public Material material;
+
+
+    private String lastMeshName;
+
     /**
      * Constructor for Rendering Component
      * @param meshName Mesh name registered at the Asset Manager
@@ -21,5 +25,16 @@ public class RenderingComponent extends Component{
         this.material = material;
         this.material.textureName = textureName;
         this.meshName = meshName;
+    }
+
+    @Override
+    public boolean isDirty() {
+        return !lastMeshName.equals(meshName) || material.isDirty();
+    }
+
+    @Override
+    public void doClean() {
+        lastMeshName = meshName;
+        material.doClean();
     }
 }

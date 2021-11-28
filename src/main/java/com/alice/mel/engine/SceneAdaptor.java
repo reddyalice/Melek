@@ -16,6 +16,7 @@ public abstract class SceneAdaptor{
 
     public final Scene scene = new Scene();
     public final World world = scene.world;
+    public final EntityManager entityManager = scene.entityManager;
 
     public SceneAdaptor(){
         scene.init.add("fromAdaptor", x ->{
@@ -27,9 +28,9 @@ public abstract class SceneAdaptor{
         scene.preRender.add("fromAdaptor", x -> PreRender(x.getValue0(), x.getValue1()));
         scene.render.add("fromAdaptor", x -> Render(x.getValue0(), x.getValue1()));
         scene.postRender.add("fromAdaptor", x -> PostRender(x.getValue0(), x.getValue1()));
-        scene.entityAdded.add("fromAdaptor", this::entityAdded);
-        scene.entityModified.add("fromAdaptor", x -> entityModified(x.getValue0(), x.getValue1()));
-        scene.entityRemoved.add("fromAdaptor", this::entityRemoved);
+        entityManager.entityAdded.add("fromAdaptor", this::entityAdded);
+        entityManager.entityModified.add("fromAdaptor", x -> entityModified(x.getValue0(), x.getValue1()));
+        entityManager.entityRemoved.add("fromAdaptor", this::entityRemoved);
     }
 
     /**
@@ -200,19 +201,19 @@ public abstract class SceneAdaptor{
      * Called when an entity is added to the scene
      * @param entity Entity that has been added
      */
-    public abstract void entityAdded(Entity entity);
+    public abstract void entityAdded(int entity);
 
     /**
      * Called when an entity in the scene modified
      * @param entity Entity that has been modified
      */
-    public abstract void entityModified(Entity entity, Component component);
+    public abstract void entityModified(int entity, Component component);
 
     /**
      * Called when an entity removed
      * @param entity Entity that has been removed
      */
-    public abstract void entityRemoved(Entity entity);
+    public abstract void entityRemoved(int entity);
 
     /**
      * Create or obtain a freed window
@@ -251,15 +252,15 @@ public abstract class SceneAdaptor{
      * Create or obtain an entity from freed entities and add to the scene
      * @return Entity to be obtained
      */
-    public final Entity createEntity(){
-        return scene.createEntity();
+    public final int createEntity(Component... components){
+        return scene.createEntity(components);
     }
 
     /**
      * Remove and free an entity from scene
      * @param entity Entity to be removed and freed
      */
-    public final void removeEntity(Entity entity){
+    public final void removeEntity(int entity){
         scene.removeEntity(entity);
     }
 

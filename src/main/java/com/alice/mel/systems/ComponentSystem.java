@@ -1,5 +1,6 @@
 package com.alice.mel.systems;
 
+import com.alice.mel.engine.EntityManager;
 import com.alice.mel.engine.Scene;
 import com.alice.mel.graphics.Window;
 import org.jetbrains.annotations.NotNull;
@@ -11,6 +12,7 @@ import org.jetbrains.annotations.NotNull;
 public abstract class ComponentSystem implements Comparable<ComponentSystem>{
 
     public Scene scene;
+    public EntityManager entityManager;
     public int priority = 0;
 
     /**
@@ -53,6 +55,7 @@ public abstract class ComponentSystem implements Comparable<ComponentSystem>{
      */
     public final void addedToSceneInternal(Scene scene){
         this.scene = scene;
+        this.entityManager = scene.entityManager;
         addedToScene(scene);
     }
 
@@ -62,6 +65,7 @@ public abstract class ComponentSystem implements Comparable<ComponentSystem>{
      */
     public final void removedFromSceneInternal(Scene scene){
         this.scene = null;
+        this.entityManager = null;
         removedFromScene(scene);
     }
 

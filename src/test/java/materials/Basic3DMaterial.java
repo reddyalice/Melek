@@ -1,12 +1,10 @@
 package materials;
 
-import com.alice.mel.engine.Element;
+import com.alice.mel.components.TransformComponent;
 import com.alice.mel.graphics.Window;
 import shaders.Basic3DShader;
 import com.alice.mel.engine.AssetManager;
-import com.alice.mel.engine.Entity;
 import com.alice.mel.engine.Scene;
-import com.alice.mel.graphics.Camera;
 import com.alice.mel.graphics.Material;
 import com.alice.mel.utils.maths.MathUtils;
 import org.joml.Vector2f;
@@ -36,9 +34,9 @@ public class Basic3DMaterial extends Material {
     }
 
     @Override
-    public void loadElement(AssetManager assetManager, Scene scene,Window window, Element element) {
+    public void loadElement(AssetManager assetManager, Scene scene,Window window, TransformComponent transform) {
         Basic3DShader shader3D = (Basic3DShader) assetManager.getShader(shaderClass);
-        shader3D.loadTransformationMatrix(MathUtils.CreateTransformationMatrix(element.position, element.rotation, element.scale));
+        shader3D.loadTransformationMatrix(MathUtils.CreateTransformationMatrix(transform.position, transform.rotation, transform.scale));
     }
 
     @Override

@@ -2,11 +2,8 @@ package com.alice.mel.engine;
 
 
 import com.alice.mel.components.Component;
-import com.alice.mel.components.ComponentType;
-import com.alice.mel.data.SceneFunction;
 import com.alice.mel.graphics.*;
 import com.alice.mel.systems.ComponentSystem;
-import com.alice.mel.systems.Family;
 import com.alice.mel.utils.KeyedEvent;
 import com.alice.mel.utils.collections.*;
 import org.javatuples.Pair;
@@ -16,7 +13,6 @@ import org.lwjgl.PointerBuffer;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWErrorCallback;
 
-import java.io.IOException;
 import java.util.HashMap;
 
 /**
@@ -33,7 +29,6 @@ public final class Scene {
 
     public final WindowPool windowPool = new WindowPool(this);
     public final CameraPool cameraPool = new CameraPool();
-    public final EntityPool entityPool = new EntityPool();
 
     public final KeyedEvent<Pair<Window, Scene>> init = new KeyedEvent<>();
     private final KeyedEvent<Window> multiInit = new KeyedEvent<>();
@@ -45,10 +40,6 @@ public final class Scene {
     public final KeyedEvent<Pair<Window, Float>> render = new KeyedEvent<>();
     public final KeyedEvent<Pair<Window, Float>> postRender = new KeyedEvent<>();
 
-    public final KeyedEvent<Entity> entityAdded = new KeyedEvent<>();
-    public final KeyedEvent<Pair<Entity, Component>> entityModified = new KeyedEvent<>();
-    public final KeyedEvent<Entity> entityRemoved = new KeyedEvent<>();
-
 
     private boolean initialized = false;
 
@@ -56,12 +47,10 @@ public final class Scene {
     private final SnapshotArray<String> textures = new SnapshotArray<>();
     private final SnapshotArray<String> meshes = new SnapshotArray<>();
     private final HashMap<String, MeshBatch> batches = new HashMap<>();
-    private final HashMap<ComponentType, Array<Entity>> componentEntityMap = new HashMap<>();
-    private final ObjectMap<Family, Array<Entity>> families = new ObjectMap<>();
-    private final SnapshotArray<Entity> entities = new SnapshotArray<>();
     private final SnapshotArray<ComponentSystem> componentSystems = new SnapshotArray<>();
 
     public final World world = new World(new Vec2(0, 9.8f));
+    public final EntityManager entityManager = new EntityManager();
 
     /**
      * Creates a scene with a loader window
@@ -104,66 +93,12 @@ public final class Scene {
      * Create or obtain an entity from freed ones
      * @return Obtained and added entity
      */
-    public Entity createEntity(){
-        Entity en = entityPool.obtain();
-        addEntity(en);
-        return en;
+    public int createEntity(Component... components){
+       return entityManager.createEntity(components);
     }
 
-    /**
-     * Add entity to scene
-     * @param entity Entity to be add
-     */
-    public void addEntity(Entity entity){
-        entities.add(entity);
-        for(Component component : entity.getComponents())
-        {
-            Array<Entity> ens = componentEntityMap.get(ComponentType.getFor(component.getClass()));
-            if(ens == null)
-                ens = new Array<>();
-            ens.add(entity);
-            componentEntityMap.put(ComponentType.getFor(component.getClass()), ens);
-        }
-        entity.componentAdded.add(component -> {
-            Array<Entity> ens = componentEntityMap.get(ComponentType.getFor(component.getClass()));
-            if(ens == null)
-                ens = new Array<>();
-            ens.add(entity);
-            componentEntityMap.put(ComponentType.getFor(component.getClass()), ens);
-            entityModified.broadcast(Pair.with(entity, component));
-        });
-        entity.componentRemoved.add(component -> {
-            Array<Entity> ens = componentEntityMap.get(ComponentType.getFor(component.getClass()));
-            if(ens != null){
-                
-                ens.removeValue(entity, false);
-                if(ens.isEmpty())
-                    componentEntityMap.remove(ComponentType.getFor(component.getClass()));
-                else
-                    componentEntityMap.put(ComponentType.getFor(component.getClass()), ens);
-            }
-            entityModified.broadcast(Pair.with(entity, component));
-        });
-        updateEntityFamily(entity);
-        entityAdded.broadcast(entity);
-    }
-
-    /**
-     * Remove entity from the Scene and free the entity to scenes pool
-     * @param entity Entity to be removed
-     */
-    public void removeEntity(Entity entity){
-        entityRemoved.broadcast(entity);
-        for(Component component : entity.getComponents())
-        {
-            Array<Entity> ens = componentEntityMap.get(ComponentType.getFor(component.getClass()));
-            if(ens != null) {
-                ens.removeValue(entity, false);
-                componentEntityMap.put(ComponentType.getFor(component.getClass()), ens);
-            }
-        }
-        entities.removeValue(entity, false);
-        entityPool.free(entity);
+    public void removeEntity(int entity){
+        entityManager.removeEntity(entity);
     }
 
     /**
@@ -432,71 +367,24 @@ public final class Scene {
         return createWindow(cameraType, title, width, height, false);
     }
 
-    /**
-     * Get Entities that has certain Component
-     * @param componentType ComponentType that corresponds to componentClass
-     * @return Immutable Array of entities that has that component
-     */
-    public ImmutableArray<Entity> getEntitiesFor(ComponentType componentType){
-        if(componentEntityMap.get(componentType) != null)
-            return new ImmutableArray<>(componentEntityMap.get(componentType));
-        else
-            return null;
 
+    public final ImmutableArray<Integer> getFor(RelationType relation, Class<? extends Component>... componentClasses){
+        return entityManager.getFor(relation, componentClasses);
     }
 
-    /**
-     * Get Entities that has certain Component
-     * @param componentClass Component Class of the common components
-     * @return Immutable Array of entities that has that components
-     */
-    public ImmutableArray<Entity> getEntitiesFor(Class<? extends Component> componentClass) {
-        return getEntitiesFor(ComponentType.getFor(componentClass));
+    @SafeVarargs
+    public final ImmutableArray<Integer> getForAll(Class<? extends Component>... componentClasses) {
+        return entityManager.getForAll(componentClasses);
     }
 
-
-    /**
-     * Get Entities that has certain Components
-     * @param componentFamily Family of components
-     * @return Immutable Array of entities that has that components
-     */
-    public ImmutableArray<Entity> getEntitiesFor(Family componentFamily){
-        return registerEntities(componentFamily);
+    @SafeVarargs
+    public final ImmutableArray<Integer> getForAny(Class<? extends Component>... componentClasses) {
+        return entityManager.getForAny(componentClasses);
     }
 
-    private ImmutableArray<Entity> registerEntities(Family componentFamily){
-        Array<Entity> entite = families.get(componentFamily);
-
-        if(entite == null){
-            families.put(componentFamily, new Array<>());
-
-            for(Entity entity : entities)
-                updateEntityFamily(entity);
-        }
-
-        entite = families.get(componentFamily);
-        if(entite != null)
-            return new ImmutableArray<>(families.get(componentFamily));
-        else
-            return null;
-    }
-
-    private void updateEntityFamily(Entity entity){
-        for(Family componentFamily : families.keys()){
-            final int index = componentFamily.getIndex();
-            final Bits entityFamilyBits = entity.getFamilyBits();
-
-            boolean belongsToTheFamily = entityFamilyBits.get(index);
-            boolean matches = componentFamily.matches(entity);
-
-            if(belongsToTheFamily != matches){
-                final Array<Entity> familyEntities = families.get(componentFamily);
-                if(matches)
-                    familyEntities.add(entity);
-                else
-                    familyEntities.removeValue(entity, false);
-            }
-        }
+    @SafeVarargs
+    public final ImmutableArray<Integer> getForNone(Class<? extends Component>... componentClasses) {
+        return entityManager.getForNone(componentClasses);
     }
 
 

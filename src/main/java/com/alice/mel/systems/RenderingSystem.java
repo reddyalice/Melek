@@ -2,8 +2,8 @@ package com.alice.mel.systems;
 
 import com.alice.mel.components.Component;
 import com.alice.mel.components.RenderingComponent;
+import com.alice.mel.components.TransformComponent;
 import com.alice.mel.engine.AssetManager;
-import com.alice.mel.engine.Entity;
 import com.alice.mel.engine.Scene;
 import com.alice.mel.graphics.*;
 import com.alice.mel.utils.collections.Array;
@@ -18,7 +18,7 @@ import java.util.Objects;
 public class RenderingSystem extends ComponentSystem{
 
     protected final AssetManager assetManager;
-    protected final ObjectMap<Class<? extends Shader>, HashMap<String, HashMap<Material, Array<Entity>>>> renderMap = new ObjectMap<>();
+    protected final ObjectMap<Class<? extends Shader>, HashMap<String, HashMap<Material, Array<Integer>>>> renderMap = new ObjectMap<>();
 
     public RenderingSystem(AssetManager assetManager){
         this.assetManager = assetManager;
@@ -30,19 +30,18 @@ public class RenderingSystem extends ComponentSystem{
 
     @Override
     public void addedToScene(Scene scene) {
-        ImmutableArray<Entity> entities = scene.getEntitiesFor(RenderingComponent.class);
+        ImmutableArray<Integer> entities = scene.getForAll(RenderingComponent.class, TransformComponent.class);
 
-        if(entities != null)
-        for(Entity entity : entities) {
+        for(int entity : entities) {
 
-            RenderingComponent rend = entity.getComponent(RenderingComponent.class);
+            RenderingComponent rend = entityManager.getComponent(entity, RenderingComponent.class);
 
             Material material = rend.material;
-            HashMap<String, HashMap<Material, Array<Entity>>> batch0 = renderMap.get(material.shaderClass);
+            HashMap<String, HashMap<Material, Array<Integer>>> batch0 = renderMap.get(material.shaderClass);
             if (batch0 != null) {
-                HashMap<Material, Array<Entity>> batch1 = batch0.get(rend.meshName);
+                HashMap<Material, Array<Integer>> batch1 = batch0.get(rend.meshName);
                 if (batch1 != null) {
-                    Array<Entity> batch2 = batch1.get(material);
+                    Array<Integer> batch2 = batch1.get(material);
                     if (batch2 != null) {
                         batch2.add(entity);
                         batch1.put(material, batch2);
@@ -57,7 +56,7 @@ public class RenderingSystem extends ComponentSystem{
                     }
                 } else {
                     batch1 = new HashMap<>();
-                    Array<Entity> batch2 = new Array<>();
+                    Array<Integer> batch2 = new Array<>();
                     batch2.add(entity);
                     batch1.put(material, batch2);
                     batch0.put(rend.meshName, batch1);
@@ -65,26 +64,24 @@ public class RenderingSystem extends ComponentSystem{
                 }
             } else {
                 batch0 = new HashMap<>();
-                HashMap<Material, Array<Entity>> batch1 = new HashMap<>();
-                Array<Entity> batch2 = new Array<>();
+                HashMap<Material, Array<Integer>> batch1 = new HashMap<>();
+                Array<Integer> batch2 = new Array<>();
                 batch2.add(entity);
                 batch1.put(material, batch2);
                 batch0.put(rend.meshName, batch1);
                 renderMap.put(material.shaderClass, batch0);
             }
         }
-        scene.entityAdded.add("RenderingSystem", entity -> {
-            if(entity.hasComponent(RenderingComponent.class)) {
-                RenderingComponent rend = entity.getComponent(RenderingComponent.class);
+        entityManager.entityAdded.add("RenderingSystem", entity -> {
+            if(entityManager.hasComponent(entity, RenderingComponent.class)) {
+                RenderingComponent rend = entityManager.getComponent(entity, RenderingComponent.class);
 
                 Material material = rend.material;
-
-
-                HashMap<String, HashMap<Material, Array<Entity>>> batch0 = renderMap.get(material.shaderClass);
+                HashMap<String, HashMap<Material, Array<Integer>>> batch0 = renderMap.get(material.shaderClass);
                 if (batch0 != null) {
-                    HashMap<Material, Array<Entity>> batch1 = batch0.get(rend.meshName);
+                    HashMap<Material, Array<Integer>> batch1 = batch0.get(rend.meshName);
                     if (batch1 != null) {
-                        Array<Entity> batch2 = batch1.get(material);
+                        Array<Integer> batch2 = batch1.get(material);
                         if (batch2 != null) {
                             batch2.add(entity);
                             batch1.put(material, batch2);
@@ -99,7 +96,7 @@ public class RenderingSystem extends ComponentSystem{
                         }
                     } else {
                         batch1 = new HashMap<>();
-                        Array<Entity> batch2 = new Array<>();
+                        Array<Integer> batch2 = new Array<>();
                         batch2.add(entity);
                         batch1.put(material, batch2);
                         batch0.put(rend.meshName, batch1);
@@ -107,8 +104,8 @@ public class RenderingSystem extends ComponentSystem{
                     }
                 } else {
                     batch0 = new HashMap<>();
-                    HashMap<Material, Array<Entity>> batch1 = new HashMap<>();
-                    Array<Entity> batch2 = new Array<>();
+                    HashMap<Material, Array<Integer>> batch1 = new HashMap<>();
+                    Array<Integer> batch2 = new Array<>();
                     batch2.add(entity);
                     batch1.put(material, batch2);
                     batch0.put(rend.meshName, batch1);
@@ -118,27 +115,26 @@ public class RenderingSystem extends ComponentSystem{
 
         });
 
-        scene.entityModified.add("RenderingSystem", entityComponentPair -> {
+        entityManager.entityModified.add("RenderingSystem", entityComponentPair -> {
 
-            Entity entity = entityComponentPair.getValue0();
+            int entity = entityComponentPair.getValue0();
             Component comp = entityComponentPair.getValue1();
 
-            if (comp instanceof RenderingComponent) {
-                if (entity.hasComponent(RenderingComponent.class)) {
-                    RenderingComponent rend = entity.getComponent(RenderingComponent.class);
+            if (comp instanceof RenderingComponent ||comp instanceof TransformComponent) {
+                if(entityManager.hasComponent(entity, RenderingComponent.class) && entityManager.hasComponent(entity, TransformComponent.class)) {
+                    RenderingComponent rend = entityManager.getComponent(entity, RenderingComponent.class);
+
                     Material material = rend.material;
-                    HashMap<String, HashMap<Material, Array<Entity>>> batch0 = renderMap.get(material.shaderClass);
+                    HashMap<String, HashMap<Material, Array<Integer>>> batch0 = renderMap.get(material.shaderClass);
                     if (batch0 != null) {
-                        HashMap<Material, Array<Entity>> batch1 = batch0.get(rend.meshName);
+                        HashMap<Material, Array<Integer>> batch1 = batch0.get(rend.meshName);
                         if (batch1 != null) {
-                            Array<Entity> batch2 = batch1.get(material);
+                            Array<Integer> batch2 = batch1.get(material);
                             if (batch2 != null) {
-                                if (!batch2.contains(entity, false)) {
-                                    batch2.add(entity);
-                                    batch1.put(material, batch2);
-                                    batch0.put(rend.meshName, batch1);
-                                    renderMap.put(material.shaderClass, batch0);
-                                }
+                                batch2.add(entity);
+                                batch1.put(material, batch2);
+                                batch0.put(rend.meshName, batch1);
+                                renderMap.put(material.shaderClass, batch0);
                             } else {
                                 batch2 = new Array<>();
                                 batch2.add(entity);
@@ -148,7 +144,7 @@ public class RenderingSystem extends ComponentSystem{
                             }
                         } else {
                             batch1 = new HashMap<>();
-                            Array<Entity> batch2 = new Array<>();
+                            Array<Integer> batch2 = new Array<>();
                             batch2.add(entity);
                             batch1.put(material, batch2);
                             batch0.put(rend.meshName, batch1);
@@ -156,32 +152,34 @@ public class RenderingSystem extends ComponentSystem{
                         }
                     } else {
                         batch0 = new HashMap<>();
-                        HashMap<Material, Array<Entity>> batch1 = new HashMap<>();
-                        Array<Entity> batch2 = new Array<>();
+                        HashMap<Material, Array<Integer>> batch1 = new HashMap<>();
+                        Array<Integer> batch2 = new Array<>();
                         batch2.add(entity);
                         batch1.put(material, batch2);
                         batch0.put(rend.meshName, batch1);
                         renderMap.put(material.shaderClass, batch0);
                     }
                 }
-                else{
-                    RenderingComponent rend = (RenderingComponent) comp;
-                    Material material = rend.material;
+                else {
+                    if (comp instanceof RenderingComponent) {
+                        RenderingComponent rend = (RenderingComponent) comp;
+                        Material material = rend.material;
 
 
-                    HashMap<String, HashMap<Material, Array<Entity>>> batch0 = renderMap.get(material.shaderClass);
-                    if (batch0 != null) {
-                        HashMap<Material, Array<Entity>> batch1 = batch0.get(rend.meshName);
-                        if (batch1 != null) {
-                            Array<Entity> batch2 = batch1.get(material);
-                            if (batch2 != null) {
-                                batch2.removeValue(entity, false);
-                                if (batch2.isEmpty()) {
-                                    batch1.remove(material);
-                                    batch0.remove(rend.meshName);
-                                    renderMap.remove(material.shaderClass);
+                        HashMap<String, HashMap<Material, Array<Integer>>> batch0 = renderMap.get(material.shaderClass);
+                        if (batch0 != null) {
+                            HashMap<Material, Array<Integer>> batch1 = batch0.get(rend.meshName);
+                            if (batch1 != null) {
+                                Array<Integer> batch2 = batch1.get(material);
+                                if (batch2 != null) {
+                                    batch2.removeValue(entity, false);
+                                    if (batch2.isEmpty()) {
+                                        batch1.remove(material);
+                                        batch0.remove(rend.meshName);
+                                        renderMap.remove(material.shaderClass);
+                                    }
+
                                 }
-
                             }
                         }
                     }
@@ -190,17 +188,17 @@ public class RenderingSystem extends ComponentSystem{
 
         });
 
-        scene.entityRemoved.add("RenderingSystem", entity -> {
-            if(entity.hasComponent(RenderingComponent.class)) {
-                RenderingComponent rend = entity.getComponent(RenderingComponent.class);
+        entityManager.entityRemoved.add("RenderingSystem", entity -> {
+            if(entityManager.hasComponent(entity, RenderingComponent.class)) {
+                RenderingComponent rend = entityManager.getComponent(entity, RenderingComponent.class);
                 Material material = rend.material;
 
 
-                HashMap<String, HashMap<Material, Array<Entity>>> batch0 = renderMap.get(material.shaderClass);
+                HashMap<String, HashMap<Material, Array<Integer>>> batch0 = renderMap.get(material.shaderClass);
                 if (batch0 != null) {
-                    HashMap<Material, Array<Entity>> batch1 = batch0.get(rend.meshName);
+                    HashMap<Material, Array<Integer>> batch1 = batch0.get(rend.meshName);
                     if (batch1 != null) {
-                        Array<Entity> batch2 = batch1.get(material);
+                        Array<Integer> batch2 = batch1.get(material);
                         if (batch2 != null) {
                             batch2.removeValue(entity, false);
                             if (batch2.isEmpty()) {
@@ -237,8 +235,8 @@ public class RenderingSystem extends ComponentSystem{
                         GL20.glEnable(GL11.GL_TEXTURE);
                         GL20.glActiveTexture(GL20.GL_TEXTURE0);
                         material.loadValues(assetManager, scene, window);
-                        for(Entity entity : renderMap.get(shaderClass).get(meshName).get(material)){
-                            material.loadElement(assetManager, scene, window, entity);
+                        for(int entity : renderMap.get(shaderClass).get(meshName).get(material)){
+                            material.loadElement(assetManager, scene, window, entityManager.getComponent(entity, TransformComponent.class));
                             GL11.glDrawElements(GL11.GL_TRIANGLES, Objects.requireNonNull(assetManager.getMesh(meshName)).getVertexCount(), GL11.GL_UNSIGNED_INT, 0);
                         }
                         GL20.glDisable(GL11.GL_TEXTURE);

@@ -1,10 +1,8 @@
 package com.alice.mel.graphics;
 
+import com.alice.mel.components.TransformComponent;
 import com.alice.mel.engine.AssetManager;
-import com.alice.mel.engine.Element;
-import com.alice.mel.engine.Entity;
 import com.alice.mel.engine.Scene;
-import com.alice.mel.utils.collections.Array;
 
 import java.io.Serializable;
 
@@ -34,7 +32,11 @@ public abstract class Material implements Serializable {
      * @param window
      * @param element
      */
-    public abstract void loadElement(AssetManager assetManager, Scene scene, Window window, Element element);
+    public abstract void loadElement(AssetManager assetManager, Scene scene, Window window, TransformComponent transform);
+
+    public abstract boolean isDirty();
+    public abstract void doClean();
+
 
     @Override
     public abstract boolean equals(Object o);

@@ -1,7 +1,7 @@
 package com.alice.mel.systems;
 
 import com.alice.mel.components.Component;
-import com.alice.mel.engine.Entity;
+import com.alice.mel.engine.RelationType;
 import com.alice.mel.engine.Scene;
 import com.alice.mel.graphics.Window;
 import com.alice.mel.utils.collections.Array;
@@ -9,46 +9,45 @@ import com.alice.mel.utils.collections.ImmutableArray;
 
 public abstract class IteratingSystem extends ComponentSystem{
 
-    protected final Family requiredFamily;
-    protected final Array<Entity> entites = new Array<>();
 
-    public IteratingSystem(Family requiredFamily){
-        this.requiredFamily = requiredFamily;
-    }
+    protected final Array<Integer> entities = new Array<>();
+    private final Class<? extends Component>[] componentClasses;
+    private final RelationType relation;
 
-    public IteratingSystem(int priority, Family requiredFamily){
+    public IteratingSystem(int priority, RelationType relation, Class<? extends Component>... componentClasses){
         super(priority);
-        this.requiredFamily = requiredFamily;
+        this.componentClasses = componentClasses;
+        this.relation = relation;
     }
 
     @Override
     public void addedToScene(Scene scene) {
 
-        if (requiredFamily != null) {
-            ImmutableArray<Entity> gotEntities = scene.getEntitiesFor(requiredFamily);
+        if (componentClasses != null) {
+            ImmutableArray<Integer> gotEntities = scene.getFor(relation, componentClasses);
             if(gotEntities != null) {
-                entites.addAll(gotEntities.toArray());
+                entities.addAll(gotEntities.toArray());
             }
 
-            scene.entityAdded.add(getClass().getName(), en -> {
-                if(requiredFamily.matches(en))
-                    entites.add(en);
+            entityManager.entityAdded.add(getClass().getName(), en -> {
+                if(entityManager.hasComponents(en, relation, componentClasses))
+                    entities.add(en);
             });
 
-            scene.entityModified.add(getClass().getName(), entityComponentPair -> {
-                Entity en = entityComponentPair.getValue0();
-                if(entites.contains(en, false))
-                    if(!requiredFamily.matches(en))
-                        entites.removeValue(en, false);
+            entityManager.entityModified.add(getClass().getName(), entityComponentPair -> {
+                int en = entityComponentPair.getValue0();
+                if(entities.contains(en, false))
+                    if(!entityManager.hasComponents(en, relation, componentClasses))
+                        entities.removeValue(en, false);
                 else
-                    if(requiredFamily.matches(en))
-                        entites.add(en);
+                    if(entityManager.hasComponents(en, relation, componentClasses))
+                        entities.add(en);
 
             });
 
-            scene.entityRemoved.add(getClass().getName(), en -> {
-                if (entites.contains(en, false))
-                    entites.removeValue(en, false);
+            entityManager.entityRemoved.add(getClass().getName(), en -> {
+                if (entities.contains(en, false))
+                    entities.removeValue(en, false);
             });
         }
 
@@ -63,18 +62,18 @@ public abstract class IteratingSystem extends ComponentSystem{
 
     @Override
     public void update(float deltaTime) {
-        for(Entity en : entites)
+        for(int en : entities)
             processEntityUpdate(en, deltaTime);
     }
 
     @Override
     public void render(Window window, float deltaTime) {
-        for(Entity en : entites)
+        for(int en : entities)
             processEntityRender(en, window, deltaTime);
     }
 
-    public abstract void processEntityUpdate(Entity entity, float deltaTime);
-    public abstract void processEntityRender(Entity entity, Window window, float deltaTime);
+    public abstract void processEntityUpdate(int entity, float deltaTime);
+    public abstract void processEntityRender(int entity, Window window, float deltaTime);
 
 
 }

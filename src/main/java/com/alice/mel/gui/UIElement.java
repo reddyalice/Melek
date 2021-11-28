@@ -1,17 +1,14 @@
 package com.alice.mel.gui;
 
 import com.alice.mel.engine.AssetManager;
-import com.alice.mel.engine.Element;
 import com.alice.mel.engine.Scene;
 import com.alice.mel.graphics.BatchMaterial;
-import com.alice.mel.graphics.MeshBatch;
 import com.alice.mel.graphics.Window;
 import com.alice.mel.graphics.materials.GUIMaterial;
-import com.alice.mel.graphics.shaders.BatchedSpriteShader;
 import com.alice.mel.utils.collections.Array;
 import com.alice.mel.utils.collections.ImmutableArray;
 
-public abstract class UIElement extends Element {
+public abstract class UIElement{
 
 
     protected AssetManager assetManager;
@@ -20,6 +17,7 @@ public abstract class UIElement extends Element {
 
     private UIElement parent;
     private final Array<UIElement> children = new Array<>();
+
 
 
 

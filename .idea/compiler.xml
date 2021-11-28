@@ -7,11 +7,11 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="Melek" />
-        <module name="MelekEditor" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
       <module name="Editor" target="14" />
+      <module name="MelekEditor" target="14" />
     </bytecodeTargetLevel>
   </component>
 </project>

@@ -19,6 +19,8 @@ public class ExampleScene extends SceneAdaptor {
 
     Window w;
     Window w2;
+    Window w3;
+    Entity en1;
     @Override
     public void Init(Window loaderWindow, Scene scene) {
 
@@ -36,7 +38,7 @@ public class ExampleScene extends SceneAdaptor {
         w2 = createWindow(CameraType.Orthographic, "Test1", 640, 480, true);
         w2.setDecorated(false);
 
-        Window w3 = createWindow(CameraType.Orthographic, "Test2", 640, 480, true);
+        w3 = createWindow(CameraType.Orthographic, "Test2", 640, 480, true);
         addSystem(new BatchedRenderingSystem(Game.assetManager));
 
 
@@ -44,10 +46,13 @@ public class ExampleScene extends SceneAdaptor {
         en.scale.set(100, 100, 100);
         en.position.set(0,0, -100);
         en.addComponent(new BatchRenderingComponent( "Quad", "Texture1", material));
-        Entity en1 = createEntity();
+        en1 = createEntity();
         en1.scale.set(50, 50, 50);
         en1.position.set(0,100, -100);
-        en1.addComponent(new BatchRenderingComponent( "Quad", "Texture1",  new GUIMaterial()));
+        GUIMaterial mat = new GUIMaterial();
+        mat.textureDivision.set(10f, 1);
+
+        en1.addComponent(new BatchRenderingComponent( "Quad", "Texture1",  mat));
 
 
         w2.update.add("move", x -> MathUtils.LookRelativeTo(w2, w));
@@ -62,8 +67,12 @@ public class ExampleScene extends SceneAdaptor {
 
     private final Vector2i move = new Vector2i(0,0);
 
+    float diff;
     @Override
     public void Update(float deltaTime) {
+
+
+
         if(getKeyPressed(GLFW.GLFW_KEY_G))
                 if(scene.getEntitiesFor(BatchRenderingComponent.class).size() > 1)
                     scene.removeEntity(scene.getEntitiesFor(BatchRenderingComponent.class).get(MathUtils.random.nextInt(scene.getEntitiesFor(BatchRenderingComponent.class).size())));
@@ -82,8 +91,10 @@ public class ExampleScene extends SceneAdaptor {
         Vector2i winPos = w2.getPosition();
         Vector2i winSize = w2.getSize();
         w2.setPosition((int)cursorPos.x  + winPos.x - winSize.x /2, (int)cursorPos.y + winPos.y - winSize.y /2);
-
-        w.translate(move.x, move.y);
+        diff +=  move.x * deltaTime;
+        en1.position.add( move.x, -move.y, 0);
+        en1.getComponent(BatchRenderingComponent.class).material.textureOffset.set(diff % 10,0);
+        w3.translate(move.x, move.y);
 
 
     }

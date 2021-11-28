@@ -1,10 +1,8 @@
 package com.alice.mel.graphics.materials;
 
+import com.alice.mel.components.TransformComponent;
 import com.alice.mel.engine.AssetManager;
-import com.alice.mel.engine.Element;
-import com.alice.mel.engine.Entity;
 import com.alice.mel.engine.Scene;
-import com.alice.mel.graphics.Camera;
 import com.alice.mel.graphics.Material;
 import com.alice.mel.graphics.Window;
 import com.alice.mel.graphics.shaders.SpriteShader;
@@ -36,9 +34,19 @@ public class SpriteMaterial extends Material {
     }
 
     @Override
-    public void loadElement(AssetManager assetManager, Scene scene, Window window, Element element) {
+    public void loadElement(AssetManager assetManager, Scene scene, Window window, TransformComponent transform) {
         SpriteShader shader2D = (SpriteShader) assetManager.getShader(shaderClass);
-        shader2D.loadTransformationMatrix(MathUtils.CreateTransformationMatrix(element.position, element.rotation, element.scale));
+        shader2D.loadTransformationMatrix(MathUtils.CreateTransformationMatrix(transform.position, transform.rotation, transform.scale));
+    }
+
+    @Override
+    public boolean isDirty() {
+        return false;
+    }
+
+    @Override
+    public void doClean() {
+
     }
 
     @Override

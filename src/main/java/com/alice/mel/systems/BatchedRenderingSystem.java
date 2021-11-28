@@ -1,13 +1,10 @@
 package com.alice.mel.systems;
 
 import com.alice.mel.components.BatchRenderingComponent;
-import com.alice.mel.components.Component;
 import com.alice.mel.engine.AssetManager;
-import com.alice.mel.engine.Entity;
 import com.alice.mel.engine.Scene;
 import com.alice.mel.graphics.BatchShader;
 import com.alice.mel.graphics.MeshBatch;
-import com.alice.mel.graphics.Shader;
 import com.alice.mel.graphics.Window;
 import com.alice.mel.utils.collections.Array;
 import com.alice.mel.utils.collections.ImmutableArray;
@@ -31,54 +28,51 @@ public class BatchedRenderingSystem extends ComponentSystem{
 
     @Override
     public void addedToScene(Scene scene) {
-        ImmutableArray<Entity> entities = scene.getEntitiesFor(BatchRenderingComponent.class);
-        if(entities != null){
-            for(Entity entity : entities){
-                System.out.println(entities);
-                BatchRenderingComponent component = entity.getComponent(BatchRenderingComponent.class);
-                if(batches.get(component.material.shaderClass) == null)
-                    batches.put(component.material.shaderClass, new Array<>());
+        ImmutableArray<Integer> entities = scene.getForAll(BatchRenderingComponent.class);
+        for(int entity : entities){
+            BatchRenderingComponent component = entityManager.getComponent(entity, BatchRenderingComponent.class);
+            if(batches.get(component.material.shaderClass) == null)
+                batches.put(component.material.shaderClass, new Array<>());
 
-                MeshBatch batchA = null;
-                for(Class<? extends BatchShader> batchShader : batches.keys()) {
-                    Array<MeshBatch> batchess = batches.get(batchShader);
-                    for (MeshBatch batch : batchess) {
-                        if (batch.hasRoom()) {
-                            if (batch.getMesh() == assetManager.getMesh(component.meshName)) {
-                                if (batch.hasTexture(component.material.textureName)) {
+            MeshBatch batchA = null;
+            for(Class<? extends BatchShader> batchShader : batches.keys()) {
+                Array<MeshBatch> batchess = batches.get(batchShader);
+                for (MeshBatch batch : batchess) {
+                    if (batch.hasRoom()) {
+                        if (batch.getMesh() == assetManager.getMesh(component.meshName)) {
+                            if (batch.hasTexture(component.material.textureName)) {
+                                batchA = batch;
+                                break;
+                            } else {
+                                if (batch.hasTextureRoom()) {
                                     batchA = batch;
                                     break;
-                                } else {
-                                    if (batch.hasTextureRoom()) {
-                                        batchA = batch;
-                                        break;
-                                    }
                                 }
                             }
                         }
                     }
                 }
+            }
 
-                if(batchA != null) {
-                    if(!batchA.addEntity(entity)){
-                        MeshBatch mb = new MeshBatch(assetManager, component.meshName, 100, 0);
-                        scene.loadMeshBatch(mb + "", mb);
-                        batches.get(component.material.shaderClass).add(mb);
-                        mb.addEntity(entity);
-                    }
-                }
-                else{
+            if(batchA != null) {
+                if(!batchA.addEntity(entity)){
                     MeshBatch mb = new MeshBatch(assetManager, component.meshName, 100, 0);
                     scene.loadMeshBatch(mb + "", mb);
                     batches.get(component.material.shaderClass).add(mb);
                     mb.addEntity(entity);
                 }
             }
+            else{
+                MeshBatch mb = new MeshBatch(assetManager, component.meshName, 100, 0);
+                scene.loadMeshBatch(mb + "", mb);
+                batches.get(component.material.shaderClass).add(mb);
+                mb.addEntity(entity);
+            }
         }
 
-        scene.entityAdded.add("BatchedRenderingSystem", entity -> {
-            if(entity.hasComponent(BatchRenderingComponent.class)) {
-                BatchRenderingComponent component = entity.getComponent(BatchRenderingComponent.class);
+        entityManager.entityAdded.add("BatchedRenderingSystem", entity -> {
+            if(entityManager.hasComponent(entity, BatchRenderingComponent.class)) {
+                BatchRenderingComponent component = entityManager.getComponent(entity, BatchRenderingComponent.class);
                 if (batches.get(component.material.shaderClass) == null)
                     batches.put(component.material.shaderClass, new Array<>());
 
@@ -117,14 +111,14 @@ public class BatchedRenderingSystem extends ComponentSystem{
                 }
             }
         });
-        
-        
-        scene.entityModified.add("BatchedRenderingSystem", entityComponentPair -> {
-            Entity entity = entityComponentPair.getValue0();
+
+
+        entityManager.entityModified.add("BatchedRenderingSystem", entityComponentPair -> {
+            int entity = entityComponentPair.getValue0();
 
             if(entityComponentPair.getValue1() instanceof BatchRenderingComponent){
                 BatchRenderingComponent component = (BatchRenderingComponent) entityComponentPair.getValue1();
-                if(entity.hasComponent(BatchRenderingComponent.class)){
+                if(entityManager.hasComponent(entity, BatchRenderingComponent.class)){
 
                     if (batches.get(component.material.shaderClass) == null)
                         batches.put(component.material.shaderClass, new Array<>());
@@ -180,9 +174,9 @@ public class BatchedRenderingSystem extends ComponentSystem{
             }
         });
 
-        scene.entityRemoved.add("BatchedRenderingSystem", entity -> {
-            if(entity.hasComponent(BatchRenderingComponent.class)){
-                BatchRenderingComponent component = entity.getComponent(BatchRenderingComponent.class);
+        entityManager.entityRemoved.add("BatchedRenderingSystem", entity -> {
+            if(entityManager.hasComponent(entity, BatchRenderingComponent.class)){
+                BatchRenderingComponent component = entityManager.getComponent(entity, BatchRenderingComponent.class);
                 Array<MeshBatch> meshBatches = batches.get(component.material.shaderClass);
                 for(MeshBatch batch : meshBatches){
                     int i = batch.getNumberOfElements();

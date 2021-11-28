@@ -1,14 +1,13 @@
 package com.alice.mel.graphics;
 
 import com.alice.mel.components.BatchRenderingComponent;
+import com.alice.mel.components.TransformComponent;
 import com.alice.mel.engine.AssetManager;
-import com.alice.mel.engine.Element;
-import com.alice.mel.engine.Entity;
+import com.alice.mel.engine.EntityManager;
+import com.alice.mel.engine.Game;
 import com.alice.mel.engine.Scene;
 import com.alice.mel.gui.UIElement;
 import com.alice.mel.utils.collections.Array;
-import com.alice.mel.utils.maths.MathUtils;
-import com.bulletphysics.linearmath.MatrixUtil;
 import org.javatuples.Pair;
 import org.joml.*;
 import org.lwjgl.opengl.*;
@@ -23,12 +22,13 @@ public class MeshBatch  implements Comparable<MeshBatch>{
     private final HashMap<String, VertexBufferObject> vertices = new HashMap<>();
     private final HashMap<Scene, HashMap<Window, Integer>> ids = new HashMap<>();
     private final HashMap<Scene, Integer> indexIDs = new HashMap<>();
-    private final HashMap<String, HashMap<Integer, Pair<Element,BatchMaterial>>> elements;
+    private final HashMap<String, HashMap<Integer, Pair<Integer,BatchMaterial>>> elements;
     private final HashMap<String, Integer> textureToIntMap;
     private final Array<Integer> indexArray = new Array<>();
     private final Array<Integer> textureIndexArray = new Array<>();
 
     private final Mesh mesh;
+    private final Scene scene;
     private final AssetManager assetManager;
     private final int maxElementCount;
 
@@ -39,14 +39,15 @@ public class MeshBatch  implements Comparable<MeshBatch>{
     private boolean hasRoom;
 
     private int attributeIndex = 0;
-    public MeshBatch(AssetManager assetManager, String meshName, int maxElementCount, int zIndex){
+    public MeshBatch(Scene scene, String meshName, int maxElementCount, int zIndex){
 
+        this.scene = scene;
         textureLimit = GL45.glGetInteger(GL45.GL_MAX_TEXTURE_IMAGE_UNITS);
         this.zIndex = zIndex;
         this.maxElementCount = maxElementCount;
         elements = new HashMap<>(textureLimit, 1);
         textureToIntMap = new HashMap<>(textureLimit, 1);
-        this.assetManager = assetManager;
+        this.assetManager = Game.assetManager;
         Mesh mesh = assetManager.getMesh(meshName);
         this.mesh = mesh;
 
@@ -94,10 +95,10 @@ public class MeshBatch  implements Comparable<MeshBatch>{
 
 
 
-    public boolean addEntity(Entity entity){
+    public boolean addEntity(int entity){
         if(numberOfElements < maxElementCount) {
-            if (entity.hasComponent(BatchRenderingComponent.class)) {
-                BatchRenderingComponent brc = entity.getComponent(BatchRenderingComponent.class);
+            if (scene.entityManager.hasComponent( entity, BatchRenderingComponent.class)) {
+                BatchRenderingComponent brc = scene.entityManager.getComponent(entity, BatchRenderingComponent.class);
                 return addElement(entity, brc.material);
             }else
                 return false;
@@ -105,30 +106,19 @@ public class MeshBatch  implements Comparable<MeshBatch>{
             return false;
     }
 
-    public boolean addUIElement(UIElement element){
-        if(numberOfElements < maxElementCount){
-            BatchMaterial material = element.guiMaterial;
-            String textureName = material.textureName;
-            return addElement(element, material);
-        }else
-            return false;
-    }
 
-    public void removeEntity(Entity entity){
-        if (entity.hasComponent(BatchRenderingComponent.class)) {
-            BatchRenderingComponent brc = entity.getComponent(BatchRenderingComponent.class);
+    public void removeEntity(int entity){
+        if (scene.entityManager.hasComponent(entity, BatchRenderingComponent.class)) {
+            BatchRenderingComponent brc = scene.entityManager.getComponent(entity, BatchRenderingComponent.class);
             removeElement(entity, brc.material);
         }
     }
 
-    public void removeUIElement(UIElement element){
-        removeElement(element, element.guiMaterial);
-    }
 
-    private boolean addElement(Element element, BatchMaterial material){
+    public boolean addEntity(int entity, BatchMaterial material){
         String textureName = material.textureName;
         if(elements.containsKey(textureName)){
-            HashMap<Integer, Pair<Element,BatchMaterial>> elemental = elements.get(textureName);
+            HashMap<Integer, Pair<Integer,BatchMaterial>> elemental = elements.get(textureName);
 
             int index = numberOfElements;
             for(int i = 0; i <= indexArray.size; i++)
@@ -139,14 +129,14 @@ public class MeshBatch  implements Comparable<MeshBatch>{
                     break;
                 }
             indexArray.sort();
-            elemental.put(index, Pair.with(element, material));
+            elemental.put(index, Pair.with(entity, material));
             for(String property : material.properties.keySet()){
                 if(!vertices.containsKey(property)){
                     VertexData data = material.properties.get(property);
                     vertices.put(property, new VertexBufferObject(attributeIndex++, data.dimension, vertices.get("positions").vertexData.size * maxElementCount));
                 }
             }
-            loadElementProperties(index, element);
+            loadElementProperties(index, entity);
             loadMaterialProperties(index, material);
             vertices.get("texID").setVertex(index, new float[] { textureToIntMap.get(textureName) });
 
@@ -157,7 +147,7 @@ public class MeshBatch  implements Comparable<MeshBatch>{
 
         }else{
             if(numberOfTextures < textureLimit) {
-                HashMap<Integer, Pair<Element, BatchMaterial>> elemental = new HashMap<>();
+                HashMap<Integer, Pair<Integer, BatchMaterial>> elemental = new HashMap<>();
 
                 int index = numberOfElements;
                 for(int i = 0; i <= indexArray.size; i++)
@@ -243,7 +233,7 @@ public class MeshBatch  implements Comparable<MeshBatch>{
             boolean rebufferMaterial = false;
             for (String textureName : elements.keySet()) {
                 for (int index : elements.get(textureName).keySet()) {
-                    Pair<Element, BatchMaterial> element = elements.get(textureName).get(index);
+                    Pair<Integer, Render> element = elements.get(textureName).get(index);
 
                     if (element.getValue0().isDirty()) {
                         loadElementProperties(index, element.getValue0());
@@ -320,15 +310,17 @@ public class MeshBatch  implements Comparable<MeshBatch>{
     }
 
 
-    private void loadElementProperties(int index, Element element){
+    private void loadElementProperties(int index, int entity){
         VertexData positionData = mesh.getVertecies().get("positions").vertexData;
 
         int vertexSize = positionData.size;
         int offset = index * vertexSize;
 
-        Vector3f position = element.position;
-        Quaternionf rotation = element.rotation;
-        Vector3f scale = element.scale;
+        TransformComponent comp = scene.entityManager.getComponent(entity, TransformComponent.class);
+
+        Vector3f position = comp.position;
+        Quaternionf rotation = comp.rotation;
+        Vector3f scale = comp.scale;
         float[] POS = new float[positionData.dimension];
         for(int i = 0;i < vertexSize; i++){
             switch (POS.length) {
