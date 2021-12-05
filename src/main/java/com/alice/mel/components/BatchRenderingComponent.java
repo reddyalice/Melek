@@ -7,7 +7,7 @@ public class BatchRenderingComponent extends Component{
     public String meshName;
     public BatchMaterial material;
 
-    private String lastMeshName;
+    private String lastMeshName = "";
 
     /**
      * Constructor for Rendering Component
