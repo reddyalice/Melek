@@ -28,6 +28,11 @@ public class RenderingComponent extends Component{
     }
 
     @Override
+    public RenderingComponent Clone() {
+        return new RenderingComponent(meshName, material.textureName, material);
+    }
+
+    @Override
     public boolean isDirty() {
         return !lastMeshName.equals(meshName) || material.isDirty();
     }

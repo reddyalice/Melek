@@ -56,14 +56,14 @@ public class BatchedRenderingSystem extends ComponentSystem{
 
             if(batchA != null) {
                 if(!batchA.addEntity(entity)){
-                    MeshBatch mb = new MeshBatch(assetManager, component.meshName, 100, 0);
+                    MeshBatch mb = new MeshBatch(scene, component.meshName, 100, 0);
                     scene.loadMeshBatch(mb + "", mb);
                     batches.get(component.material.shaderClass).add(mb);
                     mb.addEntity(entity);
                 }
             }
             else{
-                MeshBatch mb = new MeshBatch(assetManager, component.meshName, 100, 0);
+                MeshBatch mb = new MeshBatch(scene, component.meshName, 100, 0);
                 scene.loadMeshBatch(mb + "", mb);
                 batches.get(component.material.shaderClass).add(mb);
                 mb.addEntity(entity);
@@ -98,13 +98,13 @@ public class BatchedRenderingSystem extends ComponentSystem{
 
                 if (batchA != null) {
                     if (!batchA.addEntity(entity)) {
-                        MeshBatch mb = new MeshBatch(assetManager, component.meshName, 100, 0);
+                        MeshBatch mb = new MeshBatch(scene, component.meshName, 100, 0);
                         scene.loadMeshBatch(mb + "", mb);
                         batches.get(component.material.shaderClass).add(mb);
                         mb.addEntity(entity);
                     }
                 } else {
-                    MeshBatch mb = new MeshBatch(assetManager, component.meshName, 100, 0);
+                    MeshBatch mb = new MeshBatch(scene, component.meshName, 100, 0);
                     scene.loadMeshBatch(mb + "", mb);
                     batches.get(component.material.shaderClass).add(mb);
                     mb.addEntity(entity);
@@ -145,13 +145,13 @@ public class BatchedRenderingSystem extends ComponentSystem{
 
                     if (batchA != null) {
                         if (!batchA.addEntity(entity)) {
-                            MeshBatch mb = new MeshBatch(assetManager, component.meshName, 100, 0);
+                            MeshBatch mb = new MeshBatch(scene, component.meshName, 100, 0);
                             scene.loadMeshBatch(mb + "", mb);
                             batches.get(component.material.shaderClass).add(mb);
                             mb.addEntity(entity);
                         }
                     } else {
-                        MeshBatch mb = new MeshBatch(assetManager, component.meshName, 100, 0);
+                        MeshBatch mb = new MeshBatch(scene, component.meshName, 100, 0);
                         scene.loadMeshBatch(mb + "", mb);
                         batches.get(component.material.shaderClass).add(mb);
                         mb.addEntity(entity);

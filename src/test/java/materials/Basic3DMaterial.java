@@ -40,6 +40,16 @@ public class Basic3DMaterial extends Material {
     }
 
     @Override
+    public boolean isDirty() {
+        return false;
+    }
+
+    @Override
+    public void doClean() {
+
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof Basic3DMaterial)) return false;

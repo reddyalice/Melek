@@ -2,6 +2,8 @@ package scenes;
 
 import com.alice.mel.components.BatchRenderingComponent;
 import com.alice.mel.components.Component;
+import com.alice.mel.components.RenderingComponent;
+import com.alice.mel.components.TransformComponent;
 import com.alice.mel.engine.*;
 import com.alice.mel.graphics.*;
 import com.alice.mel.graphics.materials.GUIMaterial;
@@ -20,7 +22,7 @@ public class ExampleScene extends SceneAdaptor {
     Window w;
     Window w2;
     Window w3;
-    Entity en1;
+    int en1;
     @Override
     public void Init(Window loaderWindow, Scene scene) {
 
@@ -42,17 +44,18 @@ public class ExampleScene extends SceneAdaptor {
         addSystem(new BatchedRenderingSystem(Game.assetManager));
 
 
-        Entity en = createEntity();
-        en.scale.set(100, 100, 100);
-        en.position.set(0,0, -100);
-        en.addComponent(new BatchRenderingComponent( "Quad", "Texture1", material));
-        en1 = createEntity();
-        en1.scale.set(50, 50, 50);
-        en1.position.set(0,100, -100);
+       TransformComponent tc = new TransformComponent();
+        tc.scale.set(100, 100, 100);
+        tc.position.set(0,0, -100);
+
+        int en = createEntity(tc, new BatchRenderingComponent( "Quad", "Texture1", material));
+
+        TransformComponent tc1 = tc.Clone();
+        tc1.scale.set(50, 50, 50);
+
         GUIMaterial mat = new GUIMaterial();
         mat.textureDivision.set(10f, 1);
-
-        en1.addComponent(new BatchRenderingComponent( "Quad", "Texture1",  mat));
+        en1 = createEntity(tc1, new BatchRenderingComponent( "Quad", "Texture1",  mat));
 
 
         w2.update.add("move", x -> MathUtils.LookRelativeTo(w2, w));
@@ -74,8 +77,8 @@ public class ExampleScene extends SceneAdaptor {
 
 
         if(getKeyPressed(GLFW.GLFW_KEY_G))
-                if(scene.getEntitiesFor(BatchRenderingComponent.class).size() > 1)
-                    scene.removeEntity(scene.getEntitiesFor(BatchRenderingComponent.class).get(MathUtils.random.nextInt(scene.getEntitiesFor(BatchRenderingComponent.class).size())));
+                if(scene.getForAny(BatchRenderingComponent.class).size() > 1)
+                    scene.removeEntity(scene.getForAny(BatchRenderingComponent.class).get(MathUtils.random.nextInt(scene.getForAny(BatchRenderingComponent.class).size())));
 
         move.set(0,0);
         if(getKeyPressed(GLFW.GLFW_KEY_W))
@@ -92,8 +95,8 @@ public class ExampleScene extends SceneAdaptor {
         Vector2i winSize = w2.getSize();
         w2.setPosition((int)cursorPos.x  + winPos.x - winSize.x /2, (int)cursorPos.y + winPos.y - winSize.y /2);
         diff +=  move.x * deltaTime;
-        en1.position.add( move.x, -move.y, 0);
-        en1.getComponent(BatchRenderingComponent.class).material.textureOffset.set(diff % 10,0);
+        entityManager.getComponent(en1, TransformComponent.class).position.add( move.x, -move.y, 0);
+        entityManager.getComponent(en1, BatchRenderingComponent.class).material.textureOffset.set(diff % 10,0);
         w3.translate(move.x, move.y);
 
 
@@ -120,16 +123,17 @@ public class ExampleScene extends SceneAdaptor {
     }
 
     @Override
-    public void entityAdded(Entity entity) {
+    public void entityAdded(int entity) {
 
     }
 
     @Override
-    public void entityModified(Entity entity, Component component) {
+    public void entityModified(int entity, Component component) {
 
     }
 
     @Override
-    public void entityRemoved(Entity entity) {
+    public void entityRemoved(int entity) {
+
     }
 }

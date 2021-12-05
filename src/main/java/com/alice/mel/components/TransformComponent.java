@@ -19,6 +19,15 @@ public class TransformComponent extends Component{
 
 
     @Override
+    public TransformComponent Clone() {
+        TransformComponent tc = new TransformComponent();
+        tc.position.set(position);
+        tc.rotation.set(rotation);
+        tc.scale.set(scale);
+        return tc;
+    }
+
+    @Override
     public boolean isDirty() {
         return (lastParent != parent) || !lastPosition.equals(position) || !lastRotation.equals(rotation) || !lastScale.equals(scale);
     }

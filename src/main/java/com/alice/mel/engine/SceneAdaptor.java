@@ -20,7 +20,11 @@ public abstract class SceneAdaptor{
 
     public SceneAdaptor(){
         scene.init.add("fromAdaptor", x ->{
-            Init(x.getValue0(), x.getValue1());
+            try {
+                Init(x.getValue0(), x.getValue1());
+            } catch (CloneNotSupportedException e) {
+                e.printStackTrace();
+            }
         });
         scene.preUpdate.add("fromAdaptor", this::PreUpdate);
         scene.update.add("fromAdaptor", this::Update);
@@ -37,7 +41,7 @@ public abstract class SceneAdaptor{
      * Initialization stage of the scene
      * @param loaderWindow Loader Window for loading assets
      */
-    public abstract void Init(Window loaderWindow, Scene scene);
+    public abstract void Init(Window loaderWindow, Scene scene) throws CloneNotSupportedException;
 
     /**
      * Stage before the main Update

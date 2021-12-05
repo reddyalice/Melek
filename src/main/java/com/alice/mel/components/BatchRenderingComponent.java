@@ -21,6 +21,11 @@ public class BatchRenderingComponent extends Component{
     }
 
     @Override
+    public BatchRenderingComponent Clone() {
+        return new BatchRenderingComponent(meshName, material.textureName, material);
+    }
+
+    @Override
     public boolean isDirty() {
         return !lastMeshName.equals(meshName) || material.isDirty();
     }
