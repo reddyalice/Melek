@@ -14,6 +14,7 @@ public abstract class IteratingSystem extends ComponentSystem{
     private final Class<? extends Component>[] componentClasses;
     private final RelationType relation;
 
+    @SafeVarargs
     public IteratingSystem(int priority, RelationType relation, Class<? extends Component>... componentClasses){
         super(priority);
         this.componentClasses = componentClasses;

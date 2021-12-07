@@ -82,10 +82,16 @@ public final class Scene {
 
         }
 
+
         GLFW.glfwWindowHint(GLFW.GLFW_VISIBLE, GLFW.GLFW_FALSE);
         loaderWindow = createWindow(CameraType.Orthographic, "Loader", 640, 480);
         GLFW.glfwWindowHint(GLFW.GLFW_VISIBLE, GLFW.GLFW_TRUE);
         removeWindow(loaderWindow);
+
+        preRender.add("hotReload", x -> {
+            if(Game.hotReload)
+            Game.assetManager.hotReload(this, x.getValue0());
+        });
 
     }
 
@@ -123,6 +129,10 @@ public final class Scene {
         render.remove(system.getClass().getSimpleName());
         system.removedFromSceneInternal(this);
     }
+
+
+
+
 
     /**
      * Load the Texture registered in the Asset Manager to the scene

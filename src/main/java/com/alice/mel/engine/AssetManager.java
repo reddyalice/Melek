@@ -3,10 +3,13 @@ package com.alice.mel.engine;
 import com.alice.mel.graphics.Mesh;
 import com.alice.mel.graphics.Shader;
 import com.alice.mel.graphics.Texture;
+import com.alice.mel.graphics.Window;
 import com.alice.mel.graphics.shaders.BatchedSpriteShader;
+import com.alice.mel.utils.collections.Array;
 import com.alice.mel.utils.collections.ObjectMap;
 import com.alice.mel.utils.reflections.ClassReflection;
 import com.alice.mel.utils.reflections.ReflectionException;
+import org.javatuples.Pair;
 
 import java.io.Serializable;
 import java.util.HashMap;
@@ -68,6 +71,32 @@ public final class AssetManager implements Serializable {
 
         addTexture("null", new Texture(1, 1, new int[]{0}));
         addShader(BatchedSpriteShader.class);
+    }
+
+
+    public void hotReload(Scene scene, Window window){
+
+        //Check and Reload textures
+        for (String textureName : textures.keySet()) {
+        Texture texture = textures.get(textureName);
+        if (texture.fileInfo != null)
+        if (texture.fileInfo.getValue1() != texture.fileInfo.getValue0().lastModified()) {
+            if (scene.hasTexture(textureName)) {
+                System.out.println("Reloading " + textureName);
+                scene.loaderWindow.makeContextCurrent();
+                texture.regenTexture(scene, texture.fileInfo.getValue0());
+                if (scene.currentContext != null)
+                    scene.currentContext.makeContextCurrent();
+            }
+            texture.fileInfo = texture.fileInfo.setAt1(texture.fileInfo.getValue0().lastModified());
+            }
+
+        }
+
+
+        //Todo mesh regen
+
+        //Todo shader regenShaders
 
     }
 

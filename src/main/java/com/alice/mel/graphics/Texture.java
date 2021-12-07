@@ -1,6 +1,7 @@
 package com.alice.mel.graphics;
 
 import com.alice.mel.engine.Scene;
+import org.javatuples.Pair;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
@@ -19,11 +20,13 @@ import java.util.HashMap;
  * Texture data class
  * @author Bahar Demircan
  */
-public final class Texture implements Serializable {
+public final class Texture extends Asset {
 
     private final HashMap<Scene, Integer> ids = new HashMap<>();
     private int width, height;
     private  byte[] pixels;
+
+
 
     public TextureFilter minFilter = TextureFilter.Nearest;
     public TextureFilter magFilter = TextureFilter.Nearest;
@@ -33,11 +36,21 @@ public final class Texture implements Serializable {
     /**
      * @param file Texture filepath
      */
-    public Texture (String file) {
+    public Texture (String file){
+        this(new File(file));
+    }
+
+    /**
+     * @param file Texture file
+     */
+    public Texture (File file) {
 
         BufferedImage img = null;
+
+        fileInfo = Pair.with(file, file.lastModified());
+
         try {
-            img = ImageIO.read(new File(file));
+            img = ImageIO.read(file);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -117,36 +130,22 @@ public final class Texture implements Serializable {
      * @param file New Texture filepath
      */
     public void regenTexture(Scene scene, String file){
+        regenTexture(scene, new File(file));
+    }
+
+    /**
+     * Regenerate Texture from a file
+     * @param scene Scene Texture loaded to
+     * @param file New Texture file
+     */
+    public void regenTexture(Scene scene, File file){
         BufferedImage img = null;
         try {
-            img = ImageIO.read(new File(file));
+            img = ImageIO.read(file);
+            regenTexture(scene, img);
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-        assert img != null;
-        width = img.getWidth();
-        height = img.getHeight();
-        pixels = new byte[width*height*4];
-
-
-        int [] rawPixels = img.getRGB(0, 0, width, height, null, 0, width);
-
-        for(int i = 0; i < height; i++){
-            for(int j = 0; j < width; j++){
-                int pixel = rawPixels[i*width + j];
-                pixels[(i*width + j) * 4] = ((byte)((pixel >> 16) & 0xFF)); //RED
-                pixels[(i*width + j) * 4 + 1] = ( (byte)((pixel >> 8) & 0xFF)); //GREEN
-                pixels[(i*width + j) * 4 + 2] = ((byte)(pixel & 0xFF)); //BLUE
-                pixels[(i*width + j) * 4 + 3] = ((byte)((pixel >> 24) & 0xFF)); //ALPHA
-            }
-        }
-
-
-        setTextureFilter(scene, minFilter, magFilter);
-        setTextureWrap(scene, uWrap, vWrap);
-        GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA, width, height, 0, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, BufferUtils.createByteBuffer(pixels.length).put(pixels).flip());
-        unbind();
     }
 
     /**
@@ -211,16 +210,13 @@ public final class Texture implements Serializable {
      * @param scene Scene to be loaded
      */
     public void genTexture(Scene scene){
-
         int id = GL11.glGenTextures();
         GL11.glBindTexture(GL11.GL_TEXTURE_2D, id);
         ids.put(scene, id);
         setTextureFilter(scene, minFilter, magFilter);
         setTextureWrap(scene, uWrap, vWrap);
         GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA, width, height, 0, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, BufferUtils.createByteBuffer(pixels.length).put(pixels).flip());
-
-        GL11.glBindTexture(GL11.GL_TEXTURE_2D, 0);
-
+        unbind();
     }
 
     /**

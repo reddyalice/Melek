@@ -2,6 +2,7 @@ package com.alice.mel.graphics;
 
 import com.alice.mel.engine.Scene;
 import com.alice.mel.utils.collections.Array;
+import org.javatuples.Pair;
 import org.joml.Matrix4f;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
@@ -18,9 +19,9 @@ import java.util.HashMap;
  * Class for loading the Shader
  * @author Bahar Demircan
  */
-public abstract class Shader implements Serializable {
+public abstract class Shader extends Asset{
 
-    public enum ShaderType{
+    enum ShaderType{
         NONE,
         VERTEX ,
         FRAGMENT,
@@ -43,7 +44,12 @@ public abstract class Shader implements Serializable {
         }
         else{
             try {
-                BufferedReader reader = new BufferedReader(new FileReader(shaderOrShaderFilePath));
+
+
+
+                File f = new File(shaderOrShaderFilePath);
+                fileInfo = Pair.with(f, f.lastModified());
+                BufferedReader reader = new BufferedReader(new FileReader(f));
 
                 String line;
                 while((line = reader.readLine()) != null){

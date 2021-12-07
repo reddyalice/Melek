@@ -12,7 +12,7 @@ import java.util.HashMap;
  * Mesh data holder class
  * @author Bahar Demircan
  */
-public final class Mesh implements Serializable {
+public final class Mesh extends Asset {
 
     private final HashMap<Scene, HashMap<Window, Integer>> ids = new HashMap<>();
     private final HashMap<String, VertexBufferObject> vertices = new HashMap<>();
@@ -88,7 +88,9 @@ public final class Mesh implements Serializable {
     }
 
     //TODO will add regenMesh Functions
+    public void regenMesh(Scene scene, Window window, Array<VertexBufferObject> vertices, int[] indices){
 
+    }
 
     /**
      * Bind Mesh

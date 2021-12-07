@@ -1,6 +1,7 @@
 package com.alice.mel.engine;
 
 import com.alice.mel.utils.collections.Array;
+import com.alice.mel.utils.collections.ImmutableArray;
 import com.alice.mel.utils.collections.SnapshotArray;
 import org.lwjgl.glfw.GLFW;
 
@@ -23,6 +24,9 @@ public class Game{
     public static Scene loaderScene = null;
     private static final SnapshotArray<Scene> activeScenes = new SnapshotArray<>();
     private static final Array<Scene> toDispose = new Array<>();
+
+
+    public static boolean hotReload = true;
 
 
     /**
@@ -53,17 +57,24 @@ public class Game{
      * Run the game with active scenes
      */
     public static void run(){
-
         while(activeScenes.size > 0){
+
             long time = System.nanoTime(); // Lame delta Timing
+
+
+
             for(Scene scene : activeScenes)
-                if(scene.getWindowCount() > 0) // As long as scene has windows to update its state
-                scene.Update(deltaTime); // Scene update
+                if(scene.getWindowCount() > 0)  // As long as scene has windows to update its state
+                    scene.Update(deltaTime); // Scene update
                 else
                     removeActiveScene(scene, false); //Remove the scene without destroying it
+
+
             time = System.nanoTime() - time;
             deltaTime = time / 1000000000f;
-            System.out.println(1f / deltaTime);
+
+
+
         }
         dispose();
     }
@@ -73,6 +84,7 @@ public class Game{
      * Clear Active Scenes and Terminate GLFW
      */
     public static void dispose(){
+
         for(Scene scene : toDispose)
             scene.dispose();
         activeScenes.clear();
