@@ -4,6 +4,7 @@ import com.alice.mel.graphics.Mesh;
 import com.alice.mel.graphics.Shader;
 import com.alice.mel.graphics.Texture;
 import com.alice.mel.graphics.Window;
+import com.alice.mel.graphics.shaders.Batched3DShader;
 import com.alice.mel.graphics.shaders.BatchedSpriteShader;
 import com.alice.mel.utils.collections.Array;
 import com.alice.mel.utils.collections.ObjectMap;
@@ -71,6 +72,7 @@ public final class AssetManager implements Serializable {
 
         addTexture("null", new Texture(1, 1, new int[]{0}));
         addShader(BatchedSpriteShader.class);
+
     }
 
 

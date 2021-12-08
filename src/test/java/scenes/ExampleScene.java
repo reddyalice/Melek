@@ -6,8 +6,10 @@ import com.alice.mel.components.RenderingComponent;
 import com.alice.mel.components.TransformComponent;
 import com.alice.mel.engine.*;
 import com.alice.mel.graphics.*;
+import com.alice.mel.graphics.materials.BatchedBasic3DMaterial;
 import com.alice.mel.graphics.materials.GUIMaterial;
 import com.alice.mel.graphics.materials.SpriteMaterial;
+import com.alice.mel.graphics.shaders.Batched3DShader;
 import com.alice.mel.graphics.shaders.BatchedSpriteShader;
 import com.alice.mel.graphics.shaders.SpriteShader;
 import com.alice.mel.systems.BatchedRenderingSystem;
@@ -30,12 +32,15 @@ public class ExampleScene extends SceneAdaptor {
 
         Texture texture = new Texture("src/test/resources/textures/cactus.png");
         Texture textureC = new Texture("src/test/resources/textures/cardedge.png");
-        BatchMaterial material = new GUIMaterial();
+        Mesh mesh = new Mesh("src/test/resources/models/cactus.obj");
+        BatchMaterial material = new BatchedBasic3DMaterial();
         material.textureName = "Texture1";
         addShader(BatchedSpriteShader.class);
+        addShader(Batched3DShader.class);
         addTexture("Texture1", texture);
         addTexture("Texture2", textureC);
-        scene.loadMesh("Quad");
+        addMesh("Mesh", mesh);
+        //scene.loadMesh("Quad3D");
 
 
 
@@ -54,14 +59,14 @@ public class ExampleScene extends SceneAdaptor {
         tc.scale.set(100, 100, 100);
         tc.position.set(0,0, -100);
 
-        int en = createEntity(tc, new BatchRenderingComponent( "Quad", "Texture1", material));
+        int en = createEntity(tc, new BatchRenderingComponent( "Mesh", "Texture1", material));
 
         TransformComponent tc1 = tc.Clone();
         tc1.scale.set(50, 50, 50);
 
-        GUIMaterial mat = new GUIMaterial();
-        mat.textureDivision.set(10f, 1);
-        en1 = createEntity(tc1, new BatchRenderingComponent( "Quad", "Texture1",  mat));
+        BatchedBasic3DMaterial mat = new BatchedBasic3DMaterial();
+       // mat.textureDivision.set(10f, 1);
+        en1 = createEntity(tc1, new BatchRenderingComponent( "Mesh", "Texture1",  mat));
 
 
         w2.update.add("move", x -> MathUtils.LookRelativeTo(w2, w));
@@ -83,7 +88,7 @@ public class ExampleScene extends SceneAdaptor {
 
 
         if(!prevKPressed && getKeyPressed(GLFW.GLFW_KEY_K))
-            Objects.requireNonNull(Game.assetManager.getMesh("Quad")).drawWireframe = !Objects.requireNonNull(Game.assetManager.getMesh("Quad")).drawWireframe;
+            Objects.requireNonNull(Game.assetManager.getMesh("Mesh")).drawWireframe = !Objects.requireNonNull(Game.assetManager.getMesh("Quad")).drawWireframe;
 
         prevKPressed = getKeyPressed(GLFW.GLFW_KEY_K);
 
