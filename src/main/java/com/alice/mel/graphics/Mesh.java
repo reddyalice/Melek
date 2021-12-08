@@ -22,7 +22,7 @@ public final class Mesh extends Asset {
     private int[] indices;
     private int vertexCount;
 
-
+    public boolean drawWireframe = false;
     public Mesh(String fileName){
         this(new File(fileName));
     }

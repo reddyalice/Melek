@@ -20,6 +20,10 @@ public class MathUtils {
         return value + 1;
     }
 
+    public static long roundUpPow2X(long n, long x) {
+        return ((n + x - 1) & (-x));
+    }
+
     public static Matrix4f CreateTransformationMatrix(Vector3f translation, Quaternionf rotation, Vector3f scale){
         Matrix4f matrix = new Matrix4f();
         matrix.identity().translate(translation).

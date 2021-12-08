@@ -12,8 +12,6 @@ public class RenderingComponent extends Component{
 
     public String meshName;
     public Material material;
-
-
     private String lastMeshName;
 
     /**

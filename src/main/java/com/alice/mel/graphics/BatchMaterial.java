@@ -9,9 +9,7 @@ import java.util.HashMap;
 public abstract class BatchMaterial implements Serializable {
 
     public String textureName = "null";
-
     public final HashMap<String, VertexData> properties = new HashMap<>();
-
     public final Vector2f textureOffset = new Vector2f(0,0);
     public final Vector2f textureDivision = new Vector2f(1,1);
     public final Vector4f color = new Vector4f(1,1,1,1);

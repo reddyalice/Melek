@@ -11,6 +11,7 @@ import com.alice.mel.utils.collections.ImmutableArray;
 import com.alice.mel.utils.collections.ObjectMap;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
+import org.lwjgl.opengl.GL30;
 
 import java.util.HashMap;
 import java.util.Objects;
@@ -21,12 +22,13 @@ public class RenderingSystem extends ComponentSystem{
     protected final ObjectMap<Class<? extends Shader>, HashMap<String, HashMap<Material, Array<Integer>>>> renderMap = new ObjectMap<>();
 
     public RenderingSystem(AssetManager assetManager){
-        this.assetManager = assetManager;
+        this(0, assetManager);
     }
     public RenderingSystem(int priority, AssetManager assetManager){
         super(priority);
         this.assetManager = assetManager;
     }
+
 
     @Override
     public void addedToScene(Scene scene) {
@@ -227,21 +229,28 @@ public class RenderingSystem extends ComponentSystem{
 
     @Override
     public void render(Window window, float deltaTime) {
+
+
+
         for(Class<? extends Shader> shaderClass : renderMap.keys()){
             Objects.requireNonNull(assetManager.getShader(shaderClass)).start(scene);
             for(String meshName : renderMap.get(shaderClass).keySet()){
                 Objects.requireNonNull(assetManager.getMesh(meshName)).bind(scene, window);
+                if(Objects.requireNonNull(assetManager.getMesh(meshName)).drawWireframe) GL30.glPolygonMode(GL30.GL_FRONT_AND_BACK, GL30.GL_LINE);
                     for(Material material : renderMap.get(shaderClass).get(meshName).keySet()){
                         GL20.glEnable(GL11.GL_TEXTURE);
                         GL20.glActiveTexture(GL20.GL_TEXTURE0);
                         material.loadValues(assetManager, scene, window);
                         for(int entity : renderMap.get(shaderClass).get(meshName).get(material)){
                             material.loadElement(assetManager, scene, window, entityManager.getComponent(entity, TransformComponent.class));
+
                             GL11.glDrawElements(GL11.GL_TRIANGLES, Objects.requireNonNull(assetManager.getMesh(meshName)).getVertexCount(), GL11.GL_UNSIGNED_INT, 0);
+
                         }
                         GL20.glDisable(GL11.GL_TEXTURE);
                         GL11.glBindTexture(GL11.GL_TEXTURE_2D, 0);
                     }
+                if(Objects.requireNonNull(assetManager.getMesh(meshName)).drawWireframe) GL30.glPolygonMode(GL30.GL_FRONT_AND_BACK, GL30.GL_FILL);
             }
             Objects.requireNonNull(assetManager.getShader(shaderClass)).stop();
         }

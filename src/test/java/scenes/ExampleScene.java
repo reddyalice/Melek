@@ -16,6 +16,8 @@ import org.joml.Vector2f;
 import org.joml.Vector2i;
 import org.lwjgl.glfw.GLFW;
 
+import java.util.Objects;
+
 public class ExampleScene extends SceneAdaptor {
 
 
@@ -34,6 +36,10 @@ public class ExampleScene extends SceneAdaptor {
         addTexture("Texture1", texture);
         addTexture("Texture2", textureC);
         scene.loadMesh("Quad");
+
+
+
+
        // game.assetManager.addMesh("Mesh1", mesh);
 
         w = createWindow(CameraType.Orthographic, "Test", 640, 480, false);
@@ -71,10 +77,15 @@ public class ExampleScene extends SceneAdaptor {
     private final Vector2i move = new Vector2i(0,0);
 
     float diff;
+    boolean prevKPressed;
     @Override
     public void Update(float deltaTime) {
 
 
+        if(!prevKPressed && getKeyPressed(GLFW.GLFW_KEY_K))
+            Objects.requireNonNull(Game.assetManager.getMesh("Quad")).drawWireframe = !Objects.requireNonNull(Game.assetManager.getMesh("Quad")).drawWireframe;
+
+        prevKPressed = getKeyPressed(GLFW.GLFW_KEY_K);
 
         if(getKeyPressed(GLFW.GLFW_KEY_G))
                 if(scene.getForAny(BatchRenderingComponent.class).size() > 1)

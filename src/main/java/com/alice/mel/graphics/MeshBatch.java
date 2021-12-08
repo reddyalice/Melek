@@ -24,7 +24,6 @@ public class MeshBatch implements Comparable<MeshBatch>{
 
     public OptimizationPriority optimizationPriority = OptimizationPriority.AddRemoveSpeed;
 
-
     private final int[] indices;
 
     private final HashMap<String, VertexBufferObject> vertices = new HashMap<>();
@@ -247,8 +246,9 @@ public class MeshBatch implements Comparable<MeshBatch>{
             for (String vertexName : vertices.keySet())
                 vertices.get(vertexName).enable();
 
+            if(mesh.drawWireframe) GL30.glPolygonMode(GL30.GL_FRONT_AND_BACK, GL30.GL_LINE);
             GL30.glDrawElements(GL30.GL_TRIANGLES, mesh.getVertexCount() * (indexArray.get(indexArray.size - 1) + 1), GL30.GL_UNSIGNED_INT, 0);
-
+            if(mesh.drawWireframe) GL30.glPolygonMode(GL30.GL_FRONT_AND_BACK, GL30.GL_FILL);
             for (String vertexName : vertices.keySet())
                 vertices.get(vertexName).disable();
             GL30.glBindVertexArray(0);

@@ -9,6 +9,7 @@ import com.alice.mel.graphics.Window;
 import com.alice.mel.utils.collections.Array;
 import com.alice.mel.utils.collections.ImmutableArray;
 import com.alice.mel.utils.collections.ObjectMap;
+import org.lwjgl.opengl.GL30;
 
 import java.util.Objects;
 
@@ -19,7 +20,7 @@ public class BatchedRenderingSystem extends ComponentSystem{
     private final ObjectMap<Class<? extends BatchShader>, Array<MeshBatch>> batches = new ObjectMap<>();
 
     public BatchedRenderingSystem(AssetManager assetManager){
-        this.assetManager = assetManager;
+        this(0, assetManager);
     }
     public BatchedRenderingSystem(int priority, AssetManager assetManager){
         super(priority);
@@ -207,6 +208,7 @@ public class BatchedRenderingSystem extends ComponentSystem{
 
     @Override
     public void render(Window window, float deltaTime) {
+
         for ( Class<? extends BatchShader> shader : batches.keys()) {
             Objects.requireNonNull(assetManager.getShader(shader)).start(scene);
             Objects.requireNonNull(assetManager.getShader(shader)).loadValues(assetManager, scene, window);
