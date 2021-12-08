@@ -1,11 +1,13 @@
 package com.alice.mel.graphics;
 
+import com.alice.mel.utils.loaders.OBJLoader;
 import com.alice.mel.engine.Scene;
 import com.alice.mel.utils.collections.Array;
+import org.javatuples.Pair;
 import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GL30;
 
-import java.io.Serializable;
+import java.io.File;
 import java.util.HashMap;
 
 /**
@@ -19,6 +21,20 @@ public final class Mesh extends Asset {
     private final HashMap<Scene, Integer> indexIDs = new HashMap<>();
     private int[] indices;
     private int vertexCount;
+
+
+    public Mesh(String fileName){
+        this(new File(fileName));
+    }
+
+    public Mesh(File file){
+        fileInfo = Pair.with(file, file.lastModified());
+        Pair<HashMap<String, VertexBufferObject>, int[]> pair = OBJLoader.loadOBJ(file);
+        this.vertices.putAll(pair.getValue0());
+        this.indices = pair.getValue1();
+        this.vertexCount = indices.length;
+    }
+
 
     /**
      * Constructor for a 3D Mesh
@@ -54,8 +70,8 @@ public final class Mesh extends Asset {
      * @param vertices VertexData Array
      * @param indices Index Array
      */
-    public Mesh(Array<VertexBufferObject> vertices, int[] indices){
-        vertices.addAll(vertices);
+    public Mesh(HashMap<String, VertexBufferObject> vertices, int[] indices){
+        this.vertices.putAll(vertices);
         this.indices = indices;
         this.vertexCount = indices.length;
     }
