@@ -66,7 +66,9 @@ public class ExampleScene extends SceneAdaptor {
         TransformComponent tc1 = tc.Clone();
         tc1.scale.set(50, 50, 50);
 
-        en1 = createEntity(tc1, new BatchRenderingComponent( "Mesh", "Texture1",  material));
+        BatchedBasic3DMaterial mat = new BatchedBasic3DMaterial();
+       mat.textureDivision.set( 10f, 1);
+        en1 = createEntity(tc1, new BatchRenderingComponent( "Mesh", "Texture1",  mat));
 
 
         w2.update.add("move", x -> MathUtils.LookRelativeTo(w2, w));
@@ -111,12 +113,14 @@ public class ExampleScene extends SceneAdaptor {
         Vector2i winPos = w2.getPosition();
         Vector2i winSize = w2.getSize();
         w2.setPosition((int)cursorPos.x  + winPos.x - winSize.x /2, (int)cursorPos.y + winPos.y - winSize.y /2);
+        diff +=  move.x * deltaTime;
 
 
         tc.rotation.fromAxisAngleDeg(0,1, 0, ang* 90);
 
 
         entityManager.getComponent(en1, TransformComponent.class).position.add( move.x, -move.y, 0);
+        entityManager.getComponent(en1, BatchRenderingComponent.class).material.textureOffset.set(diff % 10,0);
         w3.translate(move.x, move.y);
         ang += deltaTime;
 

@@ -185,6 +185,7 @@ public class MeshBatch implements Comparable<MeshBatch>{
         }
     }
 
+    private VertexBufferObject oldColor = null;
     public void bind(Scene scene, Window window){
         if(indexArray.size > 0) {
             boolean rebufferElement = false;
@@ -217,7 +218,10 @@ public class MeshBatch implements Comparable<MeshBatch>{
 
             if (rebufferMaterial) {
                 vertices.get("textureCoords").regenVertex(scene);
-                vertices.get("colors").regenVertex(scene);
+                if(oldColor != vertices.get("colors")) {
+                    vertices.get("colors").regenVertex(scene);
+                    oldColor = vertices.get("colors");
+                }
                 for (String textureName : elements.keySet()) {
                     for (int index : elements.get(textureName).keySet()) {
                         Pair<Integer, BatchRenderingComponent> element = elements.get(textureName).get(index);
@@ -233,6 +237,7 @@ public class MeshBatch implements Comparable<MeshBatch>{
                     }
                 }
             }
+
 
             GL20.glEnable(GL11.GL_TEXTURE);
             for (String textureName : textureToIntMap.keySet()) {
@@ -361,22 +366,21 @@ public class MeshBatch implements Comparable<MeshBatch>{
         Vector2f textureOffset = brc.material.textureOffset;
         Vector2f textureDivision = brc.material.textureDivision;
 
-
         int vertexSize = textureData.size;
         int offset = index * vertexSize;
         float[] TEX = new float[textureData.dimension];
+
+        //Why the fuck this is so slow?
+        Vector4f color = brc.material.color;
+        float[] COL = new float[] {color.x, color.y, color.z, color.w};
         for(int i = 0; i < vertexSize; i++){
             TEX[0] = textureData.data[textureData.dimension * i] / textureDivision.x + (textureOffset.x / textureDivision.x);
             TEX[1] = textureData.data[textureData.dimension * i + 1] / textureDivision.y + (textureOffset.y / textureDivision.y);
             vertices.get("textureCoords").setVertex(offset + i, TEX);
+            vertices.get("colors").setVertex(offset + i, COL);
         }
 
-        Vector4f color = brc.material.color;
-        float[] COL = new float[] {color.x, color.y, color.z, color.w};
-        for(int i = 0; i < vertexSize; i++)
-            vertices.get("colors").setVertex(index + i, COL);
-
-        for(String property : brc.material.properties.keySet()){
+       for(String property : brc.material.properties.keySet()){
             VertexData propertyData = brc.material.properties.get(property);
             vertexSize = propertyData.size;
             offset = index * vertexSize;
@@ -386,9 +390,9 @@ public class MeshBatch implements Comparable<MeshBatch>{
                 vertices.get(property).setVertex(offset + i, VER);
             }
         }
-
-
     }
+
+
 
     private void unloadMaterialProperties(int index, BatchRenderingComponent brc){
         VertexData textureData = mesh.getVertecies().get("textureCoords").vertexData;
@@ -398,9 +402,9 @@ public class MeshBatch implements Comparable<MeshBatch>{
         float[] COL = new float[4];
         for(int i = 0; i < vertexSize; i++){
             vertices.get("textureCoords").setVertex(offset + i, TEX);
+            vertices.get("colors").setVertex(offset + i, COL);
         }
-        for(int i = 0; i < vertexSize; i++)
-            vertices.get("colors").setVertex(index + i, COL);
+
 
         for(String property : brc.material.properties.keySet()){
             VertexData propertyData = brc.material.properties.get(property);
