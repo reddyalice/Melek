@@ -219,7 +219,7 @@ public class MeshBatch implements Comparable<MeshBatch>{
             if (rebufferMaterial) {
                 vertices.get("textureCoords").regenVertex(scene);
                 if(oldColor != vertices.get("colors")) {
-                    vertices.get("colors").regenVertex(scene);
+                    vertices.get("colors").regenVertex(scene);  // This condition is needed because color regen causes a huge fps drop
                     oldColor = vertices.get("colors");
                 }
                 for (String textureName : elements.keySet()) {
