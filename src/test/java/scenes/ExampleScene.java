@@ -14,6 +14,7 @@ import com.alice.mel.graphics.shaders.BatchedSpriteShader;
 import com.alice.mel.graphics.shaders.SpriteShader;
 import com.alice.mel.systems.BatchedRenderingSystem;
 import com.alice.mel.utils.maths.MathUtils;
+import org.joml.Quaternionf;
 import org.joml.Vector2f;
 import org.joml.Vector2i;
 import org.lwjgl.glfw.GLFW;
@@ -27,6 +28,7 @@ public class ExampleScene extends SceneAdaptor {
     Window w2;
     Window w3;
     int en1;
+    TransformComponent tc;
     @Override
     public void Init(Window loaderWindow, Scene scene) {
 
@@ -47,15 +49,15 @@ public class ExampleScene extends SceneAdaptor {
 
        // game.assetManager.addMesh("Mesh1", mesh);
 
-        w = createWindow(CameraType.Orthographic, "Test", 640, 480, false);
-        w2 = createWindow(CameraType.Orthographic, "Test1", 640, 480, true);
+        w = createWindow(CameraType.Perspective, "Test", 640, 480, false);
+        w2 = createWindow(CameraType.Perspective, "Test1", 640, 480, true);
         w2.setDecorated(false);
 
-        w3 = createWindow(CameraType.Orthographic, "Test2", 640, 480, true);
+        w3 = createWindow(CameraType.Perspective, "Test2", 640, 480, true);
         addSystem(new BatchedRenderingSystem(Game.assetManager));
 
 
-       TransformComponent tc = new TransformComponent();
+        tc = new TransformComponent();
         tc.scale.set(100, 100, 100);
         tc.position.set(0,0, -100);
 
@@ -65,7 +67,7 @@ public class ExampleScene extends SceneAdaptor {
         tc1.scale.set(50, 50, 50);
 
         BatchedBasic3DMaterial mat = new BatchedBasic3DMaterial();
-       //mat.textureDivision.set( 10f, 1);
+       mat.textureDivision.set( 10f, 1);
         en1 = createEntity(tc1, new BatchRenderingComponent( "Mesh", "Texture1",  mat));
 
 
@@ -111,6 +113,10 @@ public class ExampleScene extends SceneAdaptor {
         Vector2i winSize = w2.getSize();
         w2.setPosition((int)cursorPos.x  + winPos.x - winSize.x /2, (int)cursorPos.y + winPos.y - winSize.y /2);
         diff +=  move.x * deltaTime;
+
+        tc.rotation.fromAxisAngleDeg(0,1, 0, 45);
+
+
         entityManager.getComponent(en1, TransformComponent.class).position.add( move.x, -move.y, 0);
         entityManager.getComponent(en1, BatchRenderingComponent.class).material.textureOffset.set(diff % 10,0);
         w3.translate(move.x, move.y);
