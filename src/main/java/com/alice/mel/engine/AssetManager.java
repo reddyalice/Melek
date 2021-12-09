@@ -72,7 +72,7 @@ public final class AssetManager implements Serializable {
 
         addTexture("null", new Texture(1, 1, new int[]{0}));
         addShader(BatchedSpriteShader.class);
-
+        addShader(Batched3DShader.class);
     }
 
 

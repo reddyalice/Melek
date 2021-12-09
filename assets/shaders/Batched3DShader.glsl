@@ -1,9 +1,12 @@
 #shader vertex
 #version 400 core
 layout (location=0) in vec3 position;
-layout (location=1) in vec2 textureCoords;
-layout (location=2) in vec4 color;
-layout (location=3) in float texID;
+layout (location=1) in vec3 normals;
+layout (location=2) in vec2 textureCoords;
+
+layout (location=3) in vec4 color;
+layout (location=4) in float texID;
+
 
 out vec4 pass_color;
 out vec2 pass_texCoords;
@@ -36,5 +39,5 @@ uniform sampler2D textureSampler[gl_MaxTextureImageUnits];
 
 void main(){
     int id = int(pass_texId);
-    out_Color = pass_color * texture(textureSampler[id], pass_texCoords);
+    out_Color =  pass_color * texture(textureSampler[id], pass_texCoords);
 }

@@ -6,11 +6,9 @@ import com.alice.mel.engine.AssetManager;
 import com.alice.mel.engine.Game;
 import com.alice.mel.engine.Scene;
 import com.alice.mel.utils.collections.Array;
+import com.alice.mel.utils.maths.MathUtils;
 import org.javatuples.Pair;
-import org.joml.Quaternionf;
-import org.joml.Vector2f;
-import org.joml.Vector3f;
-import org.joml.Vector4f;
+import org.joml.*;
 import org.lwjgl.opengl.*;
 
 import java.util.HashMap;
@@ -75,6 +73,7 @@ public class MeshBatch implements Comparable<MeshBatch>{
     public boolean addEntity(int entity){
         if(numberOfElements < maxElementCount) {
             if (scene.entityManager.hasComponent( entity, BatchRenderingComponent.class)) {
+                TransformComponent tc = scene.entityManager.getComponent(entity, TransformComponent.class);
                 BatchRenderingComponent brc = scene.entityManager.getComponent(entity, BatchRenderingComponent.class);
                 String textureName = brc.material.textureName;
                 if(elements.containsKey(textureName)){
@@ -96,7 +95,7 @@ public class MeshBatch implements Comparable<MeshBatch>{
                             vertices.put(property, new VertexBufferObject(attributeIndex++, data.dimension, vertices.get("positions").vertexData.size * maxElementCount));
                         }
                     }
-                    loadElementProperties(index, entity);
+                    loadElementProperties(index, tc);
                     loadMaterialProperties(index, brc);
                     vertices.get("texID").setVertex(index, new float[] { textureToIntMap.get(textureName) });
 
@@ -137,7 +136,7 @@ public class MeshBatch implements Comparable<MeshBatch>{
                                 vertices.put(property, new VertexBufferObject(attributeIndex++, data.dimension, vertices.get("positions").vertexData.size * maxElementCount));
                             }
                         }
-                        loadElementProperties(index, entity);
+                        loadElementProperties(index, tc);
                         loadMaterialProperties(index, brc);
                         vertices.get("texID").setVertex(index, new float[] { textureToIntMap.get(textureName) });
 
@@ -197,7 +196,7 @@ public class MeshBatch implements Comparable<MeshBatch>{
 
                     TransformComponent tc = scene.entityManager.getComponent( element.getValue0(), TransformComponent.class);
                     if (tc.isDirty()) {
-                        loadElementProperties(index, element.getValue0());
+                        loadElementProperties(index, tc);
                         tc.doClean();
                         rebufferElement = true;
                     }
@@ -211,9 +210,9 @@ public class MeshBatch implements Comparable<MeshBatch>{
 
                 }
             }
+
             if (rebufferElement) {
                 vertices.get("positions").regenVertex(scene);
-                rebufferElement = false;
             }
 
             if (rebufferMaterial) {
@@ -233,7 +232,6 @@ public class MeshBatch implements Comparable<MeshBatch>{
                         }
                     }
                 }
-                rebufferMaterial = false;
             }
 
             GL20.glEnable(GL11.GL_TEXTURE);
@@ -293,33 +291,56 @@ public class MeshBatch implements Comparable<MeshBatch>{
     }
 
 
-    private void loadElementProperties(int index, int entity){
-        VertexData positionData = mesh.getVertecies().get("positions").vertexData;
+    private void loadElementProperties(int index, TransformComponent comp){
 
+        VertexData positionData = mesh.getVertecies().get("positions").vertexData;
         int vertexSize = positionData.size;
         int offset = index * vertexSize;
-
-        TransformComponent comp = scene.entityManager.getComponent(entity, TransformComponent.class);
 
         Vector3f position = comp.position;
         Quaternionf rotation = comp.rotation;
         Vector3f scale = comp.scale;
         float[] POS = new float[positionData.dimension];
+
+        Matrix4f tm = MathUtils.CreateTransformationMatrix(position, rotation, scale);
+        Vector4f vf = new Vector4f(0,0,0,1);
         for(int i = 0;i < vertexSize; i++){
             switch (POS.length) {
-                case 1 -> POS[0] = position.x + positionData.data[positionData.dimension * i] * scale.x;
+                case 1 -> {
+                    vf.x = positionData.data[positionData.dimension * i];
+                    Vector4f out = tm.transform(vf);
+                    POS[0] = out.x;
+                }
                 case 2 -> {
-                    POS[0] = position.x + positionData.data[positionData.dimension * i] * scale.x;
-                    POS[1] = position.y + positionData.data[positionData.dimension * i + 1] * scale.y;
+                    vf.x = positionData.data[positionData.dimension * i];
+                    vf.y = positionData.data[positionData.dimension * i + 1];
+                    Vector4f out = tm.transform(vf);
+                    POS[0] = out.x;
+                    POS[1] = out.y;
                 }
                 default -> {
-                    POS[0] = position.x + positionData.data[positionData.dimension * i] * scale.x;
-                    POS[1] = position.y + positionData.data[positionData.dimension * i + 1] * scale.y;
-                    POS[2] = position.z + positionData.data[positionData.dimension * i + 2] * scale.z;
+                    vf.x = positionData.data[positionData.dimension * i];
+                    vf.y = positionData.data[positionData.dimension * i + 1];
+                    vf.z = positionData.data[positionData.dimension * i + 2];
+                    Vector4f out = tm.transform(vf);
+                    POS[0] = out.x;
+                    POS[1] = out.y;
+                    POS[2] = out.z;
                 }
             }
             vertices.get("positions").setVertex(offset + i, POS);
         }
+        if(vertices.containsKey("normals")){
+            float[] NOR = new float[3];
+            VertexData normalData = mesh.getVertecies().get("normals").vertexData;
+            for(int i = 0;i < vertexSize; i++){
+                NOR[0] = normalData.data[normalData.dimension * i];
+                NOR[1] = normalData.data[normalData.dimension * i + 1];
+                NOR[2] = normalData.data[normalData.dimension * i] + 2;
+                vertices.get("normals").setVertex(offset + i, NOR);
+            }
+        }
+
     }
 
     private void unloadElementProperties(int index){
@@ -328,7 +349,7 @@ public class MeshBatch implements Comparable<MeshBatch>{
         int offset = index * vertexSize;
         float[] POS = new float[positionData.dimension];
         for(int i = 0;i < vertexSize; i++){
-            vertices.get("positions").setVertex(offset + i, POS);
+            vertices.get("positions").setVertex(index + i, POS);
         }
     }
 

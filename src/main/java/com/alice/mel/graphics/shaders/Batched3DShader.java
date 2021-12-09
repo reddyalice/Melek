@@ -18,9 +18,11 @@ public class Batched3DShader extends BatchShader {
     @Override
     protected void bindAttributes(Scene scene) {
         bindAttribute(scene, 0, "position");
-        bindAttribute(scene, 1, "textureCoords");
-        bindAttribute(scene, 2, "color");
-        bindAttribute(scene, 3, "texID");
+        bindAttribute(scene, 1,"normals");
+        bindAttribute(scene, 2, "textureCoords");
+        bindAttribute(scene, 3, "color");
+        bindAttribute(scene, 4, "texID");
+
     }
 
     @Override

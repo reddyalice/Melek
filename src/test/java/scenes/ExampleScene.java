@@ -65,7 +65,7 @@ public class ExampleScene extends SceneAdaptor {
         tc1.scale.set(50, 50, 50);
 
         BatchedBasic3DMaterial mat = new BatchedBasic3DMaterial();
-       // mat.textureDivision.set(10f, 1);
+       //mat.textureDivision.set( 10f, 1);
         en1 = createEntity(tc1, new BatchRenderingComponent( "Mesh", "Texture1",  mat));
 
 
@@ -88,7 +88,7 @@ public class ExampleScene extends SceneAdaptor {
 
 
         if(!prevKPressed && getKeyPressed(GLFW.GLFW_KEY_K))
-            Objects.requireNonNull(Game.assetManager.getMesh("Mesh")).drawWireframe = !Objects.requireNonNull(Game.assetManager.getMesh("Quad")).drawWireframe;
+            Objects.requireNonNull(Game.assetManager.getMesh("Mesh")).drawWireframe = !Objects.requireNonNull(Game.assetManager.getMesh("Mesh")).drawWireframe;
 
         prevKPressed = getKeyPressed(GLFW.GLFW_KEY_K);
 

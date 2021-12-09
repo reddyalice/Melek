@@ -1,7 +1,6 @@
 package com.alice.mel.graphics.materials;
 
 import com.alice.mel.graphics.BatchMaterial;
-import com.alice.mel.graphics.BatchShader;
 import com.alice.mel.graphics.shaders.Batched3DShader;
 
 public class BatchedBasic3DMaterial extends BatchMaterial {
