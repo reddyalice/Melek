@@ -111,7 +111,6 @@ public class ExampleScene extends SceneAdaptor {
         Vector2i winPos = w2.getPosition();
         Vector2i winSize = w2.getSize();
         w2.setPosition((int)cursorPos.x  + winPos.x - winSize.x /2, (int)cursorPos.y + winPos.y - winSize.y /2);
-        diff +=  move.x * deltaTime;
 
 
         tc.rotation.fromAxisAngleDeg(0,1, 0, ang* 90);
