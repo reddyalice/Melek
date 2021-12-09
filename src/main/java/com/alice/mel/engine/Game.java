@@ -33,6 +33,15 @@ public class Game{
      * Add a scene to currently running active scene array
      * @param scene Scene to be added
      */
+    public static void addActiveScene(SceneAdaptor scene){
+        addActiveScene(scene.scene);
+    }
+
+
+    /**
+     * Add a scene to currently running active scene array
+     * @param scene Scene to be added
+     */
     public static void addActiveScene(Scene scene){
         if(!activeScenes.contains(scene, false)){
             if(toDispose.contains(scene, false))
@@ -40,6 +49,16 @@ public class Game{
             activeScenes.add(scene);
             scene.Update(deltaTime);
         }
+    }
+
+
+    /**
+     * Remove the scene from active running scenes
+     * @param scene Scene to removed
+     * @param destroy If Scene will be disposed after removing
+     */
+    public static void removeActiveScene(SceneAdaptor scene, boolean destroy){
+        removeActiveScene(scene.scene, destroy);
     }
 
     /**
@@ -72,7 +91,7 @@ public class Game{
 
             time = System.nanoTime() - time;
             deltaTime = time / 1000000000f;
-
+            System.out.println(1f / deltaTime);
 
 
         }
