@@ -49,11 +49,11 @@ public class ExampleScene extends SceneAdaptor {
 
        // game.assetManager.addMesh("Mesh1", mesh);
 
-        w = createWindow(CameraType.Perspective, "Test", 640, 480, false);
-        w2 = createWindow(CameraType.Perspective, "Test1", 640, 480, true);
+        w = createWindow(CameraType.Orthographic, "Test", 640, 480, false);
+        w2 = createWindow(CameraType.Orthographic, "Test1", 640, 480, true);
         w2.setDecorated(false);
 
-        w3 = createWindow(CameraType.Perspective, "Test2", 640, 480, true);
+        w3 = createWindow(CameraType.Orthographic, "Test2", 640, 480, true);
         addSystem(new BatchedRenderingSystem(Game.assetManager));
 
 
@@ -85,6 +85,7 @@ public class ExampleScene extends SceneAdaptor {
 
     float diff;
     boolean prevKPressed;
+    float ang = 0;
     @Override
     public void Update(float deltaTime) {
 
@@ -114,13 +115,14 @@ public class ExampleScene extends SceneAdaptor {
         w2.setPosition((int)cursorPos.x  + winPos.x - winSize.x /2, (int)cursorPos.y + winPos.y - winSize.y /2);
         diff +=  move.x * deltaTime;
 
-        tc.rotation.fromAxisAngleDeg(0,1, 0, 45);
+
+        tc.rotation.fromAxisAngleDeg(0,1, 0, ang* 90);
 
 
         entityManager.getComponent(en1, TransformComponent.class).position.add( move.x, -move.y, 0);
         entityManager.getComponent(en1, BatchRenderingComponent.class).material.textureOffset.set(diff % 10,0);
         w3.translate(move.x, move.y);
-
+        ang += deltaTime;
 
     }
 
