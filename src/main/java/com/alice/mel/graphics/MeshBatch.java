@@ -186,6 +186,9 @@ public class MeshBatch implements Comparable<MeshBatch>{
     }
 
     private VertexBufferObject oldColor = null;
+    private VertexBufferObject oldTexCoords = null;
+
+
     public void bind(Scene scene, Window window){
         if(indexArray.size > 0) {
             boolean rebufferElement = false;
@@ -217,7 +220,10 @@ public class MeshBatch implements Comparable<MeshBatch>{
             }
 
             if (rebufferMaterial) {
-                vertices.get("textureCoords").regenVertex(scene);
+                if(oldTexCoords != vertices.get("textureCoords")) {
+                    vertices.get("textureCoords").regenVertex(scene);
+                    oldTexCoords = vertices.get("textureCoords");
+                }
                 if(oldColor != vertices.get("colors")) {
                     vertices.get("colors").regenVertex(scene);  // This condition is needed because color regen causes a huge fps drop
                     oldColor = vertices.get("colors");
