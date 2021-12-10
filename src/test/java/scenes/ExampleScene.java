@@ -2,22 +2,19 @@ package scenes;
 
 import com.alice.mel.components.BatchRenderingComponent;
 import com.alice.mel.components.Component;
-import com.alice.mel.components.RenderingComponent;
 import com.alice.mel.components.TransformComponent;
 import com.alice.mel.engine.*;
 import com.alice.mel.graphics.*;
+import com.alice.mel.graphics.Window;
 import com.alice.mel.graphics.materials.BatchedBasic3DMaterial;
-import com.alice.mel.graphics.materials.GUIMaterial;
-import com.alice.mel.graphics.materials.SpriteMaterial;
 import com.alice.mel.graphics.shaders.Batched3DShader;
 import com.alice.mel.graphics.shaders.BatchedSpriteShader;
-import com.alice.mel.graphics.shaders.SpriteShader;
 import com.alice.mel.systems.BatchedRenderingSystem;
 import com.alice.mel.utils.maths.MathUtils;
-import org.joml.Quaternionf;
-import org.joml.Vector2f;
-import org.joml.Vector2i;
-import org.joml.Vector3f;
+import imgui.ImGui;
+import imgui.gl3.ImGuiImplGl3;
+import imgui.glfw.ImGuiImplGlfw;
+import org.joml.*;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.Objects;
@@ -30,14 +27,17 @@ public class ExampleScene extends SceneAdaptor {
     Window w3;
     int en1;
     TransformComponent tc;
+
+    ImGuiImplGlfw ad = new ImGuiImplGlfw();
+    ImGuiImplGl3 f = new ImGuiImplGl3();
     @Override
     public void Init(Window loaderWindow, Scene scene) {
+        ImGui.init();
 
         Texture texture = new Texture("src/test/resources/textures/cactus.png");
         Texture textureC = new Texture("src/test/resources/textures/cardedge.png");
         Mesh mesh = new Mesh("src/test/resources/models/cactus.obj");
         BatchMaterial material = new BatchedBasic3DMaterial();
-        material.textureName = "Texture1";
         addShader(BatchedSpriteShader.class);
         addShader(Batched3DShader.class);
         addTexture("Texture1", texture);
@@ -51,7 +51,23 @@ public class ExampleScene extends SceneAdaptor {
        // game.assetManager.addMesh("Mesh1", mesh);
 
         w = createWindow(CameraType.Orthographic, "Test", 640, 480, false);
-        w2 = createWindow(CameraType.Perspective, "Test1", 640, 480, true);
+        w.init.add("gui", x -> {
+            ad.init(w.id, false);
+        });
+        w.postRender.add("gui", x -> {
+            ad.newFrame();
+            ImGui.newFrame();
+            ImGui.begin("test");
+            boolean but = ImGui.button("test1");
+            if(but){
+                ImGui.text("test2");
+            }
+            ImGui.end();
+            ImGui.render();
+            f.renderDrawData(ImGui.getDrawData());
+        });
+
+        w2 = createWindow(CameraType.Orthographic, "Test1", 640, 480, true);
         w2.setDecorated(false);
 
         w3 = createWindow(CameraType.Orthographic, "Test2", 640, 480, true);
@@ -67,14 +83,14 @@ public class ExampleScene extends SceneAdaptor {
         TransformComponent tc1 = tc.Clone();
         tc1.scale.set(50, 50, 50);
 
-        BatchedBasic3DMaterial mat = new BatchedBasic3DMaterial();
-       mat.textureDivision.set( 10f, 1);
-        en1 = createEntity(tc1, new BatchRenderingComponent( "Mesh", "Texture1",  mat));
+        en1 = createEntity(tc1, new BatchRenderingComponent( "Mesh", "Texture1",  new BatchedBasic3DMaterial()));
 
 
         w2.update.add("move", x -> MathUtils.LookRelativeTo(w2, w));
         w3.update.add("move", x -> MathUtils.LookRelativeTo(w3, w));
 
+        ImGui.createContext();
+        f.init();
     }
 
     @Override
@@ -84,10 +100,9 @@ public class ExampleScene extends SceneAdaptor {
 
     private final Vector3f move = new Vector3f(0,0,0);
     private final Vector2f moveDiff = new Vector2f(0,0);
-    private float diff;
     private boolean prevKPressed;
     private float ang = 0;
-
+    private float keepTime = 0;
     @Override
     public void Update(float deltaTime) {
 
@@ -123,16 +138,18 @@ public class ExampleScene extends SceneAdaptor {
         Vector2i winPos = w2.getPosition();
         Vector2i winSize = w2.getSize();
         w2.setPosition((int)cursorPos.x  + winPos.x - winSize.x /2, (int)cursorPos.y + winPos.y - winSize.y /2);
-        diff +=  move.x;
 
 
         tc.rotation.fromAxisAngleDeg(0,1, 0, ang* 90);
 
 
 
-        entityManager.getComponent(en1, TransformComponent.class).position.add(move.x, -move.y, move.z);
-        entityManager.getComponent(en1, TransformComponent.class).rotation.fromAxisAngleDeg(0,1, 0, ang* 90);
-        entityManager.getComponent(en1, BatchRenderingComponent.class).material.textureOffset.set(diff % 10,0);
+        entityManager.getComponent(en1, TransformComponent.class).position.add(move.x, move.y, move.z);
+        entityManager.getComponent(en1, TransformComponent.class).rotation.fromAxisAngleDeg(0, 1, 0, ang * 90);
+        if(keepTime >= 1) {
+            entityManager.getComponent(en1, BatchRenderingComponent.class).material.color.set(MathUtils.random.nextFloat(), MathUtils.random.nextFloat(), MathUtils.random.nextFloat(), 1);
+            keepTime = 0;
+        }
         Vector2i moveI = new Vector2i((int)move.x, (int)-move.y);
         moveDiff.add(move.x - moveI.x, -move.y - moveI.y);
         if(moveDiff.x >= 1){
@@ -144,10 +161,10 @@ public class ExampleScene extends SceneAdaptor {
             moveDiff.y = move.y - moveI.y;
         }
 
-        w3.translate((int)move.x + (int)(moveDiff.x % 1), (int)move.y + (int)(moveDiff.x % 1));
+        w3.translate((int)move.x, (int)-move.y);
 
 
-
+        keepTime += deltaTime;
         ang += deltaTime;
 
     }

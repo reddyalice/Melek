@@ -56,8 +56,12 @@ public final class VertexData implements Serializable, Cloneable {
     }
 
     public void copy(VertexData vertexData){
-        if(vertexData.length != length)
-            throw new ClassCastException("Two vertex data are not compatible with each other!");
+        if(vertexData.length != length || vertexData.dimension != dimension || vertexData.size != size)
+        {
+            System.err.println("Length, dimension or/and size of vertexData being copied doesn't fit!");
+            System.err.println("Cannot Copy!");
+            return;
+        }
         System.arraycopy(vertexData.data, 0, data, 0, length);
     }
 

@@ -3,9 +3,9 @@ package com.alice.mel.graphics.materials;
 import com.alice.mel.graphics.BatchMaterial;
 import com.alice.mel.graphics.shaders.BatchedSpriteShader;
 
-public class GUIMaterial extends BatchMaterial {
+public class BatchedSpriteMaterial extends BatchMaterial {
 
-    public GUIMaterial() {
+    public BatchedSpriteMaterial() {
         super(BatchedSpriteShader.class);
     }
 

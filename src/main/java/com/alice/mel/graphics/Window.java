@@ -11,6 +11,7 @@ import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.glfw.GLFWWindowSizeCallback;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.system.MemoryUtil;
 
 import java.nio.DoubleBuffer;
 import java.nio.IntBuffer;
@@ -62,7 +63,7 @@ public class Window {
     public Window(Camera camera, Scene scene, String title, int width, int height, boolean transparentFrameBuffer){
 
         GLFW.glfwWindowHint(GLFW.GLFW_TRANSPARENT_FRAMEBUFFER, transparentFrameBuffer ? GLFW.GLFW_TRUE : GLFW.GLFW_FALSE);
-        id = GLFW.glfwCreateWindow(width, height, title, 0,  scene.loaderWindow == null ? 0 :  scene.loaderWindow.id);
+        id = GLFW.glfwCreateWindow(width, height, title, MemoryUtil.NULL,  scene.loaderWindow == null ? MemoryUtil.NULL :  scene.loaderWindow.id);
 
         size = new Vector2i(width, height);
         this.camera = camera;

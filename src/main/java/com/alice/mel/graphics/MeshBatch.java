@@ -219,6 +219,8 @@ public class MeshBatch implements Comparable<MeshBatch>{
                 vertices.get("positions").regenVertex(scene);
             }
 
+
+            //It's not best to have constantly changing color and texture positions
             if (rebufferMaterial) {
 
                 if(oldTexCoords == null){
