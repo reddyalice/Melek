@@ -12,14 +12,15 @@ public class PerspectiveCamera extends Camera {
         update();
     }
 
-   private final Vector3f tmp = new Vector3f();
+    private final Vector3f tmp = new Vector3f();
+    private final Vector3f upTmp = new Vector3f(up).mul(-1);
 
     @Override
     public void update () {
-
         float aspect = viewportWidth / viewportHeight;
         projectionMatrix.identity().setPerspective(fieldOfView, aspect, Math.abs(near), Math.abs(far));
-        viewMatrix.identity().lookAt(position, tmp.set(position).add(direction), up);
+        upTmp.set(up).mul(-1);
+        viewMatrix.identity().lookAt(position, tmp.set(position).add(direction), upTmp);
     }
 
     @Override

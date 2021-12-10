@@ -7,6 +7,7 @@ import org.lwjgl.opengl.GL20;
 
 import java.io.Serializable;
 import java.util.HashMap;
+import java.util.Objects;
 
 public final class VertexBufferObject implements Serializable {
 
@@ -67,6 +68,19 @@ public final class VertexBufferObject implements Serializable {
 
     public HashMap<Scene, Integer> getIDs(){
         return ids;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof VertexBufferObject)) return false;
+        VertexBufferObject that = (VertexBufferObject) o;
+        return drawType == that.drawType && attributeIndex == that.attributeIndex && ids.equals(that.ids) && vertexData.equals(that.vertexData);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(ids, drawType, attributeIndex, vertexData);
     }
 
     public int getID(Scene scene){

@@ -185,8 +185,8 @@ public class MeshBatch implements Comparable<MeshBatch>{
         }
     }
 
-    private VertexBufferObject oldColor = null;
-    private VertexBufferObject oldTexCoords = null;
+    private VertexData oldColor = null;
+    private VertexData oldTexCoords = null;
 
 
     public void bind(Scene scene, Window window){
@@ -220,14 +220,25 @@ public class MeshBatch implements Comparable<MeshBatch>{
             }
 
             if (rebufferMaterial) {
-                if(oldTexCoords != vertices.get("textureCoords")) {
+
+                if(oldTexCoords == null){
                     vertices.get("textureCoords").regenVertex(scene);
-                    oldTexCoords = vertices.get("textureCoords");
+                    oldTexCoords = vertices.get("textureCoords").vertexData.clone();
                 }
-                if(oldColor != vertices.get("colors")) {
-                    vertices.get("colors").regenVertex(scene);  // This condition is needed because color regen causes a huge fps drop
-                    oldColor = vertices.get("colors");
+                else if(!oldTexCoords.equals(vertices.get("textureCoords").vertexData)) {
+                    vertices.get("textureCoords").regenVertex(scene);
+                    oldTexCoords.copy(vertices.get("textureCoords").vertexData);
                 }
+
+                if(oldColor == null){
+                    vertices.get("colors").regenVertex(scene);
+                    oldColor = vertices.get("colors").vertexData.clone();
+                }
+                else if(!oldColor.equals(vertices.get("colors").vertexData)) {
+                    vertices.get("colors").regenVertex(scene);
+                    oldColor.copy(vertices.get("colors").vertexData);
+                }
+
                 for (String textureName : elements.keySet()) {
                     for (int index : elements.get(textureName).keySet()) {
                         Pair<Integer, BatchRenderingComponent> element = elements.get(textureName).get(index);
