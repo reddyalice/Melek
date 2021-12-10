@@ -1,7 +1,11 @@
 package com.alice.mel.graphics;
 
+import com.alice.mel.engine.Game;
 import com.alice.mel.engine.Scene;
 import com.alice.mel.utils.KeyedEvent;
+import imgui.ImGui;
+import imgui.glfw.ImGuiImplGlfw;
+import org.javatuples.Pair;
 import org.joml.Vector2f;
 import org.joml.Vector2i;
 import org.joml.Vector4f;
@@ -48,9 +52,10 @@ public class Window {
     public final KeyedEvent<Float> render = new KeyedEvent<>();
     public final KeyedEvent<Float> postRender = new KeyedEvent<>();
 
+
     public Camera camera;
     private final Vector4f backgroundColor = new Vector4f(0,0,0,0);
-
+    private boolean imInit = false;
 
     /**
      * @param camera Camera that window uses
@@ -76,16 +81,21 @@ public class Window {
         postUpdate.add("camera", x -> this.camera.update());
         preRender.add("makeCurrentAndClear", x -> {
              makeContextCurrent();
+            Game.imGuiImplGlfw.init(id, false);
             GL11.glEnable(GL11.GL_DEPTH_TEST);
             GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
             GL11.glClearColor(this.backgroundColor.x, this.backgroundColor.y, this.backgroundColor.z, this.backgroundColor.w);
+            Game.imGuiImplGlfw.newFrame();
+            ImGui.newFrame();
         });
+
         postRender.add("PollAndSwap", x -> {
+            ImGui.render();
+            Game.imGuiImplGl3.renderDrawData(ImGui.getDrawData());
             swapBuffers();
             GLFW.glfwPollEvents();
         });
         GL.createCapabilities();
-
 
 
         GLFW.glfwSetWindowSizeCallback(id, new GLFWWindowSizeCallback() {
@@ -101,7 +111,9 @@ public class Window {
             }
         });
         GL11.glViewport(0,0,width,height);
+
     }
+
 
     /**
      * Focus on the Window
@@ -144,11 +156,16 @@ public class Window {
         postUpdate.add("camera", x -> this.camera.update());
         preRender.add("makeCurrentAndClear", x -> {
             makeContextCurrent();
+            Game.imGuiImplGlfw.init(id, false);
             GL11.glEnable(GL11.GL_DEPTH_TEST);
             GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
             GL11.glClearColor(this.backgroundColor.x, this.backgroundColor.y, this.backgroundColor.z, this.backgroundColor.w);
+            Game.imGuiImplGlfw.newFrame();
+            ImGui.newFrame();
         });
         postRender.add("PollAndSwap", x -> {
+            ImGui.render();
+            Game.imGuiImplGl3.renderDrawData(ImGui.getDrawData());
             swapBuffers();
             GLFW.glfwPollEvents();
         });

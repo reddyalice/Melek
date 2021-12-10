@@ -6,6 +6,10 @@ import com.alice.mel.graphics.*;
 import com.alice.mel.systems.ComponentSystem;
 import com.alice.mel.utils.KeyedEvent;
 import com.alice.mel.utils.collections.*;
+import imgui.ImGui;
+import imgui.ImGuiIO;
+import imgui.flag.ImGuiConfigFlags;
+import imgui.gl3.ImGuiImplGl3;
 import org.javatuples.Pair;
 import org.jbox2d.common.Vec2;
 import org.jbox2d.dynamics.World;
@@ -51,6 +55,8 @@ public final class Scene {
 
     public final World world = new World(new Vec2(0, 9.8f));
     public final EntityManager entityManager = new EntityManager();
+
+
 
     /**
      * Creates a scene with a loader window
@@ -408,6 +414,10 @@ public final class Scene {
         if(!initialized){
             loaderWindow.makeContextCurrent();
             init.broadcast(Pair.with(loaderWindow, this));
+            if(Game.loaderScene == this) {
+                ImGui.createContext();
+                Game.imGuiImplGl3.init();
+            }
             initialized = true;
             if(currentContext != null)
                 currentContext.makeContextCurrent();
@@ -432,6 +442,7 @@ public final class Scene {
             window.render.broadcast(delta);
             window.postRender.broadcast(delta);
         }
+
         postUpdate.broadcast(delta);
 
     }
@@ -535,6 +546,7 @@ public final class Scene {
 
         windowPool.dispose();
         cameraPool.dispose();
+
     }
 
 

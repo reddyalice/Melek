@@ -12,8 +12,11 @@ import com.alice.mel.graphics.shaders.BatchedSpriteShader;
 import com.alice.mel.systems.BatchedRenderingSystem;
 import com.alice.mel.utils.maths.MathUtils;
 import imgui.ImGui;
+import imgui.ImGuiIO;
+import imgui.flag.ImGuiConfigFlags;
 import imgui.gl3.ImGuiImplGl3;
 import imgui.glfw.ImGuiImplGlfw;
+import imgui.type.ImInt;
 import org.joml.*;
 import org.lwjgl.glfw.GLFW;
 
@@ -27,9 +30,7 @@ public class ExampleScene extends SceneAdaptor {
     Window w3;
     int en1;
     TransformComponent tc;
-
-    ImGuiImplGlfw ad = new ImGuiImplGlfw();
-    ImGuiImplGl3 f = new ImGuiImplGl3();
+    boolean but = false;
     @Override
     public void Init(Window loaderWindow, Scene scene) {
         ImGui.init();
@@ -51,21 +52,7 @@ public class ExampleScene extends SceneAdaptor {
        // game.assetManager.addMesh("Mesh1", mesh);
 
         w = createWindow(CameraType.Orthographic, "Test", 640, 480, false);
-        w.init.add("gui", x -> {
-            ad.init(w.id, false);
-        });
-        w.postRender.add("gui", x -> {
-            ad.newFrame();
-            ImGui.newFrame();
-            ImGui.begin("test");
-            boolean but = ImGui.button("test1");
-            if(but){
-                ImGui.text("test2");
-            }
-            ImGui.end();
-            ImGui.render();
-            f.renderDrawData(ImGui.getDrawData());
-        });
+
 
         w2 = createWindow(CameraType.Orthographic, "Test1", 640, 480, true);
         w2.setDecorated(false);
@@ -89,8 +76,25 @@ public class ExampleScene extends SceneAdaptor {
         w2.update.add("move", x -> MathUtils.LookRelativeTo(w2, w));
         w3.update.add("move", x -> MathUtils.LookRelativeTo(w3, w));
 
-        ImGui.createContext();
-        f.init();
+
+        w.render.add("a", x -> {
+            ImGui.begin("test");
+
+            if(ImGui.button("test1")){
+                but = !but;
+            }
+
+
+            ImGui.listBox("", new ImInt(0), new String[]{
+                    "Rotation of the cacti : " + entityManager.getComponent(en1,  TransformComponent.class).rotation.getEulerAnglesXYZ(new Vector3f()),
+                    "Position of the cactus 1 : " + tc.position,
+                    "Position of the cactus 2 : " + entityManager.getComponent(en1,  TransformComponent.class).position
+            });
+
+            ImGui.end();
+
+
+        });
     }
 
     @Override
