@@ -2,8 +2,12 @@ package com.alice.mel.graphics;
 
 import com.alice.mel.engine.Game;
 import com.alice.mel.engine.Scene;
+import com.alice.mel.utils.Event;
 import com.alice.mel.utils.KeyedEvent;
 import imgui.ImGui;
+import imgui.ImGuiViewport;
+import imgui.callback.ImPlatformFuncViewport;
+import imgui.flag.ImGuiConfigFlags;
 import imgui.glfw.ImGuiImplGlfw;
 import org.javatuples.Pair;
 import org.joml.Vector2f;
@@ -12,6 +16,7 @@ import org.joml.Vector4f;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWVidMode;
+import org.lwjgl.glfw.GLFWWindowFocusCallback;
 import org.lwjgl.glfw.GLFWWindowSizeCallback;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GL11;
@@ -19,6 +24,9 @@ import org.lwjgl.system.MemoryUtil;
 
 import java.nio.DoubleBuffer;
 import java.nio.IntBuffer;
+import java.util.function.Consumer;
+import java.util.function.Predicate;
+import java.util.function.Supplier;
 
 /**
  * Window data handler
@@ -33,6 +41,8 @@ public class Window {
 
     private String title;
     private Scene scene;
+    private boolean focus;
+    private boolean hiiden;
     private final Vector2i size;
     private final Vector2i position;
 
@@ -52,10 +62,8 @@ public class Window {
     public final KeyedEvent<Float> render = new KeyedEvent<>();
     public final KeyedEvent<Float> postRender = new KeyedEvent<>();
 
-
     public Camera camera;
     private final Vector4f backgroundColor = new Vector4f(0,0,0,0);
-    private boolean imInit = false;
 
     /**
      * @param camera Camera that window uses
@@ -78,10 +86,22 @@ public class Window {
         position = new Vector2i(X.get(),Y.get());
         makeContextCurrent();
         this.scene = scene;
+
+        GLFW.glfwSetWindowFocusCallback(id, new GLFWWindowFocusCallback() {
+            @Override
+            public void invoke(long window, boolean focused) {
+                focus = focused;
+            }
+        });
+
+        init.add("imgui", x -> {
+            Game.imGuiImplGlfw.init(id, true);
+        });
         postUpdate.add("camera", x -> this.camera.update());
         preRender.add("makeCurrentAndClear", x -> {
              makeContextCurrent();
-            Game.imGuiImplGlfw.init(id, false);
+            if(focus)
+                Game.imGuiImplGlfw.init(id, false);
             GL11.glEnable(GL11.GL_DEPTH_TEST);
             GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
             GL11.glClearColor(this.backgroundColor.x, this.backgroundColor.y, this.backgroundColor.z, this.backgroundColor.w);
@@ -97,7 +117,6 @@ public class Window {
         });
         GL.createCapabilities();
 
-
         GLFW.glfwSetWindowSizeCallback(id, new GLFWWindowSizeCallback() {
             @Override
             public void invoke(long window, int width, int height) {
@@ -110,6 +129,9 @@ public class Window {
 
             }
         });
+
+
+
         GL11.glViewport(0,0,width,height);
 
     }
@@ -127,6 +149,7 @@ public class Window {
      */
     public void show(){
         GLFW.glfwShowWindow(id);
+        hiiden = false;
     }
 
     /**
@@ -134,6 +157,7 @@ public class Window {
      */
     public void hide(){
         GLFW.glfwHideWindow(id);
+        hiiden = true;
     }
 
     /**
@@ -152,16 +176,21 @@ public class Window {
         preRender.dispose();
         render.dispose();
         postRender.dispose();
-
+        init.add("imgui", x -> {
+            Game.imGuiImplGlfw.init(id, true);
+        });
         postUpdate.add("camera", x -> this.camera.update());
         preRender.add("makeCurrentAndClear", x -> {
             makeContextCurrent();
-            Game.imGuiImplGlfw.init(id, false);
+            if(focus)
+                Game.imGuiImplGlfw.init(id, false);
             GL11.glEnable(GL11.GL_DEPTH_TEST);
             GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
             GL11.glClearColor(this.backgroundColor.x, this.backgroundColor.y, this.backgroundColor.z, this.backgroundColor.w);
+
             Game.imGuiImplGlfw.newFrame();
             ImGui.newFrame();
+
         });
         postRender.add("PollAndSwap", x -> {
             ImGui.render();
@@ -384,6 +413,13 @@ public class Window {
        return Monitor.monitors.get(GLFW.glfwGetWindowMonitor(id));
     }
 
+    public boolean isFocused(){
+        return focus;
+    }
+
+    public boolean isHiiden() {
+        return hiiden;
+    }
 
     /**
      * Get Cursor Position relative to the Window

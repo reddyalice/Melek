@@ -91,9 +91,12 @@ public final class Scene {
 
         GLFW.glfwWindowHint(GLFW.GLFW_VISIBLE, GLFW.GLFW_FALSE);
         loaderWindow = createWindow(CameraType.Orthographic, "Loader", 640, 480);
+        ImGui.createContext();
+        Game.imGuiImplGl3.init();
+        ImGui.getIO().addConfigFlags(ImGuiConfigFlags.NavEnableKeyboard);
+        ImGui.getIO().setNavActive(true);
         GLFW.glfwWindowHint(GLFW.GLFW_VISIBLE, GLFW.GLFW_TRUE);
         removeWindow(loaderWindow);
-
         preRender.add("hotReload", x -> {
             if(Game.hotReload)
             Game.assetManager.hotReload(this, x.getValue0());
@@ -414,10 +417,6 @@ public final class Scene {
         if(!initialized){
             loaderWindow.makeContextCurrent();
             init.broadcast(Pair.with(loaderWindow, this));
-            if(Game.loaderScene == this) {
-                ImGui.createContext();
-                Game.imGuiImplGl3.init();
-            }
             initialized = true;
             if(currentContext != null)
                 currentContext.makeContextCurrent();
@@ -427,8 +426,6 @@ public final class Scene {
         preUpdate.broadcast(delta);
         update.broadcast(delta);
 
-
-
         for(Window window : windows)
         {
             if(!window.initialised) {
@@ -436,11 +433,13 @@ public final class Scene {
                 window.initialised = true;
             }
 
-            window.preRender.broadcast(delta);
             currentContext = window;
+            window.preRender.broadcast(delta);
+
 
             window.render.broadcast(delta);
             window.postRender.broadcast(delta);
+
         }
 
         postUpdate.broadcast(delta);
@@ -543,7 +542,6 @@ public final class Scene {
         for(Window window : windows)
             removeWindow(window);
         windows.clear();
-
         windowPool.dispose();
         cameraPool.dispose();
 

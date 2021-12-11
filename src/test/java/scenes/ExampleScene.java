@@ -17,6 +17,7 @@ import imgui.flag.ImGuiConfigFlags;
 import imgui.gl3.ImGuiImplGl3;
 import imgui.glfw.ImGuiImplGlfw;
 import imgui.type.ImInt;
+import imgui.type.ImString;
 import org.joml.*;
 import org.lwjgl.glfw.GLFW;
 
@@ -30,6 +31,8 @@ public class ExampleScene extends SceneAdaptor {
     Window w3;
     int en1;
     TransformComponent tc;
+    ImString text = new ImString();
+
     boolean but = false;
     @Override
     public void Init(Window loaderWindow, Scene scene) {
@@ -76,26 +79,22 @@ public class ExampleScene extends SceneAdaptor {
         w2.update.add("move", x -> MathUtils.LookRelativeTo(w2, w));
         w3.update.add("move", x -> MathUtils.LookRelativeTo(w3, w));
 
-
-        w.render.add("a", x -> {
-            ImGui.begin("test");
-
-            if(ImGui.button("test1")){
-                but = !but;
-            }
-
-
-            ImGui.listBox("", new ImInt(0), new String[]{
-                    "Rotation of the cacti : " + entityManager.getComponent(en1,  TransformComponent.class).rotation.getEulerAnglesXYZ(new Vector3f()),
-                    "Position of the cactus 1 : " + tc.position,
-                    "Position of the cactus 2 : " + entityManager.getComponent(en1,  TransformComponent.class).position
-            });
-
+        String[] data = new String[3];
+        ImInt choice = new ImInt();
+        w.postRender.add("a", x -> {
+           ImGui.begin("t");
+            ImGui.inputText("ss", text);
             ImGui.end();
 
-
         });
+
+
+
+
+
     }
+
+
 
     @Override
     public void PreUpdate(float deltaTime) {
