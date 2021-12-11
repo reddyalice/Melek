@@ -83,15 +83,7 @@ public class ExampleScene extends SceneAdaptor {
         String[] data = new String[3];
         ImInt choice = new ImInt();
         w.postRender.add("a", x -> {
-
             ImGui.begin("t", ImGuiWindowFlags.AlwaysUseWindowPadding);
-            ImGui.inputText("str", text);
-            ImGui.end();
-            ImGui.endFrame();
-            ImGui.render();
-            Game.imGuiImplGl3.renderDrawData(ImGui.getDrawData());
-            ImGui.newFrame();
-           ImGui.begin("t1", ImGuiWindowFlags.AlwaysUseWindowPadding);
             ImGui.inputText("str", text);
             ImGui.end();
 
