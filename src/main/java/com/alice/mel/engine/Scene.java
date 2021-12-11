@@ -94,7 +94,7 @@ public final class Scene {
         ImGui.createContext();
         Game.imGuiImplGl3.init();
         ImGui.getIO().addConfigFlags(ImGuiConfigFlags.NavEnableKeyboard);
-        ImGui.getIO().setNavActive(true);
+        ImGui.getIO().setConfigViewportsNoTaskBarIcon(true);
         GLFW.glfwWindowHint(GLFW.GLFW_VISIBLE, GLFW.GLFW_TRUE);
         removeWindow(loaderWindow);
         preRender.add("hotReload", x -> {

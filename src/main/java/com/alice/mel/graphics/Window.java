@@ -9,6 +9,7 @@ import imgui.ImGuiViewport;
 import imgui.callback.ImPlatformFuncViewport;
 import imgui.flag.ImGuiConfigFlags;
 import imgui.glfw.ImGuiImplGlfw;
+import imgui.internal.ImGuiContext;
 import org.javatuples.Pair;
 import org.joml.Vector2f;
 import org.joml.Vector2i;
@@ -64,7 +65,6 @@ public class Window {
 
     public Camera camera;
     private final Vector4f backgroundColor = new Vector4f(0,0,0,0);
-
     /**
      * @param camera Camera that window uses
      * @param scene Scene It's created to
@@ -94,14 +94,14 @@ public class Window {
             }
         });
 
-        init.add("imgui", x -> {
-            Game.imGuiImplGlfw.init(id, true);
-        });
+
+        GL.createCapabilities();
+
+        init.add("imgui", x -> Game.imGuiImplGlfw.init(id, true));
         postUpdate.add("camera", x -> this.camera.update());
         preRender.add("makeCurrentAndClear", x -> {
-             makeContextCurrent();
-            if(focus)
-                Game.imGuiImplGlfw.init(id, false);
+            makeContextCurrent();
+            Game.imGuiImplGlfw.init(id, false);
             GL11.glEnable(GL11.GL_DEPTH_TEST);
             GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
             GL11.glClearColor(this.backgroundColor.x, this.backgroundColor.y, this.backgroundColor.z, this.backgroundColor.w);
@@ -115,7 +115,6 @@ public class Window {
             swapBuffers();
             GLFW.glfwPollEvents();
         });
-        GL.createCapabilities();
 
         GLFW.glfwSetWindowSizeCallback(id, new GLFWWindowSizeCallback() {
             @Override
@@ -176,18 +175,14 @@ public class Window {
         preRender.dispose();
         render.dispose();
         postRender.dispose();
-        init.add("imgui", x -> {
-            Game.imGuiImplGlfw.init(id, true);
-        });
+        init.add("imgui", x -> Game.imGuiImplGlfw.init(id, true));
         postUpdate.add("camera", x -> this.camera.update());
         preRender.add("makeCurrentAndClear", x -> {
             makeContextCurrent();
-            if(focus)
-                Game.imGuiImplGlfw.init(id, false);
+            Game.imGuiImplGlfw.init(id, false);
             GL11.glEnable(GL11.GL_DEPTH_TEST);
             GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
             GL11.glClearColor(this.backgroundColor.x, this.backgroundColor.y, this.backgroundColor.z, this.backgroundColor.w);
-
             Game.imGuiImplGlfw.newFrame();
             ImGui.newFrame();
 
