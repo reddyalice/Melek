@@ -12,11 +12,7 @@ import com.alice.mel.graphics.shaders.BatchedSpriteShader;
 import com.alice.mel.systems.BatchedRenderingSystem;
 import com.alice.mel.utils.maths.MathUtils;
 import imgui.ImGui;
-import imgui.ImGuiIO;
-import imgui.flag.ImGuiConfigFlags;
 import imgui.flag.ImGuiWindowFlags;
-import imgui.gl3.ImGuiImplGl3;
-import imgui.glfw.ImGuiImplGlfw;
 import imgui.type.ImInt;
 import imgui.type.ImString;
 import org.joml.*;
@@ -34,6 +30,7 @@ public class ExampleScene extends SceneAdaptor {
     TransformComponent tc;
     ImString text = new ImString();
 
+
     boolean but = false;
     @Override
     public void Init(Window loaderWindow, Scene scene) {
@@ -49,9 +46,6 @@ public class ExampleScene extends SceneAdaptor {
         addTexture("Texture2", textureC);
         addMesh("Mesh", mesh);
         //scene.loadMesh("Quad3D");
-
-
-
 
        // game.assetManager.addMesh("Mesh1", mesh);
 
@@ -82,11 +76,13 @@ public class ExampleScene extends SceneAdaptor {
 
         String[] data = new String[3];
         ImInt choice = new ImInt();
+        w.enableImGui(true);
         w.postRender.add("a", x -> {
-            ImGui.begin("t", ImGuiWindowFlags.AlwaysUseWindowPadding);
-            ImGui.inputText("str", text);
-            ImGui.end();
-
+            if(w.isImGuiEnabled()) {
+                ImGui.begin("t", ImGuiWindowFlags.AlwaysUseWindowPadding);
+                ImGui.inputText("str", text);
+                ImGui.end();
+            }
         });
 
 

@@ -15,10 +15,7 @@ import org.joml.Vector2f;
 import org.joml.Vector2i;
 import org.joml.Vector4f;
 import org.lwjgl.BufferUtils;
-import org.lwjgl.glfw.GLFW;
-import org.lwjgl.glfw.GLFWVidMode;
-import org.lwjgl.glfw.GLFWWindowFocusCallback;
-import org.lwjgl.glfw.GLFWWindowSizeCallback;
+import org.lwjgl.glfw.*;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.system.MemoryUtil;
@@ -43,7 +40,8 @@ public class Window {
     private String title;
     private Scene scene;
     private boolean focus;
-    private boolean hiiden;
+    private boolean hidden;
+    private boolean enableImGui;
     private final Vector2i size;
     private final Vector2i position;
 
@@ -94,6 +92,15 @@ public class Window {
             }
         });
 
+        GLFW.glfwSetWindowCloseCallback(id, new GLFWWindowCloseCallback() {
+            @Override
+            public void invoke(long window) {
+                if(enableImGui) {
+                    ImGui.endFrame();
+                }
+            }
+        });
+
 
         GL.createCapabilities();
 
@@ -101,17 +108,21 @@ public class Window {
         postUpdate.add("camera", x -> this.camera.update());
         preRender.add("makeCurrentAndClear", x -> {
             makeContextCurrent();
-            Game.imGuiImplGlfw.init(id, false);
+            if(enableImGui) Game.imGuiImplGlfw.init(id, false);
             GL11.glEnable(GL11.GL_DEPTH_TEST);
             GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
             GL11.glClearColor(this.backgroundColor.x, this.backgroundColor.y, this.backgroundColor.z, this.backgroundColor.w);
-            Game.imGuiImplGlfw.newFrame();
-            ImGui.newFrame();
+            if(enableImGui) {
+                Game.imGuiImplGlfw.newFrame();
+                ImGui.newFrame();
+            }
         });
 
         postRender.add("PollAndSwap", x -> {
-            ImGui.render();
-            Game.imGuiImplGl3.renderDrawData(ImGui.getDrawData());
+            if(enableImGui) {
+                ImGui.render();
+                Game.imGuiImplGl3.renderDrawData(ImGui.getDrawData());
+            }
             swapBuffers();
             GLFW.glfwPollEvents();
         });
@@ -148,7 +159,7 @@ public class Window {
      */
     public void show(){
         GLFW.glfwShowWindow(id);
-        hiiden = false;
+        hidden = false;
     }
 
     /**
@@ -156,7 +167,7 @@ public class Window {
      */
     public void hide(){
         GLFW.glfwHideWindow(id);
-        hiiden = true;
+        hidden = true;
     }
 
     /**
@@ -168,6 +179,10 @@ public class Window {
         setWindowOpacity(1f);
         setBackgroundColor(0,0,0,1);
         active = false;
+        if(enableImGui) {
+            ImGui.endFrame();
+        }
+        enableImGui = false;
         init.dispose();
         preUpdate.dispose();
         update.dispose();
@@ -179,17 +194,22 @@ public class Window {
         postUpdate.add("camera", x -> this.camera.update());
         preRender.add("makeCurrentAndClear", x -> {
             makeContextCurrent();
-            Game.imGuiImplGlfw.init(id, false);
+            if(enableImGui) Game.imGuiImplGlfw.init(id, false);
             GL11.glEnable(GL11.GL_DEPTH_TEST);
             GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
             GL11.glClearColor(this.backgroundColor.x, this.backgroundColor.y, this.backgroundColor.z, this.backgroundColor.w);
-            Game.imGuiImplGlfw.newFrame();
-            ImGui.newFrame();
+            if(enableImGui){
+                Game.imGuiImplGlfw.newFrame();
+                ImGui.newFrame();
+            }
+
 
         });
         postRender.add("PollAndSwap", x -> {
-            ImGui.render();
-            Game.imGuiImplGl3.renderDrawData(ImGui.getDrawData());
+            if(enableImGui) {
+                ImGui.render();
+                Game.imGuiImplGl3.renderDrawData(ImGui.getDrawData());
+            }
             swapBuffers();
             GLFW.glfwPollEvents();
         });
@@ -351,6 +371,13 @@ public class Window {
         GLFW.glfwSetWindowMonitor(id, 0, 0,0, width, height, freshRate);
     }
 
+    public void enableImGui(boolean enableImGui){
+        this.enableImGui = enableImGui;
+    }
+
+    public boolean isImGuiEnabled(){
+        return enableImGui;
+    }
 
     /**
      * Get the Scene Window belongs to
@@ -412,8 +439,8 @@ public class Window {
         return focus;
     }
 
-    public boolean isHiiden() {
-        return hiiden;
+    public boolean isHidden() {
+        return hidden;
     }
 
     /**

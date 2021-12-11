@@ -16,6 +16,7 @@ import org.jbox2d.dynamics.World;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWErrorCallback;
+import org.lwjgl.opengl.GL11;
 
 import java.util.HashMap;
 
@@ -94,7 +95,6 @@ public final class Scene {
         ImGui.createContext();
         Game.imGuiImplGl3.init();
         ImGui.getIO().addConfigFlags(ImGuiConfigFlags.NavEnableKeyboard);
-        ImGui.getIO().setConfigViewportsNoTaskBarIcon(true);
         GLFW.glfwWindowHint(GLFW.GLFW_VISIBLE, GLFW.GLFW_TRUE);
         removeWindow(loaderWindow);
         preRender.add("hotReload", x -> {
@@ -441,7 +441,6 @@ public final class Scene {
             window.postRender.broadcast(delta);
 
         }
-
         postUpdate.broadcast(delta);
 
     }
