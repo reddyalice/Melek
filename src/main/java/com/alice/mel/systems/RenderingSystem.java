@@ -39,11 +39,11 @@ public class RenderingSystem extends ComponentSystem{
             RenderingComponent rend = entityManager.getComponent(entity, RenderingComponent.class);
 
             Material material = rend.material;
-            HashMap<String, HashMap<Material, Array<Integer>>> batch0 = renderMap.get(material.shaderClass);
+            var batch0 = renderMap.get(material.shaderClass);
             if (batch0 != null) {
-                HashMap<Material, Array<Integer>> batch1 = batch0.get(rend.meshName);
+                var batch1 = batch0.get(rend.meshName);
                 if (batch1 != null) {
-                    Array<Integer> batch2 = batch1.get(material);
+                    var batch2 = batch1.get(material);
                     if (batch2 != null) {
                         batch2.add(entity);
                         batch1.put(material, batch2);
@@ -79,11 +79,11 @@ public class RenderingSystem extends ComponentSystem{
                 RenderingComponent rend = entityManager.getComponent(entity, RenderingComponent.class);
 
                 Material material = rend.material;
-                HashMap<String, HashMap<Material, Array<Integer>>> batch0 = renderMap.get(material.shaderClass);
+                var batch0 = renderMap.get(material.shaderClass);
                 if (batch0 != null) {
-                    HashMap<Material, Array<Integer>> batch1 = batch0.get(rend.meshName);
+                    var batch1 = batch0.get(rend.meshName);
                     if (batch1 != null) {
-                        Array<Integer> batch2 = batch1.get(material);
+                        var batch2 = batch1.get(material);
                         if (batch2 != null) {
                             batch2.add(entity);
                             batch1.put(material, batch2);
@@ -127,9 +127,9 @@ public class RenderingSystem extends ComponentSystem{
                     RenderingComponent rend = entityManager.getComponent(entity, RenderingComponent.class);
 
                     Material material = rend.material;
-                    HashMap<String, HashMap<Material, Array<Integer>>> batch0 = renderMap.get(material.shaderClass);
+                    var batch0 = renderMap.get(material.shaderClass);
                     if (batch0 != null) {
-                        HashMap<Material, Array<Integer>> batch1 = batch0.get(rend.meshName);
+                        var batch1 = batch0.get(rend.meshName);
                         if (batch1 != null) {
                             Array<Integer> batch2 = batch1.get(material);
                             if (batch2 != null) {
@@ -168,11 +168,11 @@ public class RenderingSystem extends ComponentSystem{
                         Material material = rend.material;
 
 
-                        HashMap<String, HashMap<Material, Array<Integer>>> batch0 = renderMap.get(material.shaderClass);
+                        var batch0 = renderMap.get(material.shaderClass);
                         if (batch0 != null) {
-                            HashMap<Material, Array<Integer>> batch1 = batch0.get(rend.meshName);
+                            var batch1 = batch0.get(rend.meshName);
                             if (batch1 != null) {
-                                Array<Integer> batch2 = batch1.get(material);
+                                var batch2 = batch1.get(material);
                                 if (batch2 != null) {
                                     batch2.removeValue(entity, false);
                                     if (batch2.isEmpty()) {
@@ -196,11 +196,11 @@ public class RenderingSystem extends ComponentSystem{
                 Material material = rend.material;
 
 
-                HashMap<String, HashMap<Material, Array<Integer>>> batch0 = renderMap.get(material.shaderClass);
+                var batch0 = renderMap.get(material.shaderClass);
                 if (batch0 != null) {
-                    HashMap<Material, Array<Integer>> batch1 = batch0.get(rend.meshName);
+                    var batch1 = batch0.get(rend.meshName);
                     if (batch1 != null) {
-                        Array<Integer> batch2 = batch1.get(material);
+                        var batch2 = batch1.get(material);
                         if (batch2 != null) {
                             batch2.removeValue(entity, false);
                             if (batch2.isEmpty()) {
