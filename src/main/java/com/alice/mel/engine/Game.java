@@ -1,16 +1,11 @@
 package com.alice.mel.engine;
 
 import com.alice.mel.utils.collections.Array;
-import com.alice.mel.utils.collections.ImmutableArray;
 import com.alice.mel.utils.collections.SnapshotArray;
 import imgui.gl3.ImGuiImplGl3;
 import imgui.glfw.ImGuiImplGlfw;
 import org.lwjgl.glfw.GLFW;
-
-import javax.script.ScriptEngineManager;
 import java.io.*;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 /**
  * Game class that handles scenes
@@ -20,8 +15,9 @@ public class Game{
 
     public static float deltaTime = 1f/60f;
     private static final int coreCount = Runtime.getRuntime().availableProcessors();
-    public static final ExecutorService executor = Executors.newFixedThreadPool(coreCount);
-    public static final ScriptEngineManager scriptManager = new ScriptEngineManager();
+    public static final int coreCountFH = Math.max(coreCount / 2, 1);
+    public static final int coreCountSH = coreCount - coreCountFH;
+
     public static final AssetManager assetManager = new AssetManager();
     public static Scene loaderScene = null;
     private static final SnapshotArray<Scene> activeScenes = new SnapshotArray<>();

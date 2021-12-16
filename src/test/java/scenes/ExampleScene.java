@@ -13,7 +13,6 @@ import com.alice.mel.systems.BatchedRenderingSystem;
 import com.alice.mel.utils.maths.MathUtils;
 import imgui.ImGui;
 import imgui.flag.ImGuiWindowFlags;
-import imgui.type.ImInt;
 import imgui.type.ImString;
 import org.joml.*;
 import org.lwjgl.glfw.GLFW;
@@ -23,15 +22,10 @@ import java.util.Objects;
 public class ExampleScene extends SceneAdaptor {
 
 
-    Window w;
     Window w2;
     Window w3;
     int en1;
     TransformComponent tc;
-    ImString text = new ImString();
-
-
-    boolean but = false;
     @Override
     public void Init(Window loaderWindow, Scene scene) {
         ImGui.init();
@@ -45,11 +39,11 @@ public class ExampleScene extends SceneAdaptor {
         addTexture("Texture1", texture);
         addTexture("Texture2", textureC);
         addMesh("Mesh", mesh);
-        //scene.loadMesh("Quad3D");
 
+        //scene.loadMesh("Quad3D");
        // game.assetManager.addMesh("Mesh1", mesh);
 
-        w = createWindow(CameraType.Orthographic, "Test", 640, 480, false);
+        Window w = createWindow(CameraType.Orthographic, "Test", 640, 480, false);
 
 
         w2 = createWindow(CameraType.Orthographic, "Test1", 640, 480, true);
@@ -63,7 +57,7 @@ public class ExampleScene extends SceneAdaptor {
         tc.scale.set(100, 100, 100);
         tc.position.set(0,0, -100);
 
-        int en = createEntity(tc, new BatchRenderingComponent( "Mesh", "Texture1", material));
+        createEntity(tc, new BatchRenderingComponent( "Mesh", "Texture1", material));
 
         TransformComponent tc1 = tc.Clone();
         tc1.scale.set(50, 50, 50);
@@ -74,13 +68,12 @@ public class ExampleScene extends SceneAdaptor {
         w2.update.add("move", x -> MathUtils.LookRelativeTo(w2, w));
         w3.update.add("move", x -> MathUtils.LookRelativeTo(w3, w));
 
-        String[] data = new String[3];
-        ImInt choice = new ImInt();
+        ImString text = new ImString();
         w.enableImGui(true);
         w.postRender.add("a", x -> {
             if(w.isImGuiEnabled()) {
                 ImGui.begin("t", ImGuiWindowFlags.AlwaysUseWindowPadding);
-                ImGui.inputText("str", text);
+                ImGui.inputTextMultiline("", text);
                 ImGui.end();
             }
         });

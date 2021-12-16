@@ -83,7 +83,6 @@ public final class Scene {
             });
 
 
-
             Game.loaderScene = this;
             id = lastID++;
 

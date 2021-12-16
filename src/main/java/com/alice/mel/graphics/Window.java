@@ -2,15 +2,8 @@ package com.alice.mel.graphics;
 
 import com.alice.mel.engine.Game;
 import com.alice.mel.engine.Scene;
-import com.alice.mel.utils.Event;
 import com.alice.mel.utils.KeyedEvent;
 import imgui.ImGui;
-import imgui.ImGuiViewport;
-import imgui.callback.ImPlatformFuncViewport;
-import imgui.flag.ImGuiConfigFlags;
-import imgui.glfw.ImGuiImplGlfw;
-import imgui.internal.ImGuiContext;
-import org.javatuples.Pair;
 import org.joml.Vector2f;
 import org.joml.Vector2i;
 import org.joml.Vector4f;
@@ -22,9 +15,6 @@ import org.lwjgl.system.MemoryUtil;
 
 import java.nio.DoubleBuffer;
 import java.nio.IntBuffer;
-import java.util.function.Consumer;
-import java.util.function.Predicate;
-import java.util.function.Supplier;
 
 /**
  * Window data handler
@@ -213,7 +203,6 @@ public class Window {
             swapBuffers();
             GLFW.glfwPollEvents();
         });
-
     }
 
     /**
@@ -227,6 +216,7 @@ public class Window {
      * Swap Buffers
      */
     public void swapBuffers(){
+
         GLFW.glfwSwapBuffers(id);
     }
 
