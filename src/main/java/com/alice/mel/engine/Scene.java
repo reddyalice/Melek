@@ -101,6 +101,11 @@ public final class Scene {
             Game.assetManager.hotReload(this, x.getValue0());
         });
 
+        render.add("systems", x -> {
+            for(ComponentSystem system : componentSystems)
+                system.render(x.getValue0(), x.getValue1());
+        });
+
     }
 
     /**
@@ -122,7 +127,6 @@ public final class Scene {
     public void addSystem(ComponentSystem system){
         componentSystems.add(system);
         componentSystems.sort();
-        render.add(system.getClass().getSimpleName(), x -> system.render(x.getValue0(), x.getValue1()));
         system.addedToSceneInternal(this);
     }
 
@@ -132,7 +136,7 @@ public final class Scene {
      */
     public void removeSystem(ComponentSystem system){
         componentSystems.removeValue(system, false);
-        render.remove(system.getClass().getSimpleName());
+        componentSystems.sort();
         system.removedFromSceneInternal(this);
     }
 
