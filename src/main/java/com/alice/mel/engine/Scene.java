@@ -439,12 +439,8 @@ public final class Scene {
         }
         if(min > 0)
             componentSystems.get(0).update(delta);
-
-        while (!Game.forkJoinPool.isQuiescent()) {
-            System.out.println(Game.forkJoinPool.getActiveThreadCount());
-        }
-
-
+        //noinspection StatementWithEmptyBody
+        while (!Game.forkJoinPool.isQuiescent()) {}
         update.broadcast(delta);
 
         for(Window window : windows)
