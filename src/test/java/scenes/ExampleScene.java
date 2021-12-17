@@ -10,6 +10,8 @@ import com.alice.mel.graphics.materials.BatchedBasic3DMaterial;
 import com.alice.mel.graphics.shaders.Batched3DShader;
 import com.alice.mel.graphics.shaders.BatchedSpriteShader;
 import com.alice.mel.systems.BatchedRenderingSystem;
+import com.alice.mel.systems.IteratingSystem;
+import com.alice.mel.systems.RenderingSystem;
 import com.alice.mel.utils.maths.MathUtils;
 import imgui.ImGui;
 import imgui.flag.ImGuiWindowFlags;
@@ -51,6 +53,30 @@ public class ExampleScene extends SceneAdaptor {
 
         w3 = createWindow(CameraType.Orthographic, "Test2", 640, 480, true);
         addSystem(new BatchedRenderingSystem(Game.assetManager));
+
+        addSystem(new IteratingSystem(RelationType.All, TransformComponent.class) {
+            @Override
+            public void processEntityUpdate(int entity, float deltaTime) {
+                System.out.println(Thread.currentThread());
+            }
+
+            @Override
+            public void processEntityRender(int entity, Window window, float deltaTime) {
+
+            }
+        });
+
+        addSystem(new IteratingSystem(RelationType.All, TransformComponent.class) {
+            @Override
+            public void processEntityUpdate(int entity, float deltaTime) {
+                System.out.println(Thread.currentThread());
+            }
+
+            @Override
+            public void processEntityRender(int entity, Window window, float deltaTime) {
+
+            }
+        });
 
 
         tc = new TransformComponent();

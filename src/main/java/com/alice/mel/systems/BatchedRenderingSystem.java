@@ -203,7 +203,7 @@ public class BatchedRenderingSystem extends ComponentSystem{
 
     @Override
     public void update(float deltaTime) {
-
+        System.out.println("test");
     }
 
     @Override

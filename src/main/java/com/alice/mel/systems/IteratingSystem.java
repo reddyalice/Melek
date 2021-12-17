@@ -14,6 +14,12 @@ public abstract class IteratingSystem extends ComponentSystem{
     private final Class<? extends Component>[] componentClasses;
     private final RelationType relation;
 
+
+    @SafeVarargs
+    public IteratingSystem(RelationType relation, Class<? extends Component>... componentClasses){
+        this(0, relation, componentClasses);
+    }
+
     @SafeVarargs
     public IteratingSystem(int priority, RelationType relation, Class<? extends Component>... componentClasses){
         super(priority);
@@ -27,7 +33,7 @@ public abstract class IteratingSystem extends ComponentSystem{
         if (componentClasses != null) {
             ImmutableArray<Integer> gotEntities = scene.getFor(relation, componentClasses);
             if(gotEntities != null) {
-                entities.addAll(gotEntities.toArray());
+                entities.addAll(gotEntities.toArray(Integer.class));
             }
 
             entityManager.entityAdded.add(getClass().getName(), en -> {

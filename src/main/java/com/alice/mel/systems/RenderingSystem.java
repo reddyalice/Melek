@@ -224,7 +224,6 @@ public class RenderingSystem extends ComponentSystem{
 
     @Override
     public void update(float deltaTime) {
-
     }
 
     @Override

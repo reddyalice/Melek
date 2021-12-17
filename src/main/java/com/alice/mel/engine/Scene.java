@@ -3,8 +3,10 @@ package com.alice.mel.engine;
 
 import com.alice.mel.components.Component;
 import com.alice.mel.graphics.*;
+import com.alice.mel.multithreading.SystemThread;
 import com.alice.mel.systems.ComponentSystem;
 import com.alice.mel.utils.KeyedEvent;
+import com.alice.mel.utils.SerializableConsumer;
 import com.alice.mel.utils.collections.*;
 import imgui.ImGui;
 import imgui.ImGuiIO;
@@ -19,6 +21,7 @@ import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.opengl.GL11;
 
 import java.util.HashMap;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Scene class where the magic happens
@@ -26,8 +29,6 @@ import java.util.HashMap;
  */
 public final class Scene {
 
-    private static int lastID = 0;
-    public int id;
     private final SnapshotArray<Window> windows = new SnapshotArray<>();
     public final Window loaderWindow;
     public Window currentContext;
@@ -84,7 +85,6 @@ public final class Scene {
 
 
             Game.loaderScene = this;
-            id = lastID++;
 
         }
 
@@ -122,7 +122,6 @@ public final class Scene {
     public void addSystem(ComponentSystem system){
         componentSystems.add(system);
         componentSystems.sort();
-        update.add(system.getClass().getSimpleName(), system::update);
         render.add(system.getClass().getSimpleName(), x -> system.render(x.getValue0(), x.getValue1()));
         system.addedToSceneInternal(this);
     }
@@ -133,7 +132,6 @@ public final class Scene {
      */
     public void removeSystem(ComponentSystem system){
         componentSystems.removeValue(system, false);
-        update.remove(system.getClass().getSimpleName());
         render.remove(system.getClass().getSimpleName());
         system.removedFromSceneInternal(this);
     }
@@ -423,6 +421,26 @@ public final class Scene {
 
 
         preUpdate.broadcast(delta);
+
+        int min = Math.min(componentSystems.size, Game.coreCount);
+        int max = Math.max(componentSystems.size, Game.coreCount);
+        int ratio = componentSystems.size / Game.coreCount;
+        System.out.println(componentSystems.size);
+
+
+
+        for (int i = 1; i < min; i++) {
+            int finalI = i;
+            Game.forkJoinPool.submit(() ->componentSystems.get(finalI).update(delta));
+        }
+        if(min > 0)
+            componentSystems.get(0).update(delta);
+
+        while (!Game.forkJoinPool.isQuiescent()) {
+            System.out.println(Game.forkJoinPool.getActiveThreadCount());
+        }
+
+
         update.broadcast(delta);
 
         for(Window window : windows)
