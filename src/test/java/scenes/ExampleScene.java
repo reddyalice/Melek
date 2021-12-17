@@ -55,6 +55,7 @@ public class ExampleScene extends SceneAdaptor {
         addSystem(new BatchedRenderingSystem(Game.assetManager));
 
         addSystem(new IteratingSystem(RelationType.All, TransformComponent.class) {
+
             @Override
             public void processEntityUpdate(int entity, float deltaTime) {
                 System.out.println(Thread.currentThread());
@@ -67,9 +68,18 @@ public class ExampleScene extends SceneAdaptor {
         });
 
         addSystem(new IteratingSystem(RelationType.All, TransformComponent.class) {
+            private float ang = 0;
+
+            @Override
+            public void update(float deltaTime) {
+                super.update(deltaTime);
+                ang += deltaTime;
+            }
+
             @Override
             public void processEntityUpdate(int entity, float deltaTime) {
-                System.out.println(Thread.currentThread());
+                entityManager.getComponent(entity, TransformComponent.class).rotation.fromAxisAngleDeg(0,1, 0, ang* 90);
+
             }
 
             @Override
@@ -119,7 +129,7 @@ public class ExampleScene extends SceneAdaptor {
     private final Vector3f move = new Vector3f(0,0,0);
     private final Vector2f moveDiff = new Vector2f(0,0);
     private boolean prevKPressed;
-    private float ang = 0;
+
     private float keepTime = 0;
     @Override
     public void Update(float deltaTime) {
@@ -158,12 +168,10 @@ public class ExampleScene extends SceneAdaptor {
         w2.setPosition((int)cursorPos.x  + winPos.x - winSize.x /2, (int)cursorPos.y + winPos.y - winSize.y /2);
 
 
-        tc.rotation.fromAxisAngleDeg(0,1, 0, ang* 90);
 
 
 
         entityManager.getComponent(en1, TransformComponent.class).position.add(move.x, move.y, move.z);
-        entityManager.getComponent(en1, TransformComponent.class).rotation.fromAxisAngleDeg(0, 1, 0, ang * 90);
         if(keepTime >= 1) {
             entityManager.getComponent(en1, BatchRenderingComponent.class).material.color.set(MathUtils.random.nextFloat(), MathUtils.random.nextFloat(), MathUtils.random.nextFloat(), 1);
             keepTime = 0;
@@ -183,7 +191,7 @@ public class ExampleScene extends SceneAdaptor {
 
 
         keepTime += deltaTime;
-        ang += deltaTime;
+
 
     }
 

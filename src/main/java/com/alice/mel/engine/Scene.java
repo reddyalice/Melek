@@ -426,18 +426,11 @@ public final class Scene {
 
         preUpdate.broadcast(delta);
 
-        int min = Math.min(componentSystems.size, Game.coreCount);
-        int max = Math.max(componentSystems.size, Game.coreCount);
-        int ratio = componentSystems.size / Game.coreCount;
-        System.out.println(componentSystems.size);
-
-
-
-        for (int i = 1; i < min; i++) {
+        for (int i = 1; i < componentSystems.size; i++) {
             int finalI = i;
             Game.forkJoinPool.submit(() ->componentSystems.get(finalI).update(delta));
         }
-        if(min > 0)
+        if(componentSystems.size > 0)
             componentSystems.get(0).update(delta);
         //noinspection StatementWithEmptyBody
         while (!Game.forkJoinPool.isQuiescent()) {}
