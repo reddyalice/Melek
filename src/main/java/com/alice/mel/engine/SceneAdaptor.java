@@ -288,7 +288,7 @@ public abstract class SceneAdaptor{
      * Add the scene to the active scenes in the game
      */
     public final void addToGame(){
-        Game.addActiveScene(scene);
+        Game.addScene(scene);
     }
 
     /**
@@ -296,7 +296,7 @@ public abstract class SceneAdaptor{
      * @param destroyScene Destroy the scene after removing
      */
     public final void removeFromGame(boolean destroyScene){
-        Game.removeActiveScene(scene, destroyScene);
+        Game.removeScene(scene, destroyScene);
     }
 
     /**

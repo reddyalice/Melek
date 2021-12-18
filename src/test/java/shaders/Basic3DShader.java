@@ -1,8 +1,13 @@
 package shaders;
 
+import com.alice.mel.components.Component;
+import com.alice.mel.components.TransformComponent;
+import com.alice.mel.engine.AssetManager;
+import com.alice.mel.engine.Game;
 import com.alice.mel.engine.Scene;
-import com.alice.mel.graphics.Camera;
-import com.alice.mel.graphics.Shader;
+import com.alice.mel.graphics.*;
+import com.alice.mel.utils.maths.MathUtils;
+import materials.Basic3DMaterial;
 import org.joml.Matrix4f;
 import org.joml.Vector2f;
 import org.joml.Vector4f;
@@ -46,6 +51,26 @@ public class Basic3DShader extends Shader {
     public void loadCamera(Camera camera){
         this.loadMatrix(location_viewMatrix, camera.viewMatrix);
         this.loadMatrix(location_projectionMatrix, camera.projectionMatrix);
+    }
+
+    @Override
+    public void loadValues(Material material, Scene scene, Window window) {
+
+            Game.assetManager.getTexture(material.textureName).bind(scene);
+            loadOffset(material.textureOffset, material.textureDivision);
+            loadCamera(window.camera);
+            loadColor(material.color);
+
+    }
+
+
+
+    @Override
+    public void loadElement(Scene scene,Window window, Component... components) {
+        if(components[0] instanceof TransformComponent) {
+            TransformComponent transform = (TransformComponent) components[0];
+            loadTransformationMatrix(MathUtils.CreateTransformationMatrix(transform.position, transform.rotation, transform.scale));
+        }
     }
 
     public void loadColor(Vector4f color){

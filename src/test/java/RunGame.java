@@ -7,7 +7,7 @@ public class RunGame {
 
 
     public static void main(String[] args) {
-        Game.addActiveScene( new ExampleScene());
+        Game.addScene( new ExampleScene());
         Game.run();
 
 

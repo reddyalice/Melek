@@ -2,6 +2,7 @@ package scenes;
 
 import com.alice.mel.components.BatchRenderingComponent;
 import com.alice.mel.components.Component;
+import com.alice.mel.components.RenderingComponent;
 import com.alice.mel.components.TransformComponent;
 import com.alice.mel.engine.*;
 import com.alice.mel.graphics.*;
@@ -16,8 +17,10 @@ import com.alice.mel.utils.maths.MathUtils;
 import imgui.ImGui;
 import imgui.flag.ImGuiWindowFlags;
 import imgui.type.ImString;
+import materials.Basic3DMaterial;
 import org.joml.*;
 import org.lwjgl.glfw.GLFW;
+import shaders.Basic3DShader;
 
 import java.util.Objects;
 
@@ -35,14 +38,15 @@ public class ExampleScene extends SceneAdaptor {
         Texture texture = new Texture("src/test/resources/textures/cactus.png");
         Texture textureC = new Texture("src/test/resources/textures/cardedge.png");
         Mesh mesh = new Mesh("src/test/resources/models/cactus.obj");
-        BatchMaterial material = new BatchedBasic3DMaterial();
+        Material material = new BatchedBasic3DMaterial();
         addShader(BatchedSpriteShader.class);
         addShader(Batched3DShader.class);
+        addShader(Basic3DShader.class);
         addTexture("Texture1", texture);
         addTexture("Texture2", textureC);
         addMesh("Mesh", mesh);
 
-        //scene.loadMesh("Quad3D");
+        scene.loadMesh("Quad3D");
        // game.assetManager.addMesh("Mesh1", mesh);
 
         Window w = createWindow(CameraType.Orthographic, "Test", 640, 480, false);
@@ -52,41 +56,8 @@ public class ExampleScene extends SceneAdaptor {
         w2.setDecorated(false);
 
         w3 = createWindow(CameraType.Orthographic, "Test2", 640, 480, true);
-        addSystem(new BatchedRenderingSystem(Game.assetManager));
-
-        addSystem(new IteratingSystem(RelationType.All, TransformComponent.class) {
-
-            @Override
-            public void processEntityUpdate(int entity, float deltaTime) {
-                System.out.println(Thread.currentThread());
-            }
-
-            @Override
-            public void processEntityRender(int entity, Window window, float deltaTime) {
-
-            }
-        });
-
-        addSystem(new IteratingSystem(RelationType.All, TransformComponent.class) {
-            private float ang = 0;
-
-            @Override
-            public void update(float deltaTime) {
-                super.update(deltaTime);
-                ang += deltaTime;
-            }
-
-            @Override
-            public void processEntityUpdate(int entity, float deltaTime) {
-                entityManager.getComponent(entity, TransformComponent.class).rotation.fromAxisAngleDeg(0,1, 0, ang* 90);
-
-            }
-
-            @Override
-            public void processEntityRender(int entity, Window window, float deltaTime) {
-
-            }
-        });
+        addSystem(new BatchedRenderingSystem());
+        addSystem(new RenderingSystem());
 
 
         tc = new TransformComponent();
@@ -99,7 +70,7 @@ public class ExampleScene extends SceneAdaptor {
         tc1.scale.set(50, 50, 50);
 
         en1 = createEntity(tc1, new BatchRenderingComponent( "Mesh", "Texture1",  new BatchedBasic3DMaterial()));
-
+        int en2 = createEntity(tc1, new RenderingComponent("Quad3D", "Texture1", new Basic3DMaterial()));
 
         w2.update.add("move", x -> MathUtils.LookRelativeTo(w2, w));
         w3.update.add("move", x -> MathUtils.LookRelativeTo(w3, w));

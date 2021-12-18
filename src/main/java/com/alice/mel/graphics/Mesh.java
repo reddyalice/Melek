@@ -4,6 +4,9 @@ import com.alice.mel.utils.loaders.OBJLoader;
 import com.alice.mel.engine.Scene;
 import com.alice.mel.utils.collections.Array;
 import org.javatuples.Pair;
+import org.lwjgl.assimp.AIFile;
+import org.lwjgl.assimp.AIMesh;
+import org.lwjgl.assimp.AIScene;
 import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GL30;
 
@@ -28,6 +31,19 @@ public final class Mesh extends Asset {
     }
 
     public Mesh(File file){
+        fileInfo = Pair.with(file, file.lastModified());
+        Pair<HashMap<String, VertexBufferObject>, int[]> pair = OBJLoader.loadOBJ(file);
+        this.vertices.putAll(pair.getValue0());
+        this.indices = pair.getValue1();
+        this.vertexCount = indices.length;
+    }
+
+
+    public Mesh(HashMap<String, VertexBufferObject> vertices, int[] indices, String fileName){
+        this(vertices, indices, new File(fileName));
+    }
+
+    public Mesh(HashMap<String, VertexBufferObject> vertices, int[] indices, File file){
         fileInfo = Pair.with(file, file.lastModified());
         Pair<HashMap<String, VertexBufferObject>, int[]> pair = OBJLoader.loadOBJ(file);
         this.vertices.putAll(pair.getValue0());

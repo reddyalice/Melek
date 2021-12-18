@@ -35,8 +35,8 @@ public class Game{
      * Add a scene to currently running active scene array
      * @param scene Scene to be added
      */
-    public static void addActiveScene(SceneAdaptor scene){
-        addActiveScene(scene.scene);
+    public static void addScene(SceneAdaptor scene){
+        addScene(scene.scene);
     }
 
 
@@ -44,7 +44,7 @@ public class Game{
      * Add a scene to currently running active scene array
      * @param scene Scene to be added
      */
-    public static void addActiveScene(Scene scene){
+    public static void addScene(Scene scene){
         if(!activeScenes.contains(scene, false)){
             if(toDispose.contains(scene, false))
                 toDispose.removeValue(scene, false);
@@ -59,8 +59,8 @@ public class Game{
      * @param scene Scene to removed
      * @param destroy If Scene will be disposed after removing
      */
-    public static void removeActiveScene(SceneAdaptor scene, boolean destroy){
-        removeActiveScene(scene.scene, destroy);
+    public static void removeScene(SceneAdaptor scene, boolean destroy){
+        removeScene(scene.scene, destroy);
     }
 
     /**
@@ -68,7 +68,7 @@ public class Game{
      * @param scene Scene to removed
      * @param destroy If Scene will be disposed after removing
      */
-    public static void removeActiveScene(Scene scene, boolean destroy){
+    public static void removeScene(Scene scene, boolean destroy){
         activeScenes.removeValue(scene, false);
         if(destroy) scene.dispose();
         else toDispose.add(scene);
@@ -91,7 +91,7 @@ public class Game{
                 if(scene.getWindowCount() > 0)  // As long as scene has windows to update its state
                     scene.Update(deltaTime); // Scene update
                 else
-                    removeActiveScene(scene, false); //Remove the scene without destroying it
+                    removeScene(scene, true); //Remove the scene without destroying it
 
 
             time = System.nanoTime() - time;

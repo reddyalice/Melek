@@ -1,5 +1,8 @@
 package com.alice.mel.graphics;
 
+import com.alice.mel.components.Component;
+import com.alice.mel.components.TransformComponent;
+import com.alice.mel.engine.AssetManager;
 import com.alice.mel.engine.Scene;
 import com.alice.mel.utils.collections.Array;
 import org.javatuples.Pair;
@@ -266,6 +269,16 @@ public abstract class Shader extends Asset{
         }
         GL32C.glUniform3fv(location, tmp);
     }
+
+
+    /**
+     * Loads Values to the Shader
+     * @param assetManager Asset Manager Shader registered to
+     * @param scene Scene shader loaded to
+     * @param window Window shader rendering to
+     */
+    public abstract void loadValues(Material material, Scene scene, Window window);
+    public abstract void loadElement(Scene scene, Window window, Component... components);
 
     @Override
     public boolean equals(Object obj) {

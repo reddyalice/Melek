@@ -4,6 +4,7 @@ import com.alice.mel.components.Component;
 import com.alice.mel.components.RenderingComponent;
 import com.alice.mel.components.TransformComponent;
 import com.alice.mel.engine.AssetManager;
+import com.alice.mel.engine.Game;
 import com.alice.mel.engine.Scene;
 import com.alice.mel.graphics.*;
 import com.alice.mel.utils.collections.Array;
@@ -18,15 +19,13 @@ import java.util.Objects;
 
 public class RenderingSystem extends ComponentSystem{
 
-    protected final AssetManager assetManager;
     protected final ObjectMap<Class<? extends Shader>, HashMap<String, HashMap<Material, Array<Integer>>>> renderMap = new ObjectMap<>();
 
-    public RenderingSystem(AssetManager assetManager){
-        this(0, assetManager);
+    public RenderingSystem(){
+        this(0);
     }
-    public RenderingSystem(int priority, AssetManager assetManager){
+    public RenderingSystem(int priority){
         super(priority);
-        this.assetManager = assetManager;
     }
 
 
@@ -232,26 +231,26 @@ public class RenderingSystem extends ComponentSystem{
 
 
         for(Class<? extends Shader> shaderClass : renderMap.keys()){
-            Objects.requireNonNull(assetManager.getShader(shaderClass)).start(scene);
+            Objects.requireNonNull(Game.assetManager.getShader(shaderClass)).start(scene);
             for(String meshName : renderMap.get(shaderClass).keySet()){
-                Objects.requireNonNull(assetManager.getMesh(meshName)).bind(scene, window);
-                if(Objects.requireNonNull(assetManager.getMesh(meshName)).drawWireframe) GL30.glPolygonMode(GL30.GL_FRONT_AND_BACK, GL30.GL_LINE);
+                Objects.requireNonNull(Game.assetManager.getMesh(meshName)).bind(scene, window);
+                if(Objects.requireNonNull(Game.assetManager.getMesh(meshName)).drawWireframe) GL30.glPolygonMode(GL30.GL_FRONT_AND_BACK, GL30.GL_LINE);
                     for(Material material : renderMap.get(shaderClass).get(meshName).keySet()){
                         GL20.glEnable(GL11.GL_TEXTURE);
                         GL20.glActiveTexture(GL20.GL_TEXTURE0);
-                        material.loadValues(assetManager, scene, window);
+                        Objects.requireNonNull(Game.assetManager.getShader(shaderClass)).loadValues(material, scene, window);
                         for(int entity : renderMap.get(shaderClass).get(meshName).get(material)){
-                            material.loadElement(assetManager, scene, window, entityManager.getComponent(entity, TransformComponent.class));
+                            Objects.requireNonNull(Game.assetManager.getShader(shaderClass)).loadElement(scene, window, entityManager.getComponent(entity, TransformComponent.class));
 
-                            GL11.glDrawElements(GL11.GL_TRIANGLES, Objects.requireNonNull(assetManager.getMesh(meshName)).getVertexCount(), GL11.GL_UNSIGNED_INT, 0);
+                            GL11.glDrawElements(GL11.GL_TRIANGLES, Objects.requireNonNull(Game.assetManager.getMesh(meshName)).getVertexCount(), GL11.GL_UNSIGNED_INT, 0);
 
                         }
                         GL20.glDisable(GL11.GL_TEXTURE);
                         GL11.glBindTexture(GL11.GL_TEXTURE_2D, 0);
                     }
-                if(Objects.requireNonNull(assetManager.getMesh(meshName)).drawWireframe) GL30.glPolygonMode(GL30.GL_FRONT_AND_BACK, GL30.GL_FILL);
+                if(Objects.requireNonNull(Game.assetManager.getMesh(meshName)).drawWireframe) GL30.glPolygonMode(GL30.GL_FRONT_AND_BACK, GL30.GL_FILL);
             }
-            Objects.requireNonNull(assetManager.getShader(shaderClass)).stop();
+            Objects.requireNonNull(Game.assetManager.getShader(shaderClass)).stop();
         }
     }
 }
