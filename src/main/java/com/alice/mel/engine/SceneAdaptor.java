@@ -88,7 +88,7 @@ public abstract class SceneAdaptor{
      * @param shaderClass Class of the shader to be loaded
      */
     public final void addShader(Class<? extends Shader> shaderClass){
-        if(Game.assetManager.getShader(shaderClass) == null)
+        if(!Game.assetManager.hasShader(shaderClass))
             Game.assetManager.addShader(shaderClass);
         scene.loadShader(shaderClass);
     }
@@ -121,6 +121,14 @@ public abstract class SceneAdaptor{
      */
     public final <T extends Shader> T getShader(Class<T> shaderClass) {
         return Game.assetManager.getShader(shaderClass);
+    }
+
+    /**
+     * Load the texture to the scene
+     * @param name Name of the texture
+     */
+    public final void addTexture(String name){
+        scene.loadTexture(name);
     }
 
     /**
@@ -160,6 +168,15 @@ public abstract class SceneAdaptor{
      */
     public final void removeTexture(String name){
         removeTexture(name, false);
+    }
+
+
+    /**
+     *  Load the mesh to the scene
+     * @param name Name of the mesh
+     */
+    public final void addMesh(String name){
+        scene.loadMesh(name);
     }
 
     /**

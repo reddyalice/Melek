@@ -89,9 +89,9 @@ public class MeshBatch implements Comparable<MeshBatch>{
                         }
                     indexArray.sort();
                     elemental.put(index, Pair.with(entity, brc));
-                    for(String property : brc.material.properties.keySet()){
+                    for(String property : brc.material.materialData.properties.keySet()){
                         if(!vertices.containsKey(property)){
-                            VertexData data = brc.material.properties.get(property);
+                            VertexData data = brc.material.materialData.properties.get(property);
                             vertices.put(property, new VertexBufferObject(attributeIndex++, data.dimension, vertices.get("positions").vertexData.size * maxElementCount));
                         }
                     }
@@ -130,9 +130,9 @@ public class MeshBatch implements Comparable<MeshBatch>{
                         elemental.put(index, Pair.with(entity, brc));
                         elements.put(textureName, elemental);
                         textureToIntMap.put(textureName, textureIndex);
-                        for(String property : brc.material.properties.keySet()){
+                        for(String property : brc.material.materialData.properties.keySet()){
                             if(!vertices.containsKey(property)){
-                                VertexData data = brc.material.properties.get(property);
+                                VertexData data = brc.material.materialData.properties.get(property);
                                 vertices.put(property, new VertexBufferObject(attributeIndex++, data.dimension, vertices.get("positions").vertexData.size * maxElementCount));
                             }
                         }
@@ -244,7 +244,7 @@ public class MeshBatch implements Comparable<MeshBatch>{
                 for (String textureName : elements.keySet()) {
                     for (int index : elements.get(textureName).keySet()) {
                         Pair<Integer, BatchRenderingComponent> element = elements.get(textureName).get(index);
-                        for (String property : element.getValue1().material.properties.keySet()) {
+                        for (String property : element.getValue1().material.materialData.properties.keySet()) {
                             if (!vertices.get(property).getIDs().containsKey(scene)) {
                                 scene.loaderWindow.makeContextCurrent();
                                 vertices.get(property).genVertex(scene, GL15.GL_DYNAMIC_DRAW);
@@ -399,8 +399,8 @@ public class MeshBatch implements Comparable<MeshBatch>{
             vertices.get("colors").setVertex(offset + i, COL);
         }
 
-       for(String property : brc.material.properties.keySet()){
-            VertexData propertyData = brc.material.properties.get(property);
+       for(String property : brc.material.materialData.properties.keySet()){
+            VertexData propertyData = brc.material.materialData.properties.get(property);
             vertexSize = propertyData.size;
             offset = index * vertexSize;
             float[] VER = new float[propertyData.dimension];
@@ -425,8 +425,8 @@ public class MeshBatch implements Comparable<MeshBatch>{
         }
 
 
-        for(String property : brc.material.properties.keySet()){
-            VertexData propertyData = brc.material.properties.get(property);
+        for(String property : brc.material.materialData.properties.keySet()){
+            VertexData propertyData = brc.material.materialData.properties.get(property);
             vertexSize = propertyData.size;
             offset = index * vertexSize;
             float[] VER = new float[propertyData.dimension];

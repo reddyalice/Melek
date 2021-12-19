@@ -3,25 +3,16 @@ package com.alice.mel.engine;
 
 import com.alice.mel.components.Component;
 import com.alice.mel.graphics.*;
-import com.alice.mel.multithreading.SystemThread;
 import com.alice.mel.systems.ComponentSystem;
 import com.alice.mel.utils.KeyedEvent;
-import com.alice.mel.utils.SerializableConsumer;
 import com.alice.mel.utils.collections.*;
-import imgui.ImGui;
-import imgui.ImGuiIO;
-import imgui.flag.ImGuiConfigFlags;
-import imgui.gl3.ImGuiImplGl3;
 import org.javatuples.Pair;
 import org.jbox2d.common.Vec2;
 import org.jbox2d.dynamics.World;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWErrorCallback;
-import org.lwjgl.opengl.GL11;
-
 import java.util.HashMap;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Scene class where the magic happens
@@ -91,9 +82,6 @@ public final class Scene {
 
         GLFW.glfwWindowHint(GLFW.GLFW_VISIBLE, GLFW.GLFW_FALSE);
         loaderWindow = createWindow(CameraType.Orthographic, "Loader", 640, 480);
-        ImGui.createContext();
-        Game.imGuiImplGl3.init();
-        ImGui.getIO().addConfigFlags(ImGuiConfigFlags.NavEnableKeyboard);
         GLFW.glfwWindowHint(GLFW.GLFW_VISIBLE, GLFW.GLFW_TRUE);
         removeWindow(loaderWindow);
         preRender.add("hotReload", x -> {

@@ -3,7 +3,6 @@ package com.alice.mel.graphics;
 import com.alice.mel.engine.Game;
 import com.alice.mel.engine.Scene;
 import com.alice.mel.utils.KeyedEvent;
-import imgui.ImGui;
 import org.joml.Vector2f;
 import org.joml.Vector2i;
 import org.joml.Vector4f;
@@ -31,7 +30,6 @@ public class Window {
     private Scene scene;
     private boolean focus;
     private boolean hidden;
-    private boolean enableImGui;
     private final Vector2i size;
     private final Vector2i position;
 
@@ -82,37 +80,20 @@ public class Window {
             }
         });
 
-        GLFW.glfwSetWindowCloseCallback(id, new GLFWWindowCloseCallback() {
-            @Override
-            public void invoke(long window) {
-                if(enableImGui) {
-                    ImGui.endFrame();
-                }
-            }
-        });
 
+        if(scene.loaderWindow == null)
+            GL.createCapabilities();
 
-        GL.createCapabilities();
-
-        init.add("imgui", x -> Game.imGuiImplGlfw.init(id, true));
         postUpdate.add("camera", x -> this.camera.update());
         preRender.add("makeCurrentAndClear", x -> {
             makeContextCurrent();
-            if(enableImGui) Game.imGuiImplGlfw.init(id, false);
             GL11.glEnable(GL11.GL_DEPTH_TEST);
             GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
             GL11.glClearColor(this.backgroundColor.x, this.backgroundColor.y, this.backgroundColor.z, this.backgroundColor.w);
-            if(enableImGui) {
-                Game.imGuiImplGlfw.newFrame();
-                ImGui.newFrame();
-            }
+
         });
 
         postRender.add("PollAndSwap", x -> {
-            if(enableImGui) {
-                ImGui.render();
-                Game.imGuiImplGl3.renderDrawData(ImGui.getDrawData());
-            }
             swapBuffers();
             GLFW.glfwPollEvents();
         });
@@ -169,10 +150,6 @@ public class Window {
         setWindowOpacity(1f);
         setBackgroundColor(0,0,0,1);
         active = false;
-        if(enableImGui) {
-            ImGui.endFrame();
-        }
-        enableImGui = false;
         init.dispose();
         preUpdate.dispose();
         update.dispose();
@@ -180,26 +157,16 @@ public class Window {
         preRender.dispose();
         render.dispose();
         postRender.dispose();
-        init.add("imgui", x -> Game.imGuiImplGlfw.init(id, true));
         postUpdate.add("camera", x -> this.camera.update());
         preRender.add("makeCurrentAndClear", x -> {
             makeContextCurrent();
-            if(enableImGui) Game.imGuiImplGlfw.init(id, false);
             GL11.glEnable(GL11.GL_DEPTH_TEST);
             GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
             GL11.glClearColor(this.backgroundColor.x, this.backgroundColor.y, this.backgroundColor.z, this.backgroundColor.w);
-            if(enableImGui){
-                Game.imGuiImplGlfw.newFrame();
-                ImGui.newFrame();
-            }
 
 
         });
         postRender.add("PollAndSwap", x -> {
-            if(enableImGui) {
-                ImGui.render();
-                Game.imGuiImplGl3.renderDrawData(ImGui.getDrawData());
-            }
             swapBuffers();
             GLFW.glfwPollEvents();
         });
@@ -361,13 +328,6 @@ public class Window {
         GLFW.glfwSetWindowMonitor(id, 0, 0,0, width, height, freshRate);
     }
 
-    public void enableImGui(boolean enableImGui){
-        this.enableImGui = enableImGui;
-    }
-
-    public boolean isImGuiEnabled(){
-        return enableImGui;
-    }
 
     /**
      * Get the Scene Window belongs to

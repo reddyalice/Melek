@@ -1,14 +1,9 @@
 package com.alice.mel.engine;
 
-import com.alice.mel.multithreading.SystemThread;
 import com.alice.mel.utils.collections.Array;
 import com.alice.mel.utils.collections.SnapshotArray;
-import imgui.gl3.ImGuiImplGl3;
-import imgui.glfw.ImGuiImplGlfw;
 import org.lwjgl.glfw.GLFW;
 import java.io.*;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.ForkJoinPool;
 
 /**
@@ -24,8 +19,6 @@ public class Game{
     public static Scene loaderScene = null;
     private static final SnapshotArray<Scene> activeScenes = new SnapshotArray<>();
     private static final Array<Scene> toDispose = new Array<>();
-    public static final ImGuiImplGlfw imGuiImplGlfw = new ImGuiImplGlfw();
-    public static final ImGuiImplGl3 imGuiImplGl3 = new ImGuiImplGl3();
 
 
     public static boolean hotReload = true;
@@ -112,8 +105,6 @@ public class Game{
         for(Scene scene : toDispose)
             scene.dispose();
         activeScenes.clear();
-        imGuiImplGlfw.dispose();
-        imGuiImplGl3.dispose();
         GLFW.glfwTerminate();
     }
 
