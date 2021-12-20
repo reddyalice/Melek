@@ -6,6 +6,7 @@ import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GL20;
 
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Objects;
 
@@ -63,6 +64,16 @@ public final class VertexBufferObject implements Serializable {
         switch (drawType) {
             case GL15.GL_STATIC_DRAW -> GL15.glBufferData(GL15.GL_ARRAY_BUFFER, vertexData.data, GL15.GL_STATIC_DRAW);
             case GL15.GL_DYNAMIC_DRAW -> GL20.glBufferSubData(GL20.GL_ARRAY_BUFFER, 0, vertexData.data);
+        }
+    }
+
+
+    public void regenVertex(Scene scene, int index, int length){
+        GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, ids.get(scene));
+        float[] data = Arrays.copyOfRange(vertexData.data, index, length);
+        switch (drawType) {
+            case GL15.GL_STATIC_DRAW -> GL15.glBufferData(GL15.GL_ARRAY_BUFFER, vertexData.data, GL15.GL_STATIC_DRAW);
+            case GL15.GL_DYNAMIC_DRAW -> GL20.glBufferSubData(GL20.GL_ARRAY_BUFFER, index, data);
         }
     }
 

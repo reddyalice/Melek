@@ -7,4 +7,5 @@ import java.io.Serializable;
 
 public abstract class Asset implements Serializable {
     public Pair<File, Long> fileInfo;
+    public abstract void dispose();
 }

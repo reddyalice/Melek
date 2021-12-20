@@ -19,7 +19,7 @@ public class Game{
     public static Scene loaderScene = null;
     private static final SnapshotArray<Scene> activeScenes = new SnapshotArray<>();
     private static final Array<Scene> toDispose = new Array<>();
-
+    public static boolean closeCondition = false;
 
     public static boolean hotReload = true;
 
@@ -72,10 +72,7 @@ public class Game{
      */
     public static void run(){
 
-
-
-
-        while(activeScenes.size > 0){
+        while(activeScenes.size > 0 && !closeCondition){
             long time = System.nanoTime(); // Lame delta Timing
 
 
@@ -84,7 +81,7 @@ public class Game{
                 if(scene.getWindowCount() > 0)  // As long as scene has windows to update its state
                     scene.Update(deltaTime); // Scene update
                 else
-                    removeScene(scene, true); //Remove the scene without destroying it
+                    removeScene(scene, true); //Remove the scene
 
 
             time = System.nanoTime() - time;
@@ -101,9 +98,11 @@ public class Game{
      * Clear Active Scenes and Terminate GLFW
      */
     public static void dispose(){
-
+        for(Scene scene : activeScenes)
+            removeScene(scene, true);
         for(Scene scene : toDispose)
             scene.dispose();
+        Game.assetManager.dispose();
         activeScenes.clear();
         GLFW.glfwTerminate();
     }

@@ -24,7 +24,7 @@ public final class Texture extends Asset {
 
     private final HashMap<Scene, Integer> ids = new HashMap<>();
     private int width, height;
-    private  byte[] pixels;
+    private byte[] pixels;
 
 
 
@@ -294,13 +294,21 @@ public final class Texture extends Asset {
     }
 
     /**
-     * Dispose Texture
+     * Clear Texture
      * @param scene Scene Texture loaded to
      */
-    public void dispose(Scene scene) {
+    public void clear(Scene scene) {
         GL11.glDeleteTextures(ids.get(scene));
         ids.remove(scene);
     }
+
+    @Override
+    public void dispose() {
+        for(Scene scene : ids.keySet())
+            clear(scene);
+        ids.clear();
+    }
+
 
     public enum TextureFilter {
         Nearest(GL20.GL_NEAREST),

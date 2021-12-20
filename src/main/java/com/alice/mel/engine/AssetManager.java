@@ -1,18 +1,13 @@
 package com.alice.mel.engine;
 
 import com.alice.mel.graphics.*;
-import com.alice.mel.graphics.shaders.Batched3DShader;
-import com.alice.mel.graphics.shaders.BatchedSpriteShader;
-import com.alice.mel.utils.collections.Array;
 import com.alice.mel.utils.collections.ObjectMap;
 import com.alice.mel.utils.reflections.ClassReflection;
 import com.alice.mel.utils.reflections.ReflectionException;
-import org.javatuples.Pair;
 import org.lwjgl.util.par.ParShapes;
 import org.lwjgl.util.par.ParShapesMesh;
 
 import java.io.Serializable;
-import java.nio.FloatBuffer;
 import java.util.HashMap;
 import java.util.Objects;
 
@@ -81,6 +76,7 @@ public final class AssetManager implements Serializable {
         mesh.free();
         addMesh("sphere", new Mesh(vertices, tCoords, normals, indices));
         addTexture("null", new Texture(1, 1, new int[]{0}));
+        addMaterialBase("empty", new MaterialData());
     }
 
 
@@ -301,9 +297,22 @@ public final class AssetManager implements Serializable {
      * Dispose all registered data
      */
     public void dispose() {
+        for(String n : textures.keySet())
+            textures.get(n).dispose();
+
+        for(String n : meshes.keySet())
+            meshes.get(n).dispose();
+
+        for(String n : materialBases.keySet())
+            materialBases.get(n).dispose();
+
+        for(Class<? extends Shader> shaderClass : shaders.keys())
+            shaders.get(shaderClass).dispose();
+
         textures.clear();
         meshes.clear();
-        shaders.clear();
         materialBases.clear();
+        shaders.clear();
+
     }
 }

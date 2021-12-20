@@ -256,7 +256,7 @@ public final class Scene {
         assert texture != null;
         if(textures.contains(name, false)) {
             loaderWindow.makeContextCurrent();
-            texture.dispose(this);
+            texture.clear(this);
             if (currentContext != null)
                 currentContext.makeContextCurrent();
             textures.removeValue(name, false);
@@ -276,7 +276,7 @@ public final class Scene {
             multiInit.remove("mesh" + mesh.getVAOid(this, loaderWindow));
             loaderWindow.makeContextCurrent();
             mesh.disposeVAO(this, loaderWindow);
-            mesh.dispose(this);
+            mesh.clear(this);
             for (Window window : windows) {
                 window.makeContextCurrent();
                 if(window != loaderWindow)
@@ -328,7 +328,7 @@ public final class Scene {
         if(shaders.contains(shaderClass, false)) {
             shaders.removeValue(shaderClass, false);
             loaderWindow.makeContextCurrent();
-            shader.dispose(this);
+            shader.clear(this);
             if (currentContext != null)
                 currentContext.makeContextCurrent();
         }else
@@ -524,8 +524,6 @@ public final class Scene {
 
         for(Class<? extends Shader> shader : shaders)
             unloadShader(shader);
-
-
         shaders.clear();
 
         for(String texture : textures)

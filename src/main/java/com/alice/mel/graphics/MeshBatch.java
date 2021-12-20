@@ -11,6 +11,7 @@ import org.javatuples.Pair;
 import org.joml.*;
 import org.lwjgl.opengl.*;
 
+import java.util.Arrays;
 import java.util.HashMap;
 
 public class MeshBatch implements Comparable<MeshBatch>{
@@ -64,6 +65,7 @@ public class MeshBatch implements Comparable<MeshBatch>{
             VertexBufferObject vertex = meshVertecies.get(vertexName);
             vertices.put(vertexName, new VertexBufferObject(attributeIndex++, vertex.vertexData.dimension, vertex.vertexData.size * maxElementCount));
         }
+        System.out.println(vertices.get("positions").vertexData.size * maxElementCount);
         vertices.put("colors", new VertexBufferObject(attributeIndex++, 4, vertices.get("positions").vertexData.size * maxElementCount));
         vertices.put("texID", new VertexBufferObject(attributeIndex++, 1, vertices.get("positions").vertexData.size * maxElementCount));
         indices = new int[mesh.getIndices().length * maxElementCount];
@@ -191,7 +193,6 @@ public class MeshBatch implements Comparable<MeshBatch>{
 
     public void bind(Scene scene, Window window){
         if(indexArray.size > 0) {
-            boolean rebufferElement = false;
             boolean rebufferMaterial = false;
             for (String textureName : elements.keySet()) {
                 for (int index : elements.get(textureName).keySet()) {
@@ -200,9 +201,10 @@ public class MeshBatch implements Comparable<MeshBatch>{
 
                     TransformComponent tc = scene.entityManager.getComponent( element.getValue0(), TransformComponent.class);
                     if (tc.isDirty()) {
+                        VertexData positionData = mesh.getVertecies().get("positions").vertexData;
                         loadElementProperties(index, tc);
                         tc.doClean();
-                        rebufferElement = true;
+                        vertices.get("positions").regenVertex(scene, index * positionData.size, index * positionData.size + positionData.length);
                     }
 
 
@@ -215,9 +217,6 @@ public class MeshBatch implements Comparable<MeshBatch>{
                 }
             }
 
-            if (rebufferElement) {
-                vertices.get("positions").regenVertex(scene);
-            }
 
 
             //It's not best to have constantly changing color and texture positions
@@ -485,7 +484,7 @@ public class MeshBatch implements Comparable<MeshBatch>{
 
 
     public boolean hasRoom() {
-        return this.hasRoom;
+        return this.hasRoom && numberOfElements < maxElementCount;
     }
 
     public boolean hasTextureRoom() {

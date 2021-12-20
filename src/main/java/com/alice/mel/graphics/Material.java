@@ -23,7 +23,7 @@ public class Material implements Serializable {
 
     public Material(Class<? extends Shader> shaderClass, MaterialData materialData){
         this.shaderClass = shaderClass;
-        this.materialData = materialData;
+        this.materialData = materialData.clone();
     }
 
 

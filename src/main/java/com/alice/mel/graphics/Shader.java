@@ -273,7 +273,6 @@ public abstract class Shader extends Asset{
 
     /**
      * Loads Values to the Shader
-     * @param assetManager Asset Manager Shader registered to
      * @param scene Scene shader loaded to
      * @param window Window shader rendering to
      */
@@ -287,16 +286,20 @@ public abstract class Shader extends Asset{
 
 
     /**
-     * Stop and Dispose the shader
+     * Stop and Clear the shader
      * @param scene Scene it's loaded to
      */
-    public void dispose(Scene scene)
+    public void clear(Scene scene)
     {
         stop();
         GL32C.glDeleteShader(ids.get(scene));
-        //sources.clear();
     }
 
-
-
+    @Override
+    public void dispose() {
+        for(Scene scene : ids.keySet())
+            clear(scene);
+        ids.clear();
+        sources.clear();
+    }
 }

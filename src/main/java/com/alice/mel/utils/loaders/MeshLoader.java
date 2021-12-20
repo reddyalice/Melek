@@ -97,34 +97,12 @@ public class MeshLoader {
         }
 
 
-        MaterialData materialData = new MaterialData() {
-            public final HashMap<String, VertexData> oldProperties = new HashMap<>();
-
-            {
-                properties.putAll(props);
-                for(String pN : properties.keySet())
-                {
-                    oldProperties.put(pN, properties.get(pN).clone());
-                }
-            }
-
-            @Override
-            protected boolean checkDirty() {
-                boolean dirty = false;
-                for(String pN : properties.keySet()){
-                    dirty |= properties.get(pN).equals(oldProperties.get(pN));
-                }
-                return dirty;
-            }
-
-            @Override
-            protected void clean() {
-                for(String pN : properties.keySet()){
-                    oldProperties.get(pN).copy(properties.get(pN));
-                }
-            }
-        };
-
+        MaterialData materialData = new MaterialData();
+        materialData.properties.putAll(props);
+        for(String pN : materialData.properties.keySet())
+        {
+            materialData.oldProperties.put(pN, materialData.properties.get(pN).clone());
+        }
         String matName = name + "Mat" + index;
         Game.assetManager.addMaterialBase(matName, materialData);
     }

@@ -185,14 +185,24 @@ public final class Mesh extends Asset {
 
 
     /**
-     * Dispose the Mesh and clear
+     * Clear the Mesh and clear
      * @param scene
      */
-    public void dispose(Scene scene) {
+    public void clear(Scene scene) {
         for(String vertexName : vertices.keySet())
             vertices.get(vertexName).delete(scene);
         GL15.glDeleteBuffers(indexIDs.get(scene));
+    }
+
+    @Override
+    public void dispose() {
+        for(Scene scene : indexIDs.keySet()) {
+            clear(scene);
+            for(Window w  : scene.getWindows())
+                disposeVAO(scene, w);
+        }
         vertices.clear();
         indexIDs.clear();
+        ids.clear();
     }
 }

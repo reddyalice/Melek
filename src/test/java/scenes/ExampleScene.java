@@ -88,9 +88,15 @@ public class ExampleScene extends SceneAdaptor {
 
         TransformComponent tc1 = tc.Clone();
         tc1.scale.set(50, 50, 50);
-
+        Basic3DMaterial material1 = new Basic3DMaterial();
         en1 = createEntity(tc1, new BatchRenderingComponent( "Mesh", "Texture1",  new BatchedBasic3DMaterial()));
-        createEntity(tc1, new RenderingComponent("sphere", "Texture2", new Basic3DMaterial()));
+        for(int i = 0; i < 500; i++) {
+            TransformComponent transformComponent = new TransformComponent();
+            transformComponent.position.set((i - 250)* 50, 0,0);
+            transformComponent.scale.set(25, 25, 25);
+
+            createEntity(transformComponent, new RenderingComponent("sphere", "Texture1", material1));
+        }
 
         w2.update.add("move", x -> MathUtils.LookRelativeTo(w2, w));
         w3.update.add("move", x -> MathUtils.LookRelativeTo(w3, w));
@@ -118,9 +124,12 @@ public class ExampleScene extends SceneAdaptor {
 
         prevKPressed = getKeyPressed(GLFW.GLFW_KEY_K);
 
+        Game.closeCondition = getKeyPressed(GLFW.GLFW_KEY_Q);
+
         if(getKeyPressed(GLFW.GLFW_KEY_G))
                 if(scene.getForAny(BatchRenderingComponent.class).size() > 1)
                     scene.removeEntity(scene.getForAny(BatchRenderingComponent.class).get(MathUtils.random.nextInt(scene.getForAny(BatchRenderingComponent.class).size())));
+
 
         move.set(0,0,0);
         if(getKeyPressed(GLFW.GLFW_KEY_W))
