@@ -1,24 +1,21 @@
 package scenes;
 
-import com.alice.mel.components.BatchRenderingComponent;
 import com.alice.mel.components.Component;
 import com.alice.mel.components.RenderingComponent;
 import com.alice.mel.components.TransformComponent;
 import com.alice.mel.engine.*;
 import com.alice.mel.graphics.*;
 import com.alice.mel.graphics.Window;
-import com.alice.mel.graphics.materials.BatchedBasic3DMaterial;
-import com.alice.mel.graphics.shaders.Batched3DShader;
-import com.alice.mel.graphics.shaders.BatchedSpriteShader;
-import com.alice.mel.systems.BatchedRenderingSystem;
+import com.alice.mel.graphics.materials.SpriteMaterial;
+import com.alice.mel.graphics.shaders.SpriteShader;
 import com.alice.mel.systems.IteratingSystem;
 import com.alice.mel.systems.RenderingSystem;
 import com.alice.mel.utils.loaders.MeshLoader;
 import com.alice.mel.utils.maths.MathUtils;
-import materials.Basic3DMaterial;
+import com.alice.mel.graphics.materials.Basic3DMaterial;
 import org.joml.*;
 import org.lwjgl.glfw.GLFW;
-import shaders.Basic3DShader;
+import com.alice.mel.graphics.shaders.Basic3DShader;
 
 import java.util.Objects;
 
@@ -41,17 +38,16 @@ public class ExampleScene extends SceneAdaptor {
             e.printStackTrace();
         }
 
-        Material material = new BatchedBasic3DMaterial();
-        addShader(BatchedSpriteShader.class);
-        addShader(Batched3DShader.class);
+        Material material = new Basic3DMaterial();
         addShader(Basic3DShader.class);
+        addShader(SpriteShader.class);
         addTexture("Texture1", texture);
         addTexture("Texture2", textureC);
         addMesh("Mesh", mesh);
         addMesh("Quad3D");
         addMesh("sphere");
         addTexture("null");
-       // game.assetManager.addMesh("Mesh1", mesh);
+        addMesh("Quad");
 
         Window w = createWindow(CameraType.Orthographic, "Test", 640, 480, false);
 
@@ -60,8 +56,11 @@ public class ExampleScene extends SceneAdaptor {
         w2.setDecorated(false);
 
         w3 = createWindow(CameraType.Orthographic, "Test2", 640, 480, true);
-        addSystem(new BatchedRenderingSystem());
         addSystem(new RenderingSystem());
+
+
+
+
         addSystem(new IteratingSystem(RelationType.All, TransformComponent.class) {
                       private float ang = 0;
 
@@ -73,6 +72,7 @@ public class ExampleScene extends SceneAdaptor {
 
                       @Override
                       public void processEntityUpdate(int entity, float deltaTime) {
+                          if(entity < 1)
                           entityManager.getComponent(entity, TransformComponent.class).rotation.fromAxisAngleDeg(0, 1, 0, ang * 90);
                       }
 
@@ -84,18 +84,18 @@ public class ExampleScene extends SceneAdaptor {
         tc.scale.set(100, 100, 100);
         tc.position.set(0,0, -100);
 
-        createEntity(tc, new BatchRenderingComponent( "Mesh", "Texture1", material));
+        createEntity(tc, new RenderingComponent( "Mesh", "Texture1", material));
 
         TransformComponent tc1 = tc.Clone();
         tc1.scale.set(50, 50, 50);
-        Basic3DMaterial material1 = new Basic3DMaterial();
-        en1 = createEntity(tc1, new BatchRenderingComponent( "Mesh", "Texture1",  new BatchedBasic3DMaterial()));
-        for(int i = 0; i < 500; i++) {
+        SpriteMaterial material1 = new SpriteMaterial();
+        en1 = createEntity(tc1, new RenderingComponent( "Mesh", "Texture1",  new Basic3DMaterial()));
+        for(int i = 0; i < 10000; i++) {
             TransformComponent transformComponent = new TransformComponent();
             transformComponent.position.set((i - 250)* 50, 0,0);
             transformComponent.scale.set(25, 25, 25);
 
-            createEntity(transformComponent, new RenderingComponent("sphere", "Texture1", material1));
+            createEntity(transformComponent, new RenderingComponent("Quad", "Texture1", material1));
         }
 
         w2.update.add("move", x -> MathUtils.LookRelativeTo(w2, w));
@@ -127,8 +127,8 @@ public class ExampleScene extends SceneAdaptor {
         Game.closeCondition = getKeyPressed(GLFW.GLFW_KEY_Q);
 
         if(getKeyPressed(GLFW.GLFW_KEY_G))
-                if(scene.getForAny(BatchRenderingComponent.class).size() > 1)
-                    scene.removeEntity(scene.getForAny(BatchRenderingComponent.class).get(MathUtils.random.nextInt(scene.getForAny(BatchRenderingComponent.class).size())));
+                if(scene.getForAny(RenderingComponent.class).size() > 1)
+                    scene.removeEntity(scene.getForAny(RenderingComponent.class).get(MathUtils.random.nextInt(scene.getForAny(RenderingComponent.class).size())));
 
 
         move.set(0,0,0);
@@ -160,7 +160,7 @@ public class ExampleScene extends SceneAdaptor {
 
         entityManager.getComponent(en1, TransformComponent.class).position.add(move.x, move.y, move.z);
         if(keepTime >= 1) {
-            entityManager.getComponent(en1, BatchRenderingComponent.class).material.color.set(MathUtils.random.nextFloat(), MathUtils.random.nextFloat(), MathUtils.random.nextFloat(), 1);
+            entityManager.getComponent(en1, RenderingComponent.class).material.color.set(MathUtils.random.nextFloat(), MathUtils.random.nextFloat(), MathUtils.random.nextFloat(), 1);
             keepTime = 0;
         }
         Vector2i moveI = new Vector2i((int)move.x, (int)-move.y);

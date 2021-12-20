@@ -1,8 +1,7 @@
-package materials;
+package com.alice.mel.graphics.materials;
 
 import com.alice.mel.engine.Game;
-import com.alice.mel.graphics.MaterialData;
-import shaders.Basic3DShader;
+import com.alice.mel.graphics.shaders.Basic3DShader;
 import com.alice.mel.graphics.Material;
 
 

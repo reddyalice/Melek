@@ -43,7 +43,6 @@ public final class Scene {
     private final SnapshotArray<Class<? extends Shader>> shaders = new SnapshotArray<>();
     private final SnapshotArray<String> textures = new SnapshotArray<>();
     private final SnapshotArray<String> meshes = new SnapshotArray<>();
-    private final HashMap<String, MeshBatch> batches = new HashMap<>();
     private final SnapshotArray<ComponentSystem> componentSystems = new SnapshotArray<>();
 
     public final World world = new World(new Vec2(0, 9.8f));
@@ -174,35 +173,6 @@ public final class Scene {
             System.err.println("Mesh already loaded!");
     }
 
-
-
-
-    /**
-     * Load Mesh Batch to the scene for rendering
-     * @param name Key name of the batch
-     * @param meshBatch Mesh Batch to be loaded
-     */
-    public void loadMeshBatch(String name, MeshBatch meshBatch){
-        assert meshBatch != null;
-        if(!batches.containsKey(name)){
-            batches.put(name, meshBatch);
-            loaderWindow.makeContextCurrent();
-            meshBatch.genBatch(this, loaderWindow);
-            for (Window window : windows) {
-                if(window != loaderWindow) {
-                    window.makeContextCurrent();
-                    meshBatch.genBatch(this, window);
-                }
-            }
-            if (currentContext != null)
-                currentContext.makeContextCurrent();
-
-            multiInit.add("meshBatch" + meshBatch.getVAOid(this, loaderWindow), x -> {if(meshBatch.getVAOid(this, x) == 0) meshBatch.genBatch(this, x);});
-        }else
-            System.err.println("Mesh batch already loaded!");
-    }
-
-
     /**
      * Load the shader registered in the Asset Manager to the Scene
      * @param shaderClass Class of the Shader that will be load
@@ -288,35 +258,6 @@ public final class Scene {
             System.err.println("No such Mesh already loaded!");
 
     }
-
-
-    /**
-     * Unload the Mesh Batch from scene
-     * @param name Name the Mesh registered as
-     */
-    public void unloadMeshBatch(String name){
-        MeshBatch meshBatch = batches.get(name);
-        assert meshBatch != null;
-        if(batches.containsKey(name)) {
-            batches.remove(name);
-            multiInit.remove("meshBatch" + meshBatch.getVAOid(this, loaderWindow));
-            loaderWindow.makeContextCurrent();
-            meshBatch.disposeVAO(this, loaderWindow);
-            meshBatch.dispose(this);
-            for (Window window : windows) {
-                window.makeContextCurrent();
-                if(window != loaderWindow)
-                    meshBatch.disposeVAO(this, window);
-            }
-            if (currentContext != null)
-                currentContext.makeContextCurrent();
-        }else
-            System.err.println("No such Mesh Batch already loaded!");
-
-    }
-
-
-
 
     /**
      * Unload the Shader from scene using shader class

@@ -7,11 +7,8 @@ import com.alice.mel.graphics.shaders.SpriteShader;
 
 public class SpriteMaterial extends Material {
 
-    public String textureName;
-
-    public SpriteMaterial(String textureName) {
+    public SpriteMaterial() {
         super(SpriteShader.class, Game.assetManager.getMaterialBase("empty"));
-        this.textureName = textureName;
     }
 
 

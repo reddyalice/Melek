@@ -1,4 +1,4 @@
-package shaders;
+package com.alice.mel.graphics.shaders;
 
 import com.alice.mel.components.Component;
 import com.alice.mel.components.TransformComponent;
@@ -7,7 +7,6 @@ import com.alice.mel.engine.Game;
 import com.alice.mel.engine.Scene;
 import com.alice.mel.graphics.*;
 import com.alice.mel.utils.maths.MathUtils;
-import materials.Basic3DMaterial;
 import org.joml.Matrix4f;
 import org.joml.Vector2f;
 import org.joml.Vector4f;
@@ -23,7 +22,7 @@ public class Basic3DShader extends Shader {
     private int location_textureScale;
 
     public Basic3DShader() {
-        super("src/test/resources/shaders/Basic3DShader.glsl", false);
+        super("assets/shaders/Basic3DShader.glsl", false);
     }
 
     @Override
