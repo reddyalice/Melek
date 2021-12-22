@@ -19,7 +19,7 @@ public class Basic3DShader extends Shader {
     private int location_projectionMatrix;
     private int location_color;
     private int location_textureOffset;
-    private int location_textureScale;
+    private int location_textureDivision;
 
     public Basic3DShader() {
         super("assets/shaders/Basic3DShader.glsl", false);
@@ -39,7 +39,7 @@ public class Basic3DShader extends Shader {
         location_projectionMatrix = getUniformLocation(scene,"projectionMatrix");
         location_color = getUniformLocation(scene,"color");
         location_textureOffset = getUniformLocation(scene, "textureOffset");
-        location_textureScale = getUniformLocation(scene, "textureScale");
+        location_textureDivision = getUniformLocation(scene, "textureDivision");
     }
 
 
@@ -76,9 +76,9 @@ public class Basic3DShader extends Shader {
         this.loadVector(location_color, color);
     }
 
-    public void loadOffset(Vector2f offset, Vector2f scale){
+    public void loadOffset(Vector2f offset, Vector2f division){
         this.loadVector(location_textureOffset, offset);
-        this.loadVector(location_textureScale, scale);
+        this.loadVector(location_textureDivision, division);
     }
 
 }

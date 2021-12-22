@@ -19,7 +19,7 @@ public class SpriteShader extends Shader {
     private int location_projectionMatrix;
     private int location_color;
     private int location_textureOffset;
-    private int location_textureScale;
+    private int location_textureDivision;
 
 
     public SpriteShader() {
@@ -35,14 +35,14 @@ public class SpriteShader extends Shader {
                         "uniform mat4 transformationMatrix;\n" +
                         "uniform mat4 viewMatrix;\n" +
                         "uniform mat4 projectionMatrix;\n" +
-                        "uniform vec2 textureScale;\n" +
+                        "uniform vec2 textureDivision;\n" +
                         "uniform vec2 textureOffset;\n" +
                         "void main(void){\n" +
                         "    vec4 worldPosition = transformationMatrix * vec4(position, 0.0, 1.0);\n" +
                         "    gl_Position = projectionMatrix * viewMatrix * worldPosition;\n" +
                         "    vec2 finalTexCoords = texCoords;\n" +
-                        "    finalTexCoords.x = texCoords.x / textureScale.x + textureOffset.x;\n" +
-                        "    finalTexCoords.y = texCoords.y / textureScale.y + textureOffset.y;\n" +
+                        "    finalTexCoords.x = texCoords.x / textureDivision.x + textureOffset.x;\n" +
+                        "    finalTexCoords.y = texCoords.y / textureDivision.y + textureOffset.y;\n" +
                         "    pass_texCoords = finalTexCoords;\n" +
                         "}\n" +
                         "#shader fragment\n" +
@@ -70,7 +70,7 @@ public class SpriteShader extends Shader {
         location_projectionMatrix = getUniformLocation(scene,"projectionMatrix");
         location_color = getUniformLocation(scene,"color");
         location_textureOffset = getUniformLocation(scene, "textureOffset");
-        location_textureScale = getUniformLocation(scene, "textureScale");
+        location_textureDivision = getUniformLocation(scene, "textureDivision");
     }
 
 
@@ -106,9 +106,9 @@ public class SpriteShader extends Shader {
         this.loadVector(location_color, color);
     }
 
-    public void loadOffset(Vector2f offset, Vector2f scale) {
+    public void loadOffset(Vector2f offset, Vector2f division) {
         this.loadVector(location_textureOffset, offset);
-        this.loadVector(location_textureScale, scale);
+        this.loadVector(location_textureDivision, division);
     }
 
 }

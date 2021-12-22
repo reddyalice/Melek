@@ -2,8 +2,15 @@ package com.alice.mel.engine;
 
 import com.alice.mel.utils.collections.Array;
 import com.alice.mel.utils.collections.SnapshotArray;
+import org.lwjgl.BufferUtils;
+import org.lwjgl.PointerBuffer;
 import org.lwjgl.glfw.GLFW;
+import org.lwjgl.system.MemoryUtil;
+import org.lwjgl.util.remotery.Remotery;
+import org.lwjgl.util.remotery.RemoteryGL;
+
 import java.io.*;
+import java.nio.IntBuffer;
 import java.util.concurrent.ForkJoinPool;
 
 /**
@@ -22,7 +29,7 @@ public class Game{
     public static boolean closeCondition = false;
 
     public static boolean hotReload = true;
-
+    public static boolean remoteProfiler = false;
 
     /**
      * Add a scene to currently running active scene array
@@ -72,23 +79,28 @@ public class Game{
      */
     public static void run(){
 
+        PointerBuffer rmt = BufferUtils.createPointerBuffer(1);
+        if(remoteProfiler) {
+            Remotery.rmt_CreateGlobalInstance(rmt);
+            RemoteryGL.rmt_BindOpenGL();
+        }
         while(activeScenes.size > 0 && !closeCondition){
+
             long time = System.nanoTime(); // Lame delta Timing
-
-
-
             for(Scene scene : activeScenes)
-                if(scene.getWindowCount() > 0)  // As long as scene has windows to update its state
+                if (scene.getWindowCount() > 0)  // As long as scene has windows to update its state
                     scene.Update(deltaTime); // Scene update
                 else
                     removeScene(scene, true); //Remove the scene
-
 
             time = System.nanoTime() - time;
             deltaTime = time / 1000000000f;
             System.out.println(1f / deltaTime);
 
-
+        }
+        if(remoteProfiler) {
+            RemoteryGL.rmt_UnbindOpenGL();
+            Remotery.nrmt_DestroyGlobalInstance(rmt.get());
         }
         dispose();
     }

@@ -9,9 +9,13 @@ import com.alice.mel.utils.collections.*;
 import org.javatuples.Pair;
 import org.jbox2d.common.Vec2;
 import org.jbox2d.dynamics.World;
+import org.lwjgl.BufferUtils;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWErrorCallback;
+import org.lwjgl.util.remotery.Remotery;
+import org.lwjgl.util.remotery.RemoteryGL;
+
 import java.util.HashMap;
 
 /**
@@ -89,8 +93,11 @@ public final class Scene {
         });
 
         render.add("systems", x -> {
-            for(ComponentSystem system : componentSystems)
+            for(ComponentSystem system : componentSystems) {
+                if(Game.remoteProfiler) RemoteryGL.rmt_BeginOpenGLSample(system.toString(), BufferUtils.createIntBuffer(1));
                 system.render(x.getValue0(), x.getValue1());
+                if(Game.remoteProfiler) RemoteryGL.rmt_EndOpenGLSample();
+            }
         });
 
     }
@@ -357,10 +364,19 @@ public final class Scene {
 
         for (int i = 1; i < componentSystems.size; i++) {
             int finalI = i;
-            Game.forkJoinPool.submit(() ->componentSystems.get(finalI).update(delta));
+
+            Game.forkJoinPool.submit(() -> {
+                if(Game.remoteProfiler) Remotery.rmt_BeginCPUSample(componentSystems.get(finalI).toString(), 0, BufferUtils.createIntBuffer(1));
+                componentSystems.get(finalI).update(delta);
+                if(Game.remoteProfiler) Remotery.rmt_EndCPUSample();
+            });
+
         }
-        if(componentSystems.size > 0)
+        if(componentSystems.size > 0) {
+            if(Game.remoteProfiler) Remotery.rmt_BeginCPUSample(componentSystems.get(0).toString(), 0, BufferUtils.createIntBuffer(1));
             componentSystems.get(0).update(delta);
+            if(Game.remoteProfiler) Remotery.rmt_EndCPUSample();
+        }
         //noinspection StatementWithEmptyBody
         while (!Game.forkJoinPool.isQuiescent()) {}
         update.broadcast(delta);

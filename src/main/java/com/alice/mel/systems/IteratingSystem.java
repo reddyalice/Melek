@@ -1,6 +1,7 @@
 package com.alice.mel.systems;
 
 import com.alice.mel.components.Component;
+import com.alice.mel.engine.Game;
 import com.alice.mel.engine.RelationType;
 import com.alice.mel.engine.Scene;
 import com.alice.mel.graphics.Window;
@@ -70,7 +71,7 @@ public abstract class IteratingSystem extends ComponentSystem{
     @Override
     public void update(float deltaTime) {
         for(int en : entities)
-            processEntityUpdate(en, deltaTime);
+            Game.forkJoinPool.submit(() ->  processEntityUpdate(en, deltaTime));
     }
 
     @Override

@@ -238,12 +238,10 @@ public class RenderingSystem extends ComponentSystem{
                     for(Material material : renderMap.get(shaderClass).get(meshName).keySet()){
                         GL20.glEnable(GL11.GL_TEXTURE);
                         GL20.glActiveTexture(GL20.GL_TEXTURE0);
-                        Objects.requireNonNull(Game.assetManager.getShader(shaderClass)).loadValues(material, scene, window);
+                            Objects.requireNonNull(Game.assetManager.getShader(shaderClass)).loadValues(material, scene, window);
                         for(int entity : renderMap.get(shaderClass).get(meshName).get(material)){
                             Objects.requireNonNull(Game.assetManager.getShader(shaderClass)).loadElement(scene, window, entityManager.getComponent(entity, TransformComponent.class));
-
                             GL11.glDrawElements(GL11.GL_TRIANGLES, Objects.requireNonNull(Game.assetManager.getMesh(meshName)).getVertexCount(), GL11.GL_UNSIGNED_INT, 0);
-
                         }
                         GL20.glDisable(GL11.GL_TEXTURE);
                         GL11.glBindTexture(GL11.GL_TEXTURE_2D, 0);

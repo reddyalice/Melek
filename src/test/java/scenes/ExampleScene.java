@@ -16,6 +16,7 @@ import com.alice.mel.graphics.materials.Basic3DMaterial;
 import org.joml.*;
 import org.lwjgl.glfw.GLFW;
 import com.alice.mel.graphics.shaders.Basic3DShader;
+import org.lwjgl.nuklear.Nuklear;
 
 import java.util.Objects;
 
@@ -58,9 +59,6 @@ public class ExampleScene extends SceneAdaptor {
         w3 = createWindow(CameraType.Orthographic, "Test2", 640, 480, true);
         addSystem(new RenderingSystem());
 
-
-
-
         addSystem(new IteratingSystem(RelationType.All, TransformComponent.class) {
                       private float ang = 0;
 
@@ -70,14 +68,24 @@ public class ExampleScene extends SceneAdaptor {
                           ang += deltaTime;
                       }
 
+                      private final Vector3f tmp = new Vector3f(0,0,0);
                       @Override
                       public void processEntityUpdate(int entity, float deltaTime) {
-                          if(entity < 1)
-                          entityManager.getComponent(entity, TransformComponent.class).rotation.fromAxisAngleDeg(0, 1, 0, ang * 90);
+
+                          TransformComponent tc =  entityManager.getComponent(entity, TransformComponent.class);
+                          tc.rotation.fromAxisAngleDeg(0, 1, 0, ang * 90);
+                          if(entity > 1)
+                              tc.position.add(tmp.set(
+                                      MathUtils.random.nextFloat() * 2f - 1,
+                                      MathUtils.random.nextFloat() * 2f - 1,
+                                      MathUtils.random.nextFloat() * 2f - 1)
+                                      .normalize().mul(1000 * deltaTime));
+
                       }
 
                       @Override
-                      public void processEntityRender(int entity, Window window, float deltaTime) { }
+                      public void processEntityRender(int entity, Window window, float deltaTime) {
+                      }
         });
 
         tc = new TransformComponent();
@@ -88,14 +96,15 @@ public class ExampleScene extends SceneAdaptor {
 
         TransformComponent tc1 = tc.Clone();
         tc1.scale.set(50, 50, 50);
-        SpriteMaterial material1 = new SpriteMaterial();
+        Basic3DMaterial material1 = new Basic3DMaterial();
         en1 = createEntity(tc1, new RenderingComponent( "Mesh", "Texture1",  new Basic3DMaterial()));
-        for(int i = 0; i < 10000; i++) {
+        for(int i = 0; i < 100; i++) {
             TransformComponent transformComponent = new TransformComponent();
-            transformComponent.position.set((i - 250)* 50, 0,0);
+
+            transformComponent.position.set((((i % 100)) * 50 - 100), ((int)(i / 100)) * 50 - 100,0);
             transformComponent.scale.set(25, 25, 25);
 
-            createEntity(transformComponent, new RenderingComponent("Quad", "Texture1", material1));
+            createEntity(transformComponent, new RenderingComponent("sphere", "Texture1", material1));
         }
 
         w2.update.add("move", x -> MathUtils.LookRelativeTo(w2, w));
@@ -124,7 +133,7 @@ public class ExampleScene extends SceneAdaptor {
 
         prevKPressed = getKeyPressed(GLFW.GLFW_KEY_K);
 
-        Game.closeCondition = getKeyPressed(GLFW.GLFW_KEY_Q);
+        Game.closeCondition = getKeyPressed(GLFW.GLFW_KEY_ESCAPE);
 
         if(getKeyPressed(GLFW.GLFW_KEY_G))
                 if(scene.getForAny(RenderingComponent.class).size() > 1)
