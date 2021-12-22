@@ -33,10 +33,6 @@ public class Window {
     private final Vector2i size;
     private final Vector2i position;
 
-    private final IntBuffer X = BufferUtils.createIntBuffer(1);
-    private final IntBuffer Y = BufferUtils.createIntBuffer(1);
-    private final IntBuffer WIDTH =  BufferUtils.createIntBuffer(1);
-    private final IntBuffer HEIGHT = BufferUtils.createIntBuffer(1);
     private final DoubleBuffer CURSORX = BufferUtils.createDoubleBuffer(1);
     private final DoubleBuffer CURSORY = BufferUtils.createDoubleBuffer(1);
 
@@ -68,8 +64,12 @@ public class Window {
         this.camera = camera;
         this.title = title;
         this.transparentFrameBuffer = transparentFrameBuffer;
+
+
+        IntBuffer X = BufferUtils.createIntBuffer(1) , Y = BufferUtils.createIntBuffer(1);
         GLFW.glfwGetWindowPos(id, X,Y);
         position = new Vector2i(X.get(),Y.get());
+        X.clear();
         makeContextCurrent();
         this.scene = scene;
 
@@ -79,6 +79,26 @@ public class Window {
                 focus = focused;
             }
         });
+
+        GLFW.glfwSetWindowSizeCallback(id, new GLFWWindowSizeCallback() {
+            @Override
+            public void invoke(long window, int width, int height) {
+                makeContextCurrent();
+                GL11.glViewport(0,0,width,height);
+                if(scene.currentContext != null)
+                    scene.currentContext.makeContextCurrent();
+                size.set(width,height);
+            }
+        });
+
+
+        GLFW.glfwSetWindowPosCallback(id, new GLFWWindowPosCallback() {
+            @Override
+            public void invoke(long window, int xPos, int yPos) {
+                position.set(xPos, yPos);
+            }
+        });
+
 
 
         if(scene.loaderWindow == null)
@@ -110,8 +130,6 @@ public class Window {
 
             }
         });
-
-
 
         GL11.glViewport(0,0,width,height);
 
@@ -358,10 +376,6 @@ public class Window {
      * @return Window Position
      */
     public Vector2i getPosition(){
-        X.clear();
-        Y.clear();
-        GLFW.glfwGetWindowPos(id, X,Y);
-        position.set(X.get(0), Y.get(0));
         return position;
     }
 
@@ -370,10 +384,6 @@ public class Window {
      * @return Size of the Window
      */
     public Vector2i getSize(){
-        WIDTH.clear();
-        HEIGHT.clear();
-        GLFW.glfwGetWindowSize(id,WIDTH,HEIGHT);
-        size.set(WIDTH.get(),HEIGHT.get());
         return size;
     }
 
@@ -413,10 +423,6 @@ public class Window {
      * Dispose the window
      */
     public void dispose() {
-        X.clear();
-        Y.clear();
-        WIDTH.clear();
-        HEIGHT.clear();
         preUpdate.dispose();
         update.dispose();
         postUpdate.dispose();

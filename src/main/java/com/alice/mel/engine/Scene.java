@@ -4,8 +4,10 @@ package com.alice.mel.engine;
 import com.alice.mel.components.Component;
 import com.alice.mel.graphics.*;
 import com.alice.mel.systems.ComponentSystem;
+import com.alice.mel.utils.Event;
 import com.alice.mel.utils.KeyedEvent;
 import com.alice.mel.utils.collections.*;
+import com.sun.jdi.VoidType;
 import org.javatuples.Pair;
 import org.jbox2d.common.Vec2;
 import org.jbox2d.dynamics.World;
@@ -41,6 +43,7 @@ public final class Scene {
     public final KeyedEvent<Pair<Window, Float>> render = new KeyedEvent<>();
     public final KeyedEvent<Pair<Window, Float>> postRender = new KeyedEvent<>();
 
+    public final Event<?> dispose = new Event<>();
 
     private boolean initialized = false;
 
@@ -472,12 +475,15 @@ public final class Scene {
      * Dispose and Unload the events, assets, arrays and pools
      */
     public void dispose() {
+
+
         preUpdate.dispose();
         update.dispose();
         postUpdate.dispose();
         preRender.dispose();
         render.dispose();
         postRender.dispose();
+
 
         for(Class<? extends Shader> shader : shaders)
             unloadShader(shader);
@@ -496,7 +502,8 @@ public final class Scene {
         windows.clear();
         windowPool.dispose();
         cameraPool.dispose();
-
+        dispose.broadcast(null);
+        dispose.dispose();
     }
 
 

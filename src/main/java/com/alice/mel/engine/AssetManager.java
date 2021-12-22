@@ -74,7 +74,7 @@ public final class AssetManager implements Serializable {
         float[] normals = new float[vc * 3]; Objects.requireNonNull(mesh.normals(vc * 3)).get(normals);
         int[] indices = new int[mesh.ntriangles() * 3]; mesh.triangles(mesh.ntriangles() * 3).get(indices);
         mesh.free();
-        addMesh("sphere", new Mesh(vertices, tCoords, normals, indices));
+        addMesh("Sphere", new Mesh(vertices, tCoords, normals, indices));
         addTexture("null", new Texture(1, 1, new int[]{0}));
         addMaterialBase("empty", new MaterialData());
     }

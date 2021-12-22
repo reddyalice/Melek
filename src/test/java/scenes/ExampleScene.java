@@ -16,6 +16,9 @@ import com.alice.mel.graphics.materials.Basic3DMaterial;
 import org.joml.*;
 import org.lwjgl.glfw.GLFW;
 import com.alice.mel.graphics.shaders.Basic3DShader;
+import org.lwjgl.nuklear.NkAllocator;
+import org.lwjgl.nuklear.NkContext;
+import org.lwjgl.nuklear.NkRect;
 import org.lwjgl.nuklear.Nuklear;
 
 import java.util.Objects;
@@ -27,6 +30,7 @@ public class ExampleScene extends SceneAdaptor {
     Window w3;
     int en1;
     TransformComponent tc;
+    Scene s;
     @Override
     public void Init(Window loaderWindow, Scene scene)  {
 
@@ -46,10 +50,10 @@ public class ExampleScene extends SceneAdaptor {
         addTexture("Texture2", textureC);
         addMesh("Mesh", mesh);
         addMesh("Quad3D");
-        addMesh("sphere");
+        addMesh("Sphere");
         addTexture("null");
         addMesh("Quad");
-
+        s = new Scene();
         Window w = createWindow(CameraType.Orthographic, "Test", 640, 480, false);
 
 
@@ -57,6 +61,10 @@ public class ExampleScene extends SceneAdaptor {
         w2.setDecorated(false);
 
         w3 = createWindow(CameraType.Orthographic, "Test2", 640, 480, true);
+        s.createWindow(CameraType.Orthographic, "SecondSceneTest", 640, 480, false);
+       Game.addScene(s);
+
+
         addSystem(new RenderingSystem());
 
         addSystem(new IteratingSystem(RelationType.All, TransformComponent.class) {
@@ -98,18 +106,16 @@ public class ExampleScene extends SceneAdaptor {
         tc1.scale.set(50, 50, 50);
         Basic3DMaterial material1 = new Basic3DMaterial();
         en1 = createEntity(tc1, new RenderingComponent( "Mesh", "Texture1",  new Basic3DMaterial()));
-        for(int i = 0; i < 100; i++) {
+        for(int i = 0; i < 10000; i++) {
             TransformComponent transformComponent = new TransformComponent();
-
             transformComponent.position.set((((i % 100)) * 50 - 100), ((int)(i / 100)) * 50 - 100,0);
             transformComponent.scale.set(25, 25, 25);
-
-            createEntity(transformComponent, new RenderingComponent("sphere", "Texture1", material1));
+            createEntity(transformComponent, new RenderingComponent("Sphere", "Texture1", material1));
         }
-
         w2.update.add("move", x -> MathUtils.LookRelativeTo(w2, w));
         w3.update.add("move", x -> MathUtils.LookRelativeTo(w3, w));
-
+        w.focus();
+        w2.focus();
     }
 
 
@@ -127,18 +133,15 @@ public class ExampleScene extends SceneAdaptor {
     @Override
     public void Update(float deltaTime) {
 
+        if(!w2.isFocused() && !w2.isHidden()) w2.focus();
 
-        if(!prevKPressed && getKeyPressed(GLFW.GLFW_KEY_K))
-            Objects.requireNonNull(Game.assetManager.getMesh("Mesh")).drawWireframe = !Objects.requireNonNull(Game.assetManager.getMesh("Mesh")).drawWireframe;
+        if(!prevKPressed && getKeyPressed(GLFW.GLFW_KEY_K)) {
+            //Game.removeScene(s, true);
+            Objects.requireNonNull(Game.assetManager.getMesh("Sphere")).drawWireframe = !Objects.requireNonNull(Game.assetManager.getMesh("Sphere")).drawWireframe;
+        }
 
         prevKPressed = getKeyPressed(GLFW.GLFW_KEY_K);
-
         Game.closeCondition = getKeyPressed(GLFW.GLFW_KEY_ESCAPE);
-
-        if(getKeyPressed(GLFW.GLFW_KEY_G))
-                if(scene.getForAny(RenderingComponent.class).size() > 1)
-                    scene.removeEntity(scene.getForAny(RenderingComponent.class).get(MathUtils.random.nextInt(scene.getForAny(RenderingComponent.class).size())));
-
 
         move.set(0,0,0);
         if(getKeyPressed(GLFW.GLFW_KEY_W))
@@ -172,6 +175,11 @@ public class ExampleScene extends SceneAdaptor {
             entityManager.getComponent(en1, RenderingComponent.class).material.color.set(MathUtils.random.nextFloat(), MathUtils.random.nextFloat(), MathUtils.random.nextFloat(), 1);
             keepTime = 0;
         }
+
+        if(getKeyPressed(GLFW.GLFW_KEY_G))
+            if(scene.getForAny(RenderingComponent.class).size() > 2)
+                scene.removeEntity(scene.getForAny(RenderingComponent.class).get(MathUtils.random.nextInt(scene.getForAny(RenderingComponent.class).size())));
+
         Vector2i moveI = new Vector2i((int)move.x, (int)-move.y);
         moveDiff.add(move.x - moveI.x, -move.y - moveI.y);
         if(moveDiff.x >= 1){
@@ -184,8 +192,6 @@ public class ExampleScene extends SceneAdaptor {
         }
 
         w3.translate((int)move.x, (int)-move.y);
-
-
         keepTime += deltaTime;
 
 
@@ -203,26 +209,25 @@ public class ExampleScene extends SceneAdaptor {
 
     @Override
     public void Render(Window currentWindow, float deltaTime) {
-
     }
 
     @Override
     public void PostRender(Window currentWindow, float deltaTime) {
-
     }
 
     @Override
     public void entityAdded(int entity) {
-
     }
 
     @Override
     public void entityModified(int entity, Component component) {
-
     }
 
     @Override
     public void entityRemoved(int entity) {
+    }
 
+    @Override
+    public void Dispose() {
     }
 }

@@ -32,6 +32,7 @@ public abstract class SceneAdaptor{
         scene.preRender.add("fromAdaptor", x -> PreRender(x.getValue0(), x.getValue1()));
         scene.render.add("fromAdaptor", x -> Render(x.getValue0(), x.getValue1()));
         scene.postRender.add("fromAdaptor", x -> PostRender(x.getValue0(), x.getValue1()));
+        scene.dispose.add(x -> Dispose());
         entityManager.entityAdded.add("fromAdaptor", this::entityAdded);
         entityManager.entityModified.add("fromAdaptor", x -> entityModified(x.getValue0(), x.getValue1()));
         entityManager.entityRemoved.add("fromAdaptor", this::entityRemoved);
@@ -235,6 +236,11 @@ public abstract class SceneAdaptor{
      * @param entity Entity that has been removed
      */
     public abstract void entityRemoved(int entity);
+
+    /**
+     * Dispose the things that are not disposed by the scene
+     */
+    public abstract void Dispose();
 
     /**
      * Create or obtain a freed window

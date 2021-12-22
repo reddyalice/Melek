@@ -17,7 +17,6 @@ public class TransformComponent extends Component{
     private final Quaternionf lastRotation = new Quaternionf();
     private final Vector3f lastScale = new Vector3f(1,1,1);
 
-
     @Override
     public TransformComponent Clone() {
         TransformComponent tc = new TransformComponent();
