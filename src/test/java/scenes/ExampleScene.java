@@ -53,7 +53,7 @@ public class ExampleScene extends SceneAdaptor {
         addMesh("Sphere");
         addTexture("null");
         addMesh("Quad");
-        s = new Scene();
+        Game.addScene(s = new Scene());
         Window w = createWindow(CameraType.Orthographic, "Test", 640, 480, false);
 
 
@@ -62,7 +62,7 @@ public class ExampleScene extends SceneAdaptor {
 
         w3 = createWindow(CameraType.Orthographic, "Test2", 640, 480, true);
         s.createWindow(CameraType.Orthographic, "SecondSceneTest", 640, 480, false);
-       Game.addScene(s);
+
 
 
         addSystem(new RenderingSystem());
