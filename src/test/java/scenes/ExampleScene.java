@@ -13,6 +13,10 @@ import com.alice.mel.systems.RenderingSystem;
 import com.alice.mel.utils.loaders.MeshLoader;
 import com.alice.mel.utils.maths.MathUtils;
 import com.alice.mel.graphics.materials.Basic3DMaterial;
+import com.github.sarxos.webcam.Webcam;
+import com.google.zxing.*;
+import com.google.zxing.client.j2se.BufferedImageLuminanceSource;
+import com.google.zxing.common.HybridBinarizer;
 import org.joml.*;
 import org.lwjgl.glfw.GLFW;
 import com.alice.mel.graphics.shaders.Basic3DShader;
@@ -21,6 +25,9 @@ import org.lwjgl.nuklear.NkContext;
 import org.lwjgl.nuklear.NkRect;
 import org.lwjgl.nuklear.Nuklear;
 
+import java.awt.*;
+import java.awt.Dimension;
+import java.awt.image.BufferedImage;
 import java.util.Objects;
 
 public class ExampleScene extends SceneAdaptor {
@@ -31,6 +38,9 @@ public class ExampleScene extends SceneAdaptor {
     int en1;
     TransformComponent tc;
     Scene s;
+    Webcam webcam;
+    BufferedImage image = null;
+    private float kpT = 0;
     @Override
     public void Init(Window loaderWindow, Scene scene)  {
 
@@ -51,9 +61,80 @@ public class ExampleScene extends SceneAdaptor {
         addMesh("Mesh", mesh);
         addMesh("Quad3D");
         addMesh("Sphere");
+
         addTexture("null");
         addMesh("Quad");
         Game.addScene(s = new Scene());
+        Game.assetManager.addTexture("test", new Texture(1, 1, new int[]{0}));
+        s.loadTexture("test");
+        s.loadMesh("Quad");
+        s.loadShader(SpriteShader.class);
+        TransformComponent tcs = new TransformComponent();
+        tcs.position.set(0,0,-160);
+        tcs.scale.set(320, 240,1);
+        s.addSystem(new RenderingSystem());
+
+        s.createEntity(tcs, new RenderingComponent("Quad", "test", new SpriteMaterial()));
+        webcam = Webcam.getDefault();
+        webcam.setViewSize(new Dimension(640, 480));
+        s.createWindow(CameraType.Orthographic, "SecondSceneTest", 640, 480, false);
+
+
+        if(webcam != null){
+            webcam.open(true);
+
+            Thread t = new Thread(new Runnable() {
+                @Override
+                public synchronized void run() {
+                    while(!Game.closeCondition && (Game.isActive(s) || Game.isToDispose(s))){
+                        if(Game.isActive(s)) {
+                            if (webcam.isOpen()) {
+                                if ((image = webcam.getImage()) != null) {
+                                    Result result = null;
+                                    LuminanceSource source = new BufferedImageLuminanceSource(image);
+                                    BinaryBitmap bitmap = new BinaryBitmap(new HybridBinarizer(source));
+                                    try {
+                                        result = new MultiFormatReader().decode(bitmap);
+
+                                    } catch (NotFoundException ignored) { }
+                                    if (result != null) {
+                                        System.out.println(result.getText());
+                                        Game.removeScene(s, false);
+                                    }
+                                }
+                            }
+                        }else{
+                            try {
+                                Thread.sleep(0);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+                }
+            });
+
+            t.setDaemon(true);
+            t.start();
+
+            s.update.add("cam", x -> {
+              if(image != null) {
+                  if(kpT >= 0.1f) {
+                      s.loaderWindow.makeContextCurrent();
+                      Game.assetManager.getTexture("test").regenTexture(s, image);
+                      if (s.currentContext != null)
+                          s.currentContext.makeContextCurrent();
+                      kpT = 0;
+                  }
+              }
+              tcs.rotation.fromAxisAngleDeg(0,1,0, 360 * kpT );
+              kpT += x;
+            });
+        }
+
+
+
+
         Window w = createWindow(CameraType.Orthographic, "Test", 640, 480, false);
 
 
@@ -61,7 +142,7 @@ public class ExampleScene extends SceneAdaptor {
         w2.setDecorated(false);
 
         w3 = createWindow(CameraType.Orthographic, "Test2", 640, 480, true);
-        s.createWindow(CameraType.Orthographic, "SecondSceneTest", 640, 480, false);
+
 
 
 
@@ -88,7 +169,6 @@ public class ExampleScene extends SceneAdaptor {
                                       MathUtils.random.nextFloat() * 2f - 1,
                                       MathUtils.random.nextFloat() * 2f - 1)
                                       .normalize().mul(1000 * deltaTime));
-
                       }
 
                       @Override
@@ -136,7 +216,7 @@ public class ExampleScene extends SceneAdaptor {
         if(!w2.isFocused() && !w2.isHidden()) w2.focus();
 
         if(!prevKPressed && getKeyPressed(GLFW.GLFW_KEY_K)) {
-            //Game.removeScene(s, true);
+            Game.addScene(s);
             Objects.requireNonNull(Game.assetManager.getMesh("Sphere")).drawWireframe = !Objects.requireNonNull(Game.assetManager.getMesh("Sphere")).drawWireframe;
         }
 

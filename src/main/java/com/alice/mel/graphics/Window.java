@@ -73,36 +73,11 @@ public class Window {
         makeContextCurrent();
         this.scene = scene;
 
-        GLFW.glfwSetWindowFocusCallback(id, new GLFWWindowFocusCallback() {
-            @Override
-            public void invoke(long window, boolean focused) {
-                focus = focused;
-            }
-        });
-
-        GLFW.glfwSetWindowSizeCallback(id, new GLFWWindowSizeCallback() {
-            @Override
-            public void invoke(long window, int width, int height) {
-                makeContextCurrent();
-                GL11.glViewport(0,0,width,height);
-                if(scene.currentContext != null)
-                    scene.currentContext.makeContextCurrent();
-                size.set(width,height);
-            }
-        });
-
-
-        GLFW.glfwSetWindowPosCallback(id, new GLFWWindowPosCallback() {
-            @Override
-            public void invoke(long window, int xPos, int yPos) {
-                position.set(xPos, yPos);
-            }
-        });
-
 
 
         if(scene.loaderWindow == null)
             GL.createCapabilities();
+        GL11.glViewport(0,0,width,height);
 
         postUpdate.add("camera", x -> this.camera.update());
         preRender.add("makeCurrentAndClear", x -> {
@@ -118,6 +93,20 @@ public class Window {
             GLFW.glfwPollEvents();
         });
 
+        GLFW.glfwSetWindowFocusCallback(id, new GLFWWindowFocusCallback() {
+            @Override
+            public void invoke(long window, boolean focused) {
+                focus = focused;
+            }
+        });
+
+        GLFW.glfwSetWindowPosCallback(id, new GLFWWindowPosCallback() {
+            @Override
+            public void invoke(long window, int xPos, int yPos) {
+                position.set(xPos, yPos);
+            }
+        });
+
         GLFW.glfwSetWindowSizeCallback(id, new GLFWWindowSizeCallback() {
             @Override
             public void invoke(long window, int width, int height) {
@@ -125,13 +114,11 @@ public class Window {
                 camera.viewportWidth = width;
                 makeContextCurrent();
                 GL11.glViewport(0,0,width,height);
+                size.set(width,height);
                 if(scene.currentContext != null)
                     scene.currentContext.makeContextCurrent();
-
             }
         });
-
-        GL11.glViewport(0,0,width,height);
 
     }
 
@@ -181,8 +168,6 @@ public class Window {
             GL11.glEnable(GL11.GL_DEPTH_TEST);
             GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
             GL11.glClearColor(this.backgroundColor.x, this.backgroundColor.y, this.backgroundColor.z, this.backgroundColor.w);
-
-
         });
         postRender.add("PollAndSwap", x -> {
             swapBuffers();

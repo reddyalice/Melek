@@ -1,5 +1,6 @@
 package com.alice.mel.engine;
 
+import com.alice.mel.graphics.Window;
 import com.alice.mel.utils.collections.Array;
 import com.alice.mel.utils.collections.SnapshotArray;
 import org.lwjgl.BufferUtils;
@@ -46,9 +47,12 @@ public class Game{
      */
     public static void addScene(Scene scene){
         if(!activeScenes.contains(scene, false)){
-            if(toDispose.contains(scene, false))
-                toDispose.removeValue(scene, false);
             activeScenes.add(scene);
+            if(toDispose.contains(scene, false)) {
+                toDispose.removeValue(scene, false);
+                for(Window w : scene.getWindows())
+                    w.show();
+            }
             scene.Update(deltaTime);
         }
     }
@@ -69,9 +73,22 @@ public class Game{
      * @param destroy If Scene will be disposed after removing
      */
     public static void removeScene(Scene scene, boolean destroy){
-        activeScenes.removeValue(scene, false);
         if(destroy) scene.dispose();
-        else toDispose.add(scene);
+        else{
+            for(Window w : scene.getWindows())
+                w.hide();
+            toDispose.add(scene);
+        }
+        activeScenes.removeValue(scene, false);
+    }
+
+
+    public static boolean isActive(Scene scene){
+        return activeScenes.contains(scene, false);
+    }
+
+    public static boolean isToDispose(Scene scene){
+        return toDispose.contains(scene, false);
     }
 
     /**
@@ -96,7 +113,6 @@ public class Game{
             time = System.nanoTime() - time;
             deltaTime = time / 1000000000f;
             System.out.println(1f / deltaTime);
-
         }
         if(remoteProfiler) {
             RemoteryGL.rmt_UnbindOpenGL();
