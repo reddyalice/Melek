@@ -66,6 +66,7 @@ public final class AssetManager implements Serializable {
                         2,3,0
                 }
         ));
+
         ParShapesMesh mesh = ParShapes.par_shapes_create_parametric_sphere(10, 10);
         assert mesh != null;
         int vc = mesh.npoints();
@@ -75,6 +76,7 @@ public final class AssetManager implements Serializable {
         int[] indices = new int[mesh.ntriangles() * 3]; mesh.triangles(mesh.ntriangles() * 3).get(indices);
         mesh.free();
         addMesh("Sphere", new Mesh(vertices, tCoords, normals, indices));
+
         addTexture("null", new Texture(1, 1, new int[]{0}));
         addMaterialBase("empty", new MaterialData());
     }

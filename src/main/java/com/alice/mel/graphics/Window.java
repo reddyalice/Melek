@@ -32,6 +32,7 @@ public class Window {
     private boolean hidden;
     private final Vector2i size;
     private final Vector2i position;
+    private boolean vSync;
 
     private final DoubleBuffer CURSORX = BufferUtils.createDoubleBuffer(1);
     private final DoubleBuffer CURSORY = BufferUtils.createDoubleBuffer(1);
@@ -75,9 +76,12 @@ public class Window {
 
 
 
-        if(scene.loaderWindow == null)
+        if(scene.loaderWindow == null) {
             GL.createCapabilities();
+        }
         GL11.glViewport(0,0,width,height);
+        GLFW.glfwSwapInterval(Game.vSync ? 1 : 0);
+        vSync = Game.vSync;
 
         postUpdate.add("camera", x -> this.camera.update());
         preRender.add("makeCurrentAndClear", x -> {
@@ -117,6 +121,19 @@ public class Window {
                 size.set(width,height);
                 if(scene.currentContext != null)
                     scene.currentContext.makeContextCurrent();
+            }
+        });
+
+        GLFW.glfwSetWindowRefreshCallback(id, new GLFWWindowRefreshCallback() {
+            @Override
+            public void invoke(long id) {
+                if(vSync != Game.vSync){
+                    makeContextCurrent();
+                    GLFW.glfwSwapInterval(Game.vSync ? 1 : 0);
+                    vSync = Game.vSync;
+                    if(scene.currentContext != null)
+                        scene.currentContext.makeContextCurrent();
+                }
             }
         });
 

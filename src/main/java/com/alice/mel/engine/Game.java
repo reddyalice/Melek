@@ -27,8 +27,9 @@ public class Game{
     public static Scene loaderScene = null;
     private static final SnapshotArray<Scene> activeScenes = new SnapshotArray<>();
     private static final Array<Scene> toDispose = new Array<>();
-    public static boolean closeCondition = false;
 
+    public static boolean closeCondition = false;
+    public static boolean vSync = false;
     public static boolean hotReload = true;
     public static boolean remoteProfiler = false;
 
